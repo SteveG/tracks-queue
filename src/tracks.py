@@ -36,19 +36,20 @@ from tracksContextWidgets import TracksContextList, TracksContextEditor
 
 
 class Tracks(QtGui.QMainWindow, Ui_MainWindow):
+    """Tracks is the main window class for tracks.cute"""
+    
     def __init__(self):
+        """Initiate the main window"""
         logging.info("Tracks initiated...")
         QtGui.QMainWindow.__init__(self)
+        
         # Set up the user interface from Designer.
         self.setupUi(self)
         self.setWindowTitle("tracks.cute")    
         
-        
         # Open the database
-        # TODO More here
         self.databaseCon = sqlite3.connect("tracks.db")
         self.databaseCon.row_factory = sqlite3.Row
-        
         
         # Setup the refreshables dictionary, a list of all refreshable elements 
         # on each tab
@@ -105,7 +106,9 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # NOTE Setup the calendar page
         self.calendar_actionEditor = TracksActionEditor(self.databaseCon)
         self.calendar_sidepane_layout.addWidget(self.calendar_actionEditor)
-        self.calendar_sidepane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        self.calendar_sidepane_layout.addItem(
+            QtGui.QSpacerItem(
+                1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         
         
         
@@ -125,9 +128,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.actionEditor = TracksActionEditor(self.databaseCon)
         self.verticalLayout_6.addWidget(self.actionEditor)
         # Add a vertical spacer under action editor
-        spacerItem1 = QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum,
-                                        QtGui.QSizePolicy.Expanding)
+        spacerItem1 = QtGui.QSpacerItem(
+            1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_6.addItem(spacerItem1)
+        self.refreshables[self.hometabid].append(self.actionEditor)
         
         # Add the recently completed list of actions
         sqlCompleted = "SELECT todos.id, todos.description, contexts.name, \
@@ -141,21 +145,22 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
         
         # Add a vertical spacer
-        spacerItem = QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum,
-                                       QtGui.QSizePolicy.Expanding)
+        spacerItem = QtGui.QSpacerItem(
+            1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_4.addItem(spacerItem)
         
         # Connect the action editor
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
         
     def refreshHomePage(self):
+        """Refreshes complex bits of the home page. Others components are refreshed via refreshables"""
         logging.info("tracks->refreshHomePage()")
         
         # get the current states of each context view
         for key in self.homeContexts.keys():
             self.homeContextExpanded[key] = self.homeContexts[key].isExpanded()
         
-        # remove all the existing groovers from the display
+        # remove all the existing dynamic lists from the display
         for key in self.homeContexts.keys():
             self.homeContexts[key].hide()
             self.verticalLayout_4.removeWidget(self.homeContexts[key])
@@ -163,7 +168,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # Add all of the active contexts
         activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM \
                              contexts, todos WHERE contexts.id=todos.context_id\
-                             AND todos.state='active' ORDER BY contexts.name \
+                             AND todos.state='active' AND contexts.hide='f' ORDER BY contexts.name \
                              DESC"
         for row in self.databaseCon.execute(activeContextQuery):
             expanded = True
@@ -177,7 +182,6 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                   todos.state='active'" % row[0]
             tracksAList = TracksActionList(self.databaseCon,"@"+row[1],sql,expanded)
             self.verticalLayout_4.insertWidget(0,tracksAList)
-            
             
             self.homeContexts[row[0]] = tracksAList
             
@@ -305,6 +309,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         for element in self.refreshables[id]:
             element.refresh()
         
+        # for stuff not quite as simple as hitting refresh() call a tab specific method
         if id == 0: #homepage
             self.refreshHomePage()
 

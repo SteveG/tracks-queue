@@ -267,8 +267,12 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.projectEdit.clear()
         self.contextEdit.clear()
         self.tagsEdit.clear()
-        self.dueEdit.clear()
-        self.showFromEdit.clear()
+        self.dueEdit.setDate(QtCore.QDate.currentDate())
+        self.dueEdit.setDisabled(True)
+        self.dueCheckBox.setChecked(False)
+        self.showFromEdit.setDate(QtCore.QDate.currentDate())
+        self.showFromEdit.setDisabled(True)
+        self.showFromCheckBox.setChecked(False)
         
         self.current_id = None
         self.cancelEditButton.setVisible(False)
@@ -326,13 +330,23 @@ class TracksActionEditor(QtGui.QGroupBox):
             else:
                 self.notesEdit.clear()
             if row[2]:
-                self.dueEdit.setText(row[2])
+                # row[2] will be string in format yyyy-MM-dd
+                self.dueEdit.setDate(QtCore.QDate.fromString(row[2][0:10],"yyyy-MM-dd"))
+                self.dueCheckBox.setChecked(True)
+                self.dueEdit.setDisabled(False)
             else:
                 self.dueEdit.clear()
+                self.dueCheckBox.setChecked(False)
+                self.dueEdit.setDisabled(True)
             if row[3]:
-                self.showFromEdit.setText(row[3])
+                # row[3] will be string in format yyyy-MM-dd
+                self.dueEdit.setDate(QtCore.QDate.fromString(row[2][0:10],"yyyy-MM-dd"))
+                self.showFromCheckBox.setChecked(True)
+                self.showFromEdit.setDisabled(False)
             else:
                 self.showFromEdit.clear()
+                self.showFromCheckBox.setChecked(False)
+                self.showFromEdit.setDisabled(True)
                 
         # The Project
         self.projectEdit.clear()
@@ -356,3 +370,20 @@ class TracksActionEditor(QtGui.QGroupBox):
             #else:
             #   self.statusRadio2.setChecked(True)
         self.tagsEdit.setText(tagText)
+    
+    def refresh(self):
+        """This will refresh the action editor, ie update available contexts/tags"""
+        logging.info("tracksActionEditor->refresh")
+        
+        # Update list of available contexts
+        contextList = []
+        for row in self.databaseCon.execute("select name FROM contexts"):
+            contextList.append(row[0])
+        contextStringList = QtCore.QStringList(contextList)
+        contextCompleter = QtGui.QCompleter(contextStringList)
+        contextCompleter.setCompletionMode(1) # This displays all possible options, but pressing
+        # down goes to the best match
+        self.contextEdit.setCompleter(contextCompleter)
+        
+        # TODO refresh the list of available tags
+        
