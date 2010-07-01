@@ -35,13 +35,15 @@ class TracksActionList(QtGui.QWidget):
                      "starAction(int)",
                      "deleteAction(int)",
                      "completeAction(int)",
-                     "gotoLabel(QString)"
+                     "gotoLabel(QString)",
+                     "actionModified()"
                      )
     editAction = QtCore.pyqtSignal(int)
     starAction = QtCore.pyqtSignal(int)
     deleteAction = QtCore.pyqtSignal(int)
     completeAction = QtCore.pyqtSignal(int)
     gotoLabel = QtCore.pyqtSignal(QtCore.QString)
+    actionModified = QtCore.pyqtSignal()
 
     # Need to add a list title, a database query, an option for expanded or not
     def __init__(self, databaseCon, title, dbQuery, startExpanded):
@@ -99,8 +101,13 @@ class TracksActionList(QtGui.QWidget):
         self.itemEditButtonMapper.mapped[int].connect(self.editItemButtonClicked)
         self.itemStarButtonMapper = QtCore.QSignalMapper(self)
         self.itemStarButtonMapper.mapped[int].connect(self.starItemButtonClicked)
+        
+        self.itemCompleteButtonMapper = QtCore.QSignalMapper(self)
+        self.itemCompleteButtonMapper.mapped[int].connect(self.completeItemButtonClicked)
+        
         self.itemLabelButtonMapper = QtCore.QSignalMapper(self)
         self.itemLabelButtonMapper.mapped[int].connect(self.labelItemButtonClicked)
+        
         
         # Add items to the list
         self.fillList()
@@ -128,7 +135,7 @@ class TracksActionList(QtGui.QWidget):
         self.listWidget.setVisible(not self.listWidget.isVisible())
     
     # The nominated query is expexted to return a table of the following form:
-    # action id, action description, #TODO complete this
+    # action id, action description, state, context_id, context_name, project_id, project_name
     def fillList(self):
         """Fill the list widget"""
         logging.info("TracksActionList->fillList")
@@ -136,16 +143,17 @@ class TracksActionList(QtGui.QWidget):
         
         count = 0
         if self.dbQuery == None:
-            self.dbQuery = "select id, description, 0, 0 from todos order by description"
+            self.dbQuery = "select id, description, 0, 0, 0 from todos order by description"
         for row in self.databaseCon.execute(self.dbQuery):
             id = row[0]
             desc = row[1]
-            context = row[2]
+            context = row[4]
             if context == 0:
                 context = None
-            project = row[3]
+            project = row[6]
             if project == 0:
                 project = None
+            state = row[2]
 
         #for a in range(numberOfItems):
             widget = QtGui.QWidget()
@@ -185,8 +193,12 @@ class TracksActionList(QtGui.QWidget):
             # Check Box
             checkBox = QtGui.QCheckBox(widget)
             checkBox.setText("")
+            if state == "completed":
+                checkBox.setChecked(True)
             #checkBox.setMaximumSize(QtCore.QSize(12,12)) #TEST
             horizontalLayout.addWidget(checkBox)
+            self.itemCompleteButtonMapper.setMapping(checkBox, id)
+            checkBox.stateChanged.connect(self.itemCompleteButtonMapper.map)
             #TODO make this do something
             
             # Action Text
@@ -259,8 +271,29 @@ class TracksActionList(QtGui.QWidget):
     def starItemButtonClicked(self, id):
         logging.info("TracksActionList->starItemButtonClicked  -  " + str(id))
         
+    def completeItemButtonClicked(self, id):
+        logging.info("TracksActionList->completeItemButtonClicked - " + str(id))
+        
+        current_state = self.databaseCon.execute("SELECT state FROM todos where id = ?", [id,]).fetchone()[0]
+        if current_state == "completed":
+            q = "UPDATE todos SET state=?, completed_at=NULL, updated_at=DATETIME('now') where id=?"
+            self.databaseCon.execute(q,['active',id])
+            self.databaseCon.commit()
+        else:
+            q = "UPDATE todos SET state=?, completed_at=DATETIME('now'), updated_at=DATETIME('now') where id=?"
+            self.databaseCon.execute(q,['completed',id])
+            self.databaseCon.commit()
+        
+        self.emit(QtCore.SIGNAL("completeAction(int)"),id)
+        self.emit(QtCore.SIGNAL("actionModified()"))
+        
     def labelItemButtonClicked(self, id):
         logging.info("TracksActionList->labelItemButtonClicked  -  " +str(id))
+        
+    def refresh(self):
+        logging.info("TracksActionList->refresh")
+        self.listWidget.clear()
+        self.fillList()
         
 class DumbWidget(QtGui.QWidget):
     def __init__(self):

@@ -34,6 +34,11 @@ from PyQt4 import QtCore, QtGui
 import logging
 
 class TracksActionEditor(QtGui.QGroupBox):
+    """Provides a sidebar widget for editing/creating actions"""
+    # TODO define signals emitted by this widget
+    __pyqtSignals__ = ("actionModified()"
+                     )
+    actionModified = QtCore.pyqtSignal()
     
     def __init__(self, dbCon):
         logging.info("TracksActionEditor initiated...")
@@ -97,8 +102,10 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.verticalLayout.addWidget(self.projectEdit)
         # Add string list completer
         # TODO get projects from database
-        projectStringList = QtCore.QStringList(["john", "joe", "tony"])
-        projectCompleter = QtGui.QCompleter(projectStringList)
+        projectList = []
+        for row in self.databaseCon.execute("select name FROM projects ORDER BY name"):
+            projectList.append(row[0])
+        projectCompleter = QtGui.QCompleter(projectList)
         projectCompleter.setCompletionMode(1)
         self.projectEdit.setCompleter(projectCompleter)
         
@@ -111,7 +118,7 @@ class TracksActionEditor(QtGui.QGroupBox):
         # Add string list completer
         # TODO get contexts from database
         contextList = []
-        for row in self.databaseCon.execute("select name FROM contexts"):
+        for row in self.databaseCon.execute("select name FROM contexts ORDER BY name"):
             contextList.append(row[0])
         contextStringList = QtCore.QStringList(contextList)
         contextCompleter = QtGui.QCompleter(contextStringList)
@@ -150,7 +157,8 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.verticalLayout_1.addWidget(self.dueLabel)
         self.dueEdit = QtGui.QDateEdit(QtCore.QDate.currentDate())
         self.dueEdit.setCalendarPopup(True)
-        self.dueCheckBox = QtGui.QCheckBox()#TODO
+        self.dueCheckBox = QtGui.QCheckBox()
+        self.dueCheckBox.stateChanged.connect(self.dueDateCheckChanged)
         self.dueEdit.setDisabled(True)
         
         self.verticalLayout_1.addWidget(self.dueEdit)
@@ -163,7 +171,8 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.verticalLayout_2.addWidget(self.showFromLabel)
         self.showFromEdit = QtGui.QDateEdit(QtCore.QDate.currentDate())
         self.showFromEdit.setCalendarPopup(True)
-        self.showFromCheckBox = QtGui.QCheckBox()#TODO
+        self.showFromCheckBox = QtGui.QCheckBox()
+        self.showFromCheckBox.stateChanged.connect(self.showFromCheckChanged)
         self.showFromEdit.setDisabled(True)
         
         self.verticalLayout_2.addWidget(self.showFromEdit)
@@ -188,7 +197,16 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.addActionButton.clicked.connect(self.addActionButtonClicked)
         
         self.cancelEditButton.setVisible(self.current_id != None)
-        
+    
+    def dueDateCheckChanged(self):
+        """Check box enabling the due date has been clicked"""
+        logging.info("TracksActionEditor->dueDateCheckChanged")
+        self.dueEdit.setDisabled(not self.dueCheckBox.isChecked())
+    
+    def showFromCheckChanged(self):
+        """Check box enabling the show from date has been clicked"""
+        logging.info("TracksActionEditor->showFromCheckChanged")
+        self.showFromEdit.setDisabled(not self.showFromCheckBox.isChecked())
         
     def hideButtonClicked(self):
         logging.info("TracksActionEditor->hideButtonClicked")
@@ -215,8 +233,10 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.tagsEdit.setVisible(self.formVisible)
         self.dueLabel.setVisible(self.formVisible)
         self.dueEdit.setVisible(self.formVisible)
+        self.dueCheckBox.setVisible(self.formVisible)
         self.showFromLabel.setVisible(self.formVisible)
         self.showFromEdit.setVisible(self.formVisible)
+        self.showFromCheckBox.setVisible(self.formVisible)
         self.addActionButton.setVisible(self.formVisible)
         #TODO only reshow cancel button when editing existing item
         self.cancelEditButton.setVisible(self.formVisible and self.current_id != None)
@@ -287,32 +307,49 @@ class TracksActionEditor(QtGui.QGroupBox):
                             "Error",
                             "An action must have a description\n\nNo data has been inserted or modified")
             return
+        
+        desc = str(self.descriptionEdit.text())
+        notes = str(self.notesEdit.toPlainText())
+        # Context
+        context = None
+        try:
+            context = self.databaseCon.execute("select id from contexts where name=?",[str(self.contextEdit.text()),]).fetchall()[0][0]
+        except:
+            QtGui.QMessageBox.critical(self,
+                        "Error",
+                        "Context doesn't exist\n\nThis may provide an option to create the context in the future\n\nNothing added")
+            return
+        # Project
+        project = None
+        try:
+            project = self.databaseCon.execute("select id from projects where name=?",[str(self.projectEdit.text()),]).fetchall()[0][0]
+        except:
+            QtGui.QMessageBox.critical(self,
+                        "Error",
+                        "Project doesn't exist\n\nThis may provide an option to create the context in the future\n\nNothing added")
+            return
+        # Due Date
+        due = None
+        if self.dueCheckBox.isChecked():
+            due = "DATETIME('" + str(self.dueEdit.date().toString("yyyy-MM-dd")) + "')"
+        # Show from Date
+        show = None
+        if self.showFromCheckBox.isChecked():
+            show = "DATETIME('" + str(self.showFromEdit.date().toString("yyyy-MM-dd")) + "')"
+        
         if self.current_id == None:
-            desc = str(self.descriptionEdit.text())
-            notes = str(self.notesEdit.toPlainText())
-            # Context
-            context = None
-            try:
-                context = self.databaseCon.execute("select id from contexts where name=?",[str(self.contextEdit.text()),]).fetchall()[0][0]
-            except:
-                QtGui.QMessageBox.critical(self,
-                            "Error",
-                            "Context doesn't exist\n\nThis may provide an option to create the context in the future\n\nNothing added")
-                return
-            # Project
-            project = None
-            try:
-                project = self.databaseCon.execute("select id from projects where name=?",[str(self.projectEdit.text()),]).fetchall()[0][0]
-            except:
-                QtGui.QMessageBox.critical(self,
-                            "Error",
-                            "Project doesn't exist\n\nThis may provide an option to create the context in the future\n\nNothing added")
-                return
-            
-            q = "insert into todos values(NULL,?,?,?,?,DATETIME('now'),NULL,NULL,1,NULL,'active',NULL,DATETIME('now'))"
-            self.databaseCon.execute(q,[context,project,desc,notes])
+            q = "insert into todos values(NULL,?,?,?,?,DATETIME('now'),?,NULL,1,?,'active',NULL,DATETIME('now'))"
+            self.databaseCon.execute(q,[context,project,desc,notes,due,show])
             self.databaseCon.commit()
-
+            
+        else:
+            q = "UPDATE todos SET context_id=?, project_id=?, description=?, notes=?, due=?, show_from=?, updated_at=DATETIME('now') where id=?"
+            self.databaseCon.execute(q,[context,project,desc,notes,due,show,self.current_id])
+            self.databaseCon.commit()
+            
+        self.cancelButtonClicked()
+        self.emit(QtCore.SIGNAL("actionModified()"))
+        
     def setCurrentActionID(self, actionID):
         logging.info("TracksActionEditor->setCurrentActionID")
         self.addActionButton.setText("Save Action")
@@ -340,7 +377,7 @@ class TracksActionEditor(QtGui.QGroupBox):
                 self.dueEdit.setDisabled(True)
             if row[3]:
                 # row[3] will be string in format yyyy-MM-dd
-                self.dueEdit.setDate(QtCore.QDate.fromString(row[2][0:10],"yyyy-MM-dd"))
+                self.showFromEdit.setDate(QtCore.QDate.fromString(row[2][0:10],"yyyy-MM-dd"))
                 self.showFromCheckBox.setChecked(True)
                 self.showFromEdit.setDisabled(False)
             else:
@@ -372,17 +409,24 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.tagsEdit.setText(tagText)
     
     def refresh(self):
-        """This will refresh the action editor, ie update available contexts/tags"""
+        """This will refresh the action editor, ie update available projects/contexts/tags"""
         logging.info("tracksActionEditor->refresh")
+        
+        # Update list of available projects
+        projectList = []
+        for row in self.databaseCon.execute("SELECT name FROM projects ORDER BY name"):
+            projectList.append(row[0])
+        projectCompleter = QtGui.QCompleter(projectList)
+        projectCompleter.setCompletionMode(1)
+        self.projectEdit.setCompleter(projectCompleter)
         
         # Update list of available contexts
         contextList = []
-        for row in self.databaseCon.execute("select name FROM contexts"):
+        for row in self.databaseCon.execute("SELECT name FROM contexts ORDER BY name"):
             contextList.append(row[0])
         contextStringList = QtCore.QStringList(contextList)
         contextCompleter = QtGui.QCompleter(contextStringList)
-        contextCompleter.setCompletionMode(1) # This displays all possible options, but pressing
-        # down goes to the best match
+        contextCompleter.setCompletionMode(1)
         self.contextEdit.setCompleter(contextCompleter)
         
         # TODO refresh the list of available tags

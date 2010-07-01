@@ -78,16 +78,16 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # Add the hidden starred actions
         # TODO
         # Add the completed starred actions
-        sql = "SELECT todos.id, todos.description, contexts.name, projects.name\
-              FROM (todos LEFT JOIN contexts ON todos.context_id = contexts.id)\
-              LEFT JOIN projects on todos.project_id = projects.id where todos.\
-              state='completed' order by todos.completed_at"
-        tracksAList = TracksActionList(
-            self.databaseCon,"Completed Actions tagged with 'starred'",sql,True)
-        self.starred_mainpane_layout.addWidget(tracksAList)
-        self.starred_mainpane_layout.addItem(
-            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum,
-                              QtGui.QSizePolicy.Expanding))
+#        sql = "SELECT todos.id, todos.description, contexts.name, projects.name\
+#              FROM (todos LEFT JOIN contexts ON todos.context_id = contexts.id)\
+#              LEFT JOIN projects on todos.project_id = projects.id where todos.\
+#              state='completed' order by todos.completed_at"
+#        tracksAList = TracksActionList(
+#            self.databaseCon,"Completed Actions tagged with 'starred'",sql,True)
+#        self.starred_mainpane_layout.addWidget(tracksAList)
+#        self.starred_mainpane_layout.addItem(
+#            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum,
+#                              QtGui.QSizePolicy.Expanding))
         # Add the action editor
         self.starred_actionEditor = TracksActionEditor(self.databaseCon)
         self.starred_sidepane_layout.addWidget(self.starred_actionEditor)
@@ -116,7 +116,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.setupTicklerPage()
         
         # NOTE Setup the done page
-        self.setupDonePage()
+        #self.setupDonePage()
     
     def setupHomePage(self):
         """Performs initial setup of the homepage.
@@ -134,15 +134,16 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.refreshables[self.hometabid].append(self.actionEditor)
         
         # Add the recently completed list of actions
-        sqlCompleted = "SELECT todos.id, todos.description, contexts.name, \
-                       projects.name FROM (todos LEFT JOIN contexts ON \
+        sqlCompleted = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'completed' order by todos.completed_at limit 7"
+                       'completed' order by todos.completed_at DESC limit 7"
         tracksCList = TracksActionList(
             self.databaseCon,"Recently Completed Actions",sqlCompleted,False)
         self.verticalLayout_4.addWidget(tracksCList)
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
+        self.refreshables[self.hometabid].append(tracksCList)
         
         # Add a vertical spacer
         spacerItem = QtGui.QSpacerItem(
@@ -151,6 +152,9 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # Connect the action editor
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
+        
+        self.actionEditor.actionModified.connect(self.refreshCurrentTab)
+        tracksCList.actionModified.connect(self.refreshCurrentTab)
         
     def refreshHomePage(self):
         """Refreshes complex bits of the home page. Others components are refreshed via refreshables"""
@@ -170,13 +174,14 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                              contexts, todos WHERE contexts.id=todos.context_id\
                              AND todos.state='active' AND contexts.hide='f' ORDER BY contexts.name \
                              DESC"
+        
         for row in self.databaseCon.execute(activeContextQuery):
             expanded = True
             if self.homeContextExpanded.has_key(row[0]):
                 expanded = self.homeContextExpanded[row[0]]
             
-            sql = "SELECT todos.id, todos.description, contexts.name, \
-                  projects.name FROM (todos LEFT JOIN contexts ON \
+            sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                  projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                   todos.context_id = contexts.id) LEFT JOIN projects on \
                   todos.project_id = projects.id where contexts.id='%s' and \
                   todos.state='active'" % row[0]
@@ -186,7 +191,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.homeContexts[row[0]] = tracksAList
             
             tracksAList.editAction.connect(self.actionEditor.setCurrentActionID)    
-    
+            tracksAList.actionModified.connect(self.refreshCurrentTab)
     
     def setupProjectsPage(self):
         """Setup the projects page"""
