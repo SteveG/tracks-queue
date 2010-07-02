@@ -92,6 +92,8 @@ class TracksProjectList(QtGui.QWidget):
         self.projectDeleteButtonMapper.mapped[int].connect(self.deleteProjectButtonClicked)
         self.projectEditButtonMapper = QtCore.QSignalMapper(self)
         self.projectEditButtonMapper.mapped[int].connect(self.editProjectButtonClicked)
+        self.projectTextButtonMapper = QtCore.QSignalMapper(self)
+        self.projectTextButtonMapper.mapped[int].connect(self.textProjectButtonClicked)
         #self.itemStarButtonMapper = QtCore.QSignalMapper(self)
         #self.itemStarButtonMapper.mapped[int].connect(self.starItemButtonClicked)
         #self.itemLabelButtonMapper = QtCore.QSignalMapper(self)
@@ -152,6 +154,8 @@ class TracksProjectList(QtGui.QWidget):
             projectText.setCursor(QtCore.Qt.PointingHandCursor)
             projectText.setStyleSheet("QPushButton{border: None;}\n\n QPushButton:hover { color: black; background-color: lightgray; }")
             horizontalLayout.addWidget(projectText)
+            self.projectTextButtonMapper.setMapping(projectText, projectID)
+            projectText.clicked.connect(self.projectTextButtonMapper.map)
             
             # Spacer
             spacerItem = QtGui.QSpacerItem(227, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -187,6 +191,10 @@ class TracksProjectList(QtGui.QWidget):
     def editProjectButtonClicked(self, id):
         logging.info("TracksContextList->editContextButtonClicked  -  " + str(id))
         self.emit(QtCore.SIGNAL("editProject(int)"),id)
+        
+    def textProjectButtonClicked(self, id):
+        logging.info("TracksContextList->textContextButtonClicked  -  " + str(id))
+        self.emit(QtCore.SIGNAL("gotoProject(int)"),id)
         
     def refresh(self):
         logging.info("TracksContextList->refresh")
@@ -228,7 +236,7 @@ class TracksProjectEditor(QtGui.QGroupBox):
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
         self.hideFormButton = QtGui.QPushButton(self)
-        self.hideFormButton.setText("<< Hide Form")
+        self.hideFormButton.setText(">> Hide Form")
         self.hideFormButton.setToolTip("Hide the form from view")
         self.horizontalLayout_3.addWidget(self.hideFormButton)
         self.verticalLayout.addLayout(self.horizontalLayout_3)

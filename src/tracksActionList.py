@@ -143,7 +143,7 @@ class TracksActionList(QtGui.QWidget):
         
         count = 0
         if self.dbQuery == None:
-            self.dbQuery = "select id, description, 0, 0, 0 from todos order by description"
+            self.dbQuery = "select id, description, 0, 0, 0, 0, 0 from todos order by description"
         for row in self.databaseCon.execute(self.dbQuery):
             id = row[0]
             desc = row[1]
@@ -294,6 +294,11 @@ class TracksActionList(QtGui.QWidget):
         logging.info("TracksActionList->refresh")
         self.listWidget.clear()
         self.fillList()
+        
+    def setDBQuery(self, dbQuery):
+        logging.info("TracksActionList->setDBQuery")
+        self.dbQuery = dbQuery
+        self.refresh()
         
 class DumbWidget(QtGui.QWidget):
     def __init__(self):

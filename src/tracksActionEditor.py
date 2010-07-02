@@ -46,6 +46,12 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.current_id = None
         self.databaseCon = dbCon
         
+        # default values
+        self.defaultContext = None
+        self.defaultProject = None
+        self.defaultTags = None
+        
+        
         QtGui.QGroupBox.__init__(self)
         
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
@@ -66,7 +72,7 @@ class TracksActionEditor(QtGui.QGroupBox):
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
         self.hideFormButton = QtGui.QPushButton(self)
-        self.hideFormButton.setText("<< Hide Form")
+        self.hideFormButton.setText(">> Hide Form")
         self.hideFormButton.setToolTip("Hide the form from view")
         self.horizontalLayout_3.addWidget(self.hideFormButton)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
@@ -285,8 +291,14 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.descriptionEdit.clear()
         self.notesEdit.clear()
         self.projectEdit.clear()
+        if self.defaultProject:
+            self.projectEdit.setText(self.defaultProject)
         self.contextEdit.clear()
+        if self.defaultContext:
+            self.contextEdit.setText(self.defaultContext)
         self.tagsEdit.clear()
+        if self.defaultTags:
+            self.tagsEdit.setText(self.defaultTags)
         self.dueEdit.setDate(QtCore.QDate.currentDate())
         self.dueEdit.setDisabled(True)
         self.dueCheckBox.setChecked(False)
@@ -430,4 +442,12 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.contextEdit.setCompleter(contextCompleter)
         
         # TODO refresh the list of available tags
+    
+    def setDefaultProject(self, projectName):
+        self.defaultProject = projectName
         
+    def setDefaultContext(self, contextName):
+        self.defaultContext = contextName
+        
+    def setDefaultTags(self, tags):
+        self.defaultTags = tags

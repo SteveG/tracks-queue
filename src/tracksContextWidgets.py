@@ -233,7 +233,7 @@ class TracksContextEditor(QtGui.QGroupBox):
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem)
         self.hideFormButton = QtGui.QPushButton(self)
-        self.hideFormButton.setText("<< Hide Form")
+        self.hideFormButton.setText(">> Hide Form")
         self.hideFormButton.setToolTip("Hide the form from view")
         self.horizontalLayout_3.addWidget(self.hideFormButton)
         self.verticalLayout.addLayout(self.horizontalLayout_3)

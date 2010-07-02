@@ -117,6 +117,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # NOTE Setup the done page
         #self.setupDonePage()
+        
+        self.refreshCurrentTab()
     
     def setupHomePage(self):
         """Performs initial setup of the homepage.
@@ -170,10 +172,9 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.verticalLayout_4.removeWidget(self.homeContexts[key])
             
         # Add all of the active contexts
-        activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM \
-                             contexts, todos WHERE contexts.id=todos.context_id\
-                             AND todos.state='active' AND contexts.hide='f' ORDER BY contexts.name \
-                             DESC"
+        activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM (todos LEFT JOIN contexts ON \
+                  todos.context_id = contexts.id) LEFT JOIN projects on\
+                  todos.project_id = projects.id where todos.state='active' and projects.state = 'active' and contexts.hide='f' ORDER BY contexts.name"
         
         for row in self.databaseCon.execute(activeContextQuery):
             expanded = True
@@ -184,7 +185,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                   projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                   todos.context_id = contexts.id) LEFT JOIN projects on \
                   todos.project_id = projects.id where contexts.id='%s' and \
-                  todos.state='active'" % row[0]
+                  todos.state='active' and projects.state = 'active'" % row[0]
             tracksAList = TracksActionList(self.databaseCon,"@"+row[1],sql,expanded)
             self.verticalLayout_4.insertWidget(0,tracksAList)
             
@@ -241,9 +242,98 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.hiddenProjectsList.editProject.connect(self.projects_Editor.setCurrentProjectID)
         self.completedProjectsList.editProject.connect(self.projects_Editor.setCurrentProjectID)
         
-        #Connect
+        #Connect project save event to refresh lists
         self.projects_Editor.projectModified.connect(self.refreshCurrentTab)
         
+        # Connect goto project
+        self.activeProjectsList.gotoProject.connect(self.gotoProject)
+        self.hiddenProjectsList.gotoProject.connect(self.gotoProject)
+        self.completedProjectsList.gotoProject.connect(self.gotoProject)
+        
+        
+        ###############
+        # Setup the project details page
+        
+        # Action editor
+        # Create the action editor
+        self.projectview_actionEditor = TracksActionEditor(self.databaseCon)
+        self.projectDetails_sidepane_layout.addWidget(self.projectview_actionEditor)
+        # Add a vertical spacer under action editor
+        spacerItem1 = QtGui.QSpacerItem(
+            1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.projectDetails_sidepane_layout.addItem(spacerItem1)
+        self.refreshables[self.projectstabid].append(self.projectview_actionEditor)
+        self.projectview_actionEditor.actionModified.connect(self.refreshCurrentTab)
+        
+        
+        self.projectBackButton.clicked.connect(self.backToProjectList)
+        # Active actions
+        sqlActive = None
+        self.projectview_tracksAList = TracksActionList(
+            self.databaseCon,"Active Actions",sqlActive,True)
+        self.projectview_verticalLayout.addWidget( self.projectview_tracksAList)
+        self.projectview_tracksAList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
+        self.projectview_tracksAList.actionModified.connect(self.refreshCurrentTab)
+        self.refreshables[self.projectstabid].append( self.projectview_tracksAList)
+        
+        # Deferred actions
+        sqlDeferred = None
+        self.projectview_tracksDList = TracksActionList(
+            self.databaseCon,"Deferred Actions",sqlDeferred,False)
+        self.projectview_verticalLayout.addWidget(self.projectview_tracksDList)
+        self.projectview_tracksDList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
+        self.projectview_tracksDList.actionModified.connect(self.refreshCurrentTab)
+        self.refreshables[self.projectstabid].append(self.projectview_tracksDList)
+        
+        # Complete actions
+        sqlCompleted = None
+        self.projectview_tracksCList = TracksActionList(
+            self.databaseCon,"Completed Actions",sqlCompleted,False)
+        self.projectview_verticalLayout.addWidget(self.projectview_tracksCList)
+        self.projectview_tracksCList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
+        self.projectview_tracksCList.actionModified.connect(self.refreshCurrentTab)
+        self.refreshables[self.projectstabid].append(self.projectview_tracksCList)
+    
+        # Expander
+        self.projectview_verticalLayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        
+    def gotoProject(self, projID):
+        logging.info("tracks->gotoProject(" + str(projID) +")")
+        
+        self.tabWidget.setCurrentIndex(self.projectstabid)
+        self.stackedWidget_2.setCurrentIndex(1)
+        
+        titleDescQuery = "SELECT projects.name, projects.description, (SELECT name from contexts where id = projects.default_context_id), projects.default_tags FROM projects WHERE projects.id = " + str(projID)
+        for row in self.databaseCon.execute(titleDescQuery):
+            self.projectLabel.setText(str(row[0]))
+            self.projectDescription.setText(str(row[1]))
+            self.projectview_actionEditor.setDefaultProject(row[0])
+            self.projectview_actionEditor.setDefaultContext(row[2])
+            self.projectview_actionEditor.setDefaultTags(row[3])
+        self.projectview_actionEditor.cancelButtonClicked()    
+        
+        
+        self.projectview_tracksAList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.project_id= "+ str(projID) + " order by todos.show_from DESC")
+        
+        self.projectview_tracksDList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND show_from > DATETIME('now') AND todos.project_id= "+ str(projID) + " order by todos.show_from DESC")
+        
+        self.projectview_tracksCList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'completed' AND todos.project_id= "+ str(projID) + " order by todos.completed_at DESC")
+        
+    def backToProjectList(self):
+        logging.info("tracks->backToProjectList()")
+        self.stackedWidget_2.setCurrentIndex(0)
     
     def setupContextsPage(self):
         """Setup the contexts page"""

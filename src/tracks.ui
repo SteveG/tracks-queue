@@ -18,13 +18,19 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="home_tab">
        <attribute name="title">
         <string>Home</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QStackedWidget" name="stackedWidget">
           <property name="currentIndex">
@@ -51,8 +57,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>726</width>
-                 <height>554</height>
+                 <width>728</width>
+                 <height>553</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_4"/>
@@ -107,8 +113,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>762</width>
-             <height>554</height>
+             <width>736</width>
+             <height>535</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="starred_mainpane_layout"/>
@@ -133,6 +139,12 @@
         <string>Projects</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QStackedWidget" name="stackedWidget_2">
           <property name="currentIndex">
@@ -159,8 +171,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>756</width>
-                 <height>554</height>
+                 <width>758</width>
+                 <height>553</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="projects_mainpane_layout"/>
@@ -181,42 +193,107 @@
            </layout>
           </widget>
           <widget class="QWidget" name="projectview_page">
-           <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item>
-             <widget class="QScrollArea" name="scrollArea_2">
-              <property name="widgetResizable">
-               <bool>true</bool>
-              </property>
-              <widget class="QWidget" name="scrollAreaWidgetContents_4">
-               <property name="geometry">
-                <rect>
-                 <x>0</x>
-                 <y>0</y>
-                 <width>658</width>
-                 <height>540</height>
-                </rect>
-               </property>
-               <layout class="QVBoxLayout" name="verticalLayout_8">
+             <layout class="QVBoxLayout" name="verticalLayout">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_8">
                 <item>
-                 <widget class="QLabel" name="label_3">
+                 <widget class="QPushButton" name="projectBackButton">
+                  <property name="maximumSize">
+                   <size>
+                    <width>50</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>&lt;&lt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QLabel" name="projectLabel">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="font">
+                   <font>
+                    <family>Liberation Sans</family>
+                    <pointsize>16</pointsize>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>Specific Project View Page</string>
                   </property>
                  </widget>
                 </item>
                </layout>
-              </widget>
-             </widget>
+              </item>
+              <item>
+               <widget class="QLabel" name="projectDescription">
+                <property name="text">
+                 <string>Sample project description</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignJustify|Qt::AlignTop</set>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QScrollArea" name="scrollArea_2">
+                <property name="frameShape">
+                 <enum>QFrame::NoFrame</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Plain</enum>
+                </property>
+                <property name="widgetResizable">
+                 <bool>true</bool>
+                </property>
+                <widget class="QWidget" name="scrollAreaWidgetContents_4">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>0</y>
+                   <width>732</width>
+                   <height>488</height>
+                  </rect>
+                 </property>
+                 <layout class="QVBoxLayout" name="projectview_verticalLayout">
+                  <property name="margin">
+                   <number>0</number>
+                  </property>
+                 </layout>
+                </widget>
+               </widget>
+              </item>
+             </layout>
             </item>
             <item>
              <widget class="QWidget" name="widget" native="true">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>20</width>
                 <height>0</height>
                </size>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_9"/>
+              <layout class="QVBoxLayout" name="projectDetails_sidepane_layout">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <property name="margin">
+                <number>0</number>
+               </property>
+              </layout>
              </widget>
             </item>
            </layout>
@@ -250,8 +327,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>744</width>
-                 <height>546</height>
+                 <width>716</width>
+                 <height>517</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="contexts_mainpane_layout">
@@ -290,8 +367,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>658</width>
-                 <height>540</height>
+                 <width>714</width>
+                 <height>515</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -310,7 +387,7 @@
              <widget class="QWidget" name="widget_7" native="true">
               <property name="minimumSize">
                <size>
-                <width>100</width>
+                <width>20</width>
                 <height>0</height>
                </size>
               </property>
@@ -341,8 +418,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>672</width>
-             <height>554</height>
+             <width>654</width>
+             <height>535</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3"/>
@@ -380,8 +457,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>672</width>
-             <height>554</height>
+             <width>654</width>
+             <height>535</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="tickler_mainpane_layout"/>
@@ -419,8 +496,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>776</width>
-             <height>554</height>
+             <width>760</width>
+             <height>535</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="done_mainpane_layout"/>
