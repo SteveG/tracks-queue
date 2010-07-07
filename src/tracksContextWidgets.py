@@ -92,7 +92,8 @@ class TracksContextList(QtGui.QWidget):
         #self.contextDeleteButtonMapper.mapped[int].connect(self.deleteItemButtonClicked)
         self.contextEditButtonMapper = QtCore.QSignalMapper(self)
         self.contextEditButtonMapper.mapped[int].connect(self.editItemButtonClicked)
-        
+        self.contextTextButtonMapper = QtCore.QSignalMapper(self)
+        self.contextTextButtonMapper.mapped[int].connect(self.textContextButtonClicked)
         
         #self.itemStarButtonMapper = QtCore.QSignalMapper(self)
         #self.itemStarButtonMapper.mapped[int].connect(self.starItemButtonClicked)
@@ -156,6 +157,8 @@ class TracksContextList(QtGui.QWidget):
             contextText.setCursor(QtCore.Qt.PointingHandCursor)
             contextText.setStyleSheet("QPushButton{border: None;}\n\n QPushButton:hover { color: black; background-color: lightgray; }")
             horizontalLayout.addWidget(contextText)
+            self.contextTextButtonMapper.setMapping(contextText, projectID)
+            contextText.clicked.connect(self.contextTextButtonMapper.map)
             
             # Spacer
             spacerItem = QtGui.QSpacerItem(227, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -190,6 +193,10 @@ class TracksContextList(QtGui.QWidget):
     def editItemButtonClicked(self, id):
         logging.info("TracksContextList->editContextButtonClicked  -  " + str(id))
         self.emit(QtCore.SIGNAL("editContext(int)"),id)
+        
+    def textContextButtonClicked(self, id):
+        logging.info("TracksContextList->textContextButtonClicked  -  " + str(id))
+        self.emit(QtCore.SIGNAL("gotoContext(int)"),id)
         
     def refresh(self):
         logging.info("TracksContextList->refresh")

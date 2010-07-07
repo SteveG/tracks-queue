@@ -145,6 +145,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.databaseCon,"Recently Completed Actions",sqlCompleted,False)
         self.verticalLayout_4.addWidget(tracksCList)
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
+        tracksCList.gotoProject.connect(self.gotoProject)
         self.refreshables[self.hometabid].append(tracksCList)
         
         # Add a vertical spacer
@@ -193,6 +194,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             
             tracksAList.editAction.connect(self.actionEditor.setCurrentActionID)    
             tracksAList.actionModified.connect(self.refreshCurrentTab)
+            tracksAList.gotoProject.connect(self.gotoProject)
     
     def setupProjectsPage(self):
         """Setup the projects page"""
@@ -369,8 +371,19 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.activeContextsList.editContext.connect(self.contexts_Editor.setCurrentContextID)
         self.hiddenContextsList.editContext.connect(self.contexts_Editor.setCurrentContextID)
         
+        # Connect goto context
+        self.activeContextsList.gotoContext.connect(self.gotoContext)
+        self.hiddenContextsList.gotoContext.connect(self.gotoContext)
+        
         #Connect
         self.contexts_Editor.contextModified.connect(self.refreshCurrentTab)
+        
+    def gotoContext(self, id):
+        logging.info("tracks->gotoContext(" + str(id) +")")
+        
+        self.tabWidget.setCurrentIndex(self.contextstabid)
+        self.stackedWidget_3.setCurrentIndex(1)
+        
     
     
     def setupTicklerPage(self):

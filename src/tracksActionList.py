@@ -36,6 +36,7 @@ class TracksActionList(QtGui.QWidget):
                      "deleteAction(int)",
                      "completeAction(int)",
                      "gotoLabel(QString)",
+                     "gotoProject(int)",
                      "actionModified()"
                      )
     editAction = QtCore.pyqtSignal(int)
@@ -43,6 +44,7 @@ class TracksActionList(QtGui.QWidget):
     deleteAction = QtCore.pyqtSignal(int)
     completeAction = QtCore.pyqtSignal(int)
     gotoLabel = QtCore.pyqtSignal(QtCore.QString)
+    gotoProject = QtCore.pyqtSignal(int)
     actionModified = QtCore.pyqtSignal()
 
     # Need to add a list title, a database query, an option for expanded or not
@@ -108,6 +110,9 @@ class TracksActionList(QtGui.QWidget):
         self.itemLabelButtonMapper = QtCore.QSignalMapper(self)
         self.itemLabelButtonMapper.mapped[int].connect(self.labelItemButtonClicked)
         
+        self.itemProjectButtonMapper = QtCore.QSignalMapper(self)
+        self.itemProjectButtonMapper.mapped[int].connect(self.projectItemButtonClicked)
+        
         
         # Add items to the list
         self.fillList()
@@ -150,6 +155,7 @@ class TracksActionList(QtGui.QWidget):
             context = row[4]
             if context == 0:
                 context = None
+            project_id = row[5]
             project = row[6]
             if project == 0:
                 project = None
@@ -241,6 +247,8 @@ class TracksActionList(QtGui.QWidget):
                 projectButton.setCursor(QtCore.Qt.PointingHandCursor)
                 projectButton.setStyleSheet("border: None;")
                 horizontalLayout.addWidget(projectButton)
+                self.itemProjectButtonMapper.setMapping(projectButton, project_id) #TODO fix
+                projectButton.clicked.connect(self.itemProjectButtonMapper.map)
             
             # Spacer
             spacerItem = QtGui.QSpacerItem(227, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
@@ -289,6 +297,10 @@ class TracksActionList(QtGui.QWidget):
         
     def labelItemButtonClicked(self, id):
         logging.info("TracksActionList->labelItemButtonClicked  -  " +str(id))
+        
+    def projectItemButtonClicked(self, id):
+        logging.info("TracksActionList->projectItemButtonClicked  -  " +str(id))
+        self.emit(QtCore.SIGNAL("gotoProject(int)"), id)
         
     def refresh(self):
         logging.info("TracksActionList->refresh")
