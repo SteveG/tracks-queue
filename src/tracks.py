@@ -26,6 +26,7 @@ from PyQt4 import QtGui
 from PyQt4 import QtCore
 import sys
 import sqlite3
+import os
 # Import the Designer file
 from tracksui import Ui_MainWindow
 # Import tracks widgets
@@ -43,13 +44,64 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         logging.info("Tracks initiated...")
         QtGui.QMainWindow.__init__(self)
         
+        self.setWindowIcon(QtGui.QIcon(sys.path[0] + "/icon.png"))
+        # open the database file
+        # Locate the database file, or create a new one
+        knowFile = False
+        settings = QtCore.QSettings("tracks.cute", "tracks.cute")
+        # The last file accessed is contained in the settings
+        if settings.contains("database/lastfile"):
+                filepath = str(settings.value("database/lastfile").toString())
+                if os.path.exists(filepath):
+                        #self.database = DbAccess(filepath)
+                        self.databaseCon = sqlite3.connect(filepath)
+                        self.databaseCon.row_factory = sqlite3.Row
+                        knowFile = True
+        # We have no record of the last file accessed
+        if not knowFile:
+                existing = QtGui.QMessageBox.question(self, "tracks.cute: No file found", "Do you have an existing tracks database file?\n\n"+
+                "No: \tA dialog will ask where to save a new database.\n" +
+                "Yes: \tA dialog will ask where to find the existing database.\n", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+                
+                # User has an existing Database file
+                if existing == QtGui.QMessageBox.Yes:
+                        dialog = QtGui.QFileDialog
+                        filename = dialog.getOpenFileName(self, "Open Database", QtCore.QDir.homePath(), "*.db")
+                        
+                        self.databaseCon = sqlite3.connect(str(filename))
+                        self.databaseCon.row_factory = sqlite3.Row
+                        settings.setValue("database/lastfile", QtCore.QVariant(filename))
+                
+                # User needs to create a  new Database file
+                elif existing == QtGui.QMessageBox.No:
+                        dialog = QtGui.QFileDialog
+                        filename = dialog.getSaveFileName(self, "Save New Database", QtCore.QDir.homePath(), "*.db")
+                        templatePath = sys.path[0]
+                        templatePath = templatePath+ "/template.db"
+                        
+                        # Copy the template database to the selected location
+                        import shutil
+                        shutil.copyfile(templatePath, filename)
+                        
+                        self.databaseCon = sqlite3.connect(str(filename))
+                        self.databaseCon.row_factory = sqlite3.Row
+                        settings.setValue("database/lastfile", QtCore.QVariant(filename))
+        
+        # Open the database
+        #self.databaseCon = sqlite3.connect("tracks.db")
+        #self.databaseCon.row_factory = sqlite3.Row
+        
+        
+        
+        
+        
+        
+        
         # Set up the user interface from Designer.
         self.setupUi(self)
         self.setWindowTitle("tracks.cute")    
         
-        # Open the database
-        self.databaseCon = sqlite3.connect("tracks.db")
-        self.databaseCon.row_factory = sqlite3.Row
+        
         
         # Setup the refreshables dictionary, a list of all refreshable elements 
         # on each tab
@@ -307,7 +359,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         titleDescQuery = "SELECT projects.name, projects.description, (SELECT name from contexts where id = projects.default_context_id), projects.default_tags FROM projects WHERE projects.id = " + str(projID)
         for row in self.databaseCon.execute(titleDescQuery):
-            self.projectLabel.setText(str(row[0]))
+            self.projectLabel.setText("  "+str(row[0]))
             self.projectDescription.setText(str(row[1]))
             self.projectview_actionEditor.setDefaultProject(row[0])
             self.projectview_actionEditor.setDefaultContext(row[2])
@@ -378,12 +430,86 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         #Connect
         self.contexts_Editor.contextModified.connect(self.refreshCurrentTab)
         
+        
+        ### Setup the context details page
+         # Create the action editor
+        self.contextview_actionEditor = TracksActionEditor(self.databaseCon)
+        self.contextDetails_sidepane_layout.addWidget(self.contextview_actionEditor)
+        # Add a vertical spacer under action editor
+        spacerItem1 = QtGui.QSpacerItem(
+            1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.contextDetails_sidepane_layout.addItem(spacerItem1)
+        self.refreshables[self.contextstabid].append(self.contextview_actionEditor)
+        self.contextview_actionEditor.actionModified.connect(self.refreshCurrentTab)
+        
+        # back button
+        self.contextBackButton.clicked.connect(self.backToContextList)
+        
+        # Active actions
+        sqlActive = None
+        self.contextview_tracksAList = TracksActionList(
+            self.databaseCon,"Active Actions",sqlActive,True)
+        self.contextview_verticalLayout.addWidget( self.contextview_tracksAList)
+        self.contextview_tracksAList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
+        self.contextview_tracksAList.actionModified.connect(self.refreshCurrentTab)
+        self.refreshables[self.contextstabid].append( self.contextview_tracksAList)
+        
+        # Deferred actions
+        sqlDeferred = None
+        self.contextview_tracksDList = TracksActionList(
+            self.databaseCon,"Deferred Actions",sqlDeferred,False)
+        self.contextview_verticalLayout.addWidget(self.contextview_tracksDList)
+        self.contextview_tracksDList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
+        self.contextview_tracksDList.actionModified.connect(self.refreshCurrentTab)
+        self.refreshables[self.contextstabid].append(self.contextview_tracksDList)
+        
+        # Complete actions
+        sqlCompleted = None
+        self.contextview_tracksCList = TracksActionList(
+            self.databaseCon,"Completed Actions",sqlCompleted,False)
+        self.contextview_verticalLayout.addWidget(self.contextview_tracksCList)
+        self.contextview_tracksCList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
+        self.contextview_tracksCList.actionModified.connect(self.refreshCurrentTab)
+        self.refreshables[self.contextstabid].append(self.contextview_tracksCList)
+    
+        # Expander
+        self.contextview_verticalLayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        
     def gotoContext(self, id):
         logging.info("tracks->gotoContext(" + str(id) +")")
         
         self.tabWidget.setCurrentIndex(self.contextstabid)
         self.stackedWidget_3.setCurrentIndex(1)
         
+        
+        titleDescQuery = "SELECT contexts.name FROM contexts WHERE contexts.id = " + str(id)
+        for row in self.databaseCon.execute(titleDescQuery):
+            self.contextLabel.setText("  @"+str(row[0]))
+            self.contextview_actionEditor.setDefaultContext(row[0])
+        self.contextview_actionEditor.cancelButtonClicked()    
+        
+        
+        self.contextview_tracksAList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.context_id= "+ str(id) + " order by todos.show_from DESC")
+        
+        self.contextview_tracksDList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND show_from > DATETIME('now') AND todos.context_id= "+ str(id) + " order by todos.show_from DESC")
+        
+        self.contextview_tracksCList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'completed' AND todos.context_id= "+ str(id) + " order by todos.completed_at DESC")
+    
+    def backToContextList(self):
+        logging.info("tracks->backToContextList()")
+        self.stackedWidget_3.setCurrentIndex(0)
     
     
     def setupTicklerPage(self):

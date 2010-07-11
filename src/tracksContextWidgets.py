@@ -88,8 +88,8 @@ class TracksContextList(QtGui.QWidget):
         #self.connect(self.toggleListButton, QtCore.SIGNAL("clicked()"), self.toggleListButtonClick)
         
         # Add the item button mappers
-        #self.contextDeleteButtonMapper = QtCore.QSignalMapper(self)
-        #self.contextDeleteButtonMapper.mapped[int].connect(self.deleteItemButtonClicked)
+        self.contextDeleteButtonMapper = QtCore.QSignalMapper(self)
+        self.contextDeleteButtonMapper.mapped[int].connect(self.deleteItemButtonClicked)
         self.contextEditButtonMapper = QtCore.QSignalMapper(self)
         self.contextEditButtonMapper.mapped[int].connect(self.editItemButtonClicked)
         self.contextTextButtonMapper = QtCore.QSignalMapper(self)
@@ -138,8 +138,8 @@ class TracksContextList(QtGui.QWidget):
             deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
             deleteButton.setIcon(QtGui.QIcon(deleteIcon.pixmap(16,16,1,0)))
             horizontalLayout.addWidget(deleteButton)
-            #self.itemDeleteButtonMapper.setMapping(deleteButton, id)
-            #deleteButton.clicked.connect(self.itemDeleteButtonMapper.map)
+            self.contextDeleteButtonMapper.setMapping(deleteButton, projectID)
+            deleteButton.clicked.connect(self.contextDeleteButtonMapper.map)
             
             # Edit Button
             editButton = QtGui.QToolButton(widget)
@@ -189,6 +189,8 @@ class TracksContextList(QtGui.QWidget):
         
     def deleteItemButtonClicked(self, id):
         logging.info("TracksContextList->deleteContextButtonClicked  -  " + str(id))
+        reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete?", "Are you sure you want to delete this context and clear the context field of all related actions?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        logging.debug("TracksContextList->deleteContextButtonClicked, reallydelete=" + str(reallydelete==QtGui.QMessageBox.Yes))
         
     def editItemButtonClicked(self, id):
         logging.info("TracksContextList->editContextButtonClicked  -  " + str(id))

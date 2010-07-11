@@ -187,6 +187,8 @@ class TracksProjectList(QtGui.QWidget):
     
     def deleteProjectButtonClicked(self, id):
         logging.info("TracksContextList->deleteContextButtonClicked  -  " + str(id))
+        reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete?", "Are you sure you want to delete this project and clear the project field of all related actions?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        logging.debug("TracksContextList->deleteContextButtonClicked, reallydelete=" + str(reallydelete==QtGui.QMessageBox.Yes))
         
     def editProjectButtonClicked(self, id):
         logging.info("TracksContextList->editContextButtonClicked  -  " + str(id))
