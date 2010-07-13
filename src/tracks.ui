@@ -96,6 +96,9 @@
        </layout>
       </widget>
       <widget class="QWidget" name="starred_tab">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <attribute name="title">
         <string>Starred</string>
        </attribute>
@@ -267,8 +270,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>738</width>
-                   <height>479</height>
+                   <width>100</width>
+                   <height>30</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="projectview_verticalLayout">
@@ -426,8 +429,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>736</width>
-                   <height>496</height>
+                   <width>98</width>
+                   <height>28</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="contextview_verticalLayout">
@@ -456,10 +459,6 @@
          </widget>
         </item>
        </layout>
-       <zorder>stackedWidget_3</zorder>
-       <zorder></zorder>
-       <zorder>scrollArea_7</zorder>
-       <zorder>widget_7</zorder>
       </widget>
       <widget class="QWidget" name="calendar_tab">
        <attribute name="title">

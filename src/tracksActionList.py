@@ -55,6 +55,12 @@ class TracksActionList(QtGui.QWidget):
         
         QtGui.QWidget.__init__(self)
         
+        # Options with defaults
+        self.displayshow_from = False
+        self.displaycompleted_at = False
+        self.displaytags = False
+        
+        
         # Create Layout
         self.verticalLayout = QtGui.QVBoxLayout(self)
         self.verticalLayout.setSpacing(0)
@@ -114,8 +120,8 @@ class TracksActionList(QtGui.QWidget):
         self.itemProjectButtonMapper.mapped[int].connect(self.projectItemButtonClicked)
         
         
-        # Add items to the list
-        self.fillList()
+        # Add items to the list, removed, call refresh() to actually fill list.
+        #self.fillList()
         
         # Resize items in the list and then resize the list.
         #h = 0
@@ -124,6 +130,14 @@ class TracksActionList(QtGui.QWidget):
         #   i.setSizeHint(QtCore.QSize(0,22))
         #   h += self.listWidget.sizeHintForRow(a)
         #self.listWidget.setFixedHeight(h+6)
+    
+    def setDisplayShowFrom(self, setto):
+        logging.info("TracksActionList->setDisplayShowFrom")
+        self.displayshow_from = setto
+        
+    def setDisplayCompletedAt(self, setto):
+        logging.info("TracksActionList->setDisplayCompletedAt")
+        self.displaycompleted_at = setto
     
     def isExpanded(self):
         """Returns a boolean indicating whether the list is expanded or not"""
@@ -207,22 +221,59 @@ class TracksActionList(QtGui.QWidget):
             checkBox.stateChanged.connect(self.itemCompleteButtonMapper.map)
             #TODO make this do something
             
+            # Completed_At date if required
+            is_completed = False
+            if self.displaycompleted_at:
+                date = self.databaseCon.execute("select datetime(completed_at, 'localtime') from todos where id = " + str(id)).fetchone()[0]
+                if date:
+                    is_completed = True
+                    completed_atText = QtGui.QLabel(widget)
+                    completed_atText.setText("[" + str(date) +"]")
+                    completed_atText.setStyleSheet("Font-size: 8px")
+                    horizontalLayout.addWidget(completed_atText)
+            
+            # Show_from date if required
+            if self.displayshow_from:
+                show_fromText = QtGui.QLabel(widget)
+                date = self.databaseCon.execute("select show_from from todos where id = " + str(id)).fetchone()[0]
+                show_fromText.setText("[" + str(date) +"]")
+                show_fromText.setStyleSheet("Font-size: 8px")
+                horizontalLayout.addWidget(show_fromText)
+                
+            # Due date if required
+            data = self.databaseCon.execute("select due, (due < DATE('now','localtime')) from todos where id = " + str(id)).fetchone()
+            if is_completed:
+                data = self.databaseCon.execute("select due, (due < DATE(completed_at,'localtime')) from todos where id = " + str(id)).fetchone()
+            date = data[0]
+            overdue = bool(data[1])
+            if date: #
+                dueText = QtGui.QLabel(widget)
+                dueText.setText("!" + str(date) +"!")
+                dueText.setFixedHeight(10)
+                if overdue:
+                    dueText.setStyleSheet("Font-size: 8px; color: white; Background-color: 'orangered'")
+                else:
+                    dueText.setStyleSheet("Font-size: 8px; color: black; Background-color: 'aliceblue'")
+    
+                horizontalLayout.addWidget(dueText)
+            
             # Action Text
             actionText = QtGui.QLabel(widget)
             actionText.setText(desc)
             horizontalLayout.addWidget(actionText)
             
             # Label Button
-            labelButton = QtGui.QPushButton(widget)
-            font = QtGui.QFont()
-            font.setPointSize(7)
-            labelButton.setFont(font)
-            labelButton.setText("fishing")
-            labelButton.setCursor(QtCore.Qt.PointingHandCursor)
-            labelButton.setStyleSheet("background-color: lightblue; border: None;")
-            horizontalLayout.addWidget(labelButton)
-            self.itemLabelButtonMapper.setMapping(labelButton, id) #TODO fix
-            labelButton.clicked.connect(self.itemLabelButtonMapper.map)
+            if self.displaytags:
+                labelButton = QtGui.QPushButton(widget)
+                font = QtGui.QFont()
+                font.setPointSize(7)
+                labelButton.setFont(font)
+                labelButton.setText("fishing")
+                labelButton.setCursor(QtCore.Qt.PointingHandCursor)
+                labelButton.setStyleSheet("background-color: lightblue; border: None;")
+                horizontalLayout.addWidget(labelButton)
+                self.itemLabelButtonMapper.setMapping(labelButton, id) #TODO fix
+                labelButton.clicked.connect(self.itemLabelButtonMapper.map)
             
             # Add Context Button #TODO make this optional
             if context != None:

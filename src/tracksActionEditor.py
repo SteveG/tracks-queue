@@ -343,11 +343,11 @@ class TracksActionEditor(QtGui.QGroupBox):
         # Due Date
         due = None
         if self.dueCheckBox.isChecked():
-            due = "DATETIME('" + str(self.dueEdit.date().toString("yyyy-MM-dd")) + "')"
+            due = str(self.dueEdit.date().toString("yyyy-MM-dd"))
         # Show from Date
         show = None
         if self.showFromCheckBox.isChecked():
-            show = "DATETIME('" + str(self.showFromEdit.date().toString("yyyy-MM-dd")) + "')"
+            show = str(self.showFromEdit.date().toString("yyyy-MM-dd"))
         
         if self.current_id == None:
             q = "insert into todos values(NULL,?,?,?,?,DATETIME('now'),?,NULL,1,?,'active',NULL,DATETIME('now'))"
@@ -380,18 +380,19 @@ class TracksActionEditor(QtGui.QGroupBox):
                 self.notesEdit.clear()
             if row[2]:
                 # row[2] will be string in format yyyy-MM-dd
-                self.dueEdit.setDate(QtCore.QDate.fromString(row[2][0:10],"yyyy-MM-dd"))
                 self.dueCheckBox.setChecked(True)
                 self.dueEdit.setDisabled(False)
+                self.dueEdit.setDate(QtCore.QDate.fromString(row[2][0:10],"yyyy-MM-dd"))
             else:
                 self.dueEdit.clear()
                 self.dueCheckBox.setChecked(False)
                 self.dueEdit.setDisabled(True)
             if row[3]:
                 # row[3] will be string in format yyyy-MM-dd
-                self.showFromEdit.setDate(QtCore.QDate.fromString(row[2][0:10],"yyyy-MM-dd"))
                 self.showFromCheckBox.setChecked(True)
                 self.showFromEdit.setDisabled(False)
+                self.showFromEdit.setDate(QtCore.QDate.fromString(row[3][0:10],"yyyy-MM-dd"))
+                logging.debug("TracksActionEditor->setCurrentActionID  - show_from=" +str(row[3][0:10]))
             else:
                 self.showFromEdit.clear()
                 self.showFromCheckBox.setChecked(False)

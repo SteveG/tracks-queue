@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tracks.ui'
 #
-# Created: Sat Jul 10 16:15:59 2010
+# Created: Tue Jul 13 22:07:29 2010
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -57,6 +57,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.addWidget(self.stackedWidget)
         self.tabWidget.addTab(self.home_tab, "")
         self.starred_tab = QtGui.QWidget()
+        self.starred_tab.setEnabled(True)
         self.starred_tab.setObjectName("starred_tab")
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.starred_tab)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -148,7 +149,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_4 = QtGui.QWidget(self.scrollArea_2)
-        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 738, 479))
+        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents_4.setObjectName("scrollAreaWidgetContents_4")
         self.projectview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_4)
         self.projectview_verticalLayout.setMargin(0)
@@ -232,7 +233,7 @@ class Ui_MainWindow(object):
         self.scrollArea_7.setWidgetResizable(True)
         self.scrollArea_7.setObjectName("scrollArea_7")
         self.scrollAreaWidgetContents_9 = QtGui.QWidget(self.scrollArea_7)
-        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 736, 496))
+        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 98, 28))
         self.scrollAreaWidgetContents_9.setObjectName("scrollAreaWidgetContents_9")
         self.contextview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.contextview_verticalLayout.setMargin(0)
