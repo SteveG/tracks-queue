@@ -153,6 +153,9 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.tagCompleter.setWidget(self.tagsEdit)
         self.tagCompleter.setCompletionMode(1)
         self.tagCompleter.activated.connect(self.tagsCompleterSelect)
+        # make tags invisible
+        self.tagsLabel.setVisible(False)
+        self.tagsEdit.setVisible(False)
         
         # Date fields
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
@@ -251,8 +254,8 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.projectEdit.setVisible(self.formVisible)
         self.contextLabel.setVisible(self.formVisible)
         self.contextEdit.setVisible(self.formVisible)
-        self.tagsLabel.setVisible(self.formVisible)
-        self.tagsEdit.setVisible(self.formVisible)
+        self.tagsLabel.setVisible(False)#self.formVisible)
+        self.tagsEdit.setVisible(False)#self.formVisible)
         self.dueEdit.setVisible(self.formVisible)
         self.dueCheckBox.setVisible(self.formVisible)
         self.showFromEdit.setVisible(self.formVisible)
