@@ -352,7 +352,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # Deferred actions
         sqlDeferred = None
         self.projectview_tracksDList = TracksActionList(
-            self.databaseCon,"Deferred Actions",sqlDeferred,False)
+            self.databaseCon,"Deferred/Pending Actions",sqlDeferred,False)
         self.projectview_tracksDList.setDisplayShowFrom(True)
         self.projectview_verticalLayout.addWidget(self.projectview_tracksDList)
         self.projectview_tracksDList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
@@ -481,7 +481,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # Deferred actions
         sqlDeferred = None
         self.contextview_tracksDList = TracksActionList(
-            self.databaseCon,"Deferred Actions",sqlDeferred,False)
+            self.databaseCon,"Deferred/Pending Actions",sqlDeferred,False)
         self.contextview_tracksDList.setDisplayShowFrom(True)
         self.contextview_verticalLayout.addWidget(self.contextview_tracksDList)
         self.contextview_tracksDList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
