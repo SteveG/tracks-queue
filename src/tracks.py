@@ -231,9 +231,19 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.verticalLayout_4.removeWidget(self.homeContexts[key])
             
         # Add all of the active contexts
+        #activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM (todos LEFT JOIN contexts ON \
+        #          todos.context_id = contexts.id) LEFT JOIN projects on\
+        #          todos.project_id = projects.id where todos.state='active' and projects.state = 'active' and contexts.hide='f' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) ORDER BY contexts.name"
+        
         activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM (todos LEFT JOIN contexts ON \
                   todos.context_id = contexts.id) LEFT JOIN projects on\
-                  todos.project_id = projects.id where todos.state='active' and projects.state = 'active' and contexts.hide='f' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) ORDER BY contexts.name"
+                  todos.project_id = projects.id where\
+                  todos.state='active' and \
+                  projects.state = 'active' and \
+                  contexts.hide='f' and \
+                  (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) and\
+                  todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active'))\
+                  ORDER BY contexts.name"
         
         for row in self.databaseCon.execute(activeContextQuery):
             expanded = True
@@ -244,6 +254,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                   projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                   todos.context_id = contexts.id) LEFT JOIN projects on \
                   todos.project_id = projects.id where contexts.id='%s' and \
+                  todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) and\
                   todos.state='active' and projects.state = 'active' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) ORDER BY todos.due, todos.description" % row[0]
             tracksAList = TracksActionList(self.databaseCon,"@"+row[1],sql,expanded)
             self.verticalLayout_4.insertWidget(0,tracksAList)
@@ -380,14 +391,17 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectview_tracksAList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
-                       todos.project_id = projects.id where todos.state=\
-                       'active' AND (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.project_id= "+ str(projID) + " order by todos.due, todos.description")
+                       todos.project_id = projects.id where todos.state='active' \
+                       AND todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) \
+                       AND (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.project_id= "+ str(projID) + " order by todos.due, todos.description")
         
         self.projectview_tracksDList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'active' AND show_from > DATETIME('now') AND todos.project_id= "+ str(projID) + " order by todos.show_from, todos.description")
+                       'active' AND \
+                       (show_from > DATETIME('now') OR todos.id in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')))\
+                       AND todos.project_id= "+ str(projID) + " order by todos.show_from, todos.description")
         
         self.projectview_tracksCList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
@@ -505,13 +519,15 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'active' AND (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.context_id= "+ str(id) + " order by todos.due, todos.description")
+                       'active' AND todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) AND\
+                       (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.context_id= "+ str(id) + " order by todos.due, todos.description")
         
         self.contextview_tracksDList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'active' AND show_from > DATETIME('now') AND todos.context_id= "+ str(id) + " order by todos.show_from")
+                       'active' AND (show_from > DATETIME('now') OR todos.id in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active'))) \
+                       AND todos.context_id= "+ str(id) + " order by todos.show_from")
         
         self.contextview_tracksCList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \

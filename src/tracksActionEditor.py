@@ -158,33 +158,49 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.verticalLayout_1 = QtGui.QVBoxLayout()
         self.verticalLayout_1.setSpacing(0)
-        self.dueLabel = QtGui.QLabel(self)
-        self.dueLabel.setText("Due")
-        self.verticalLayout_1.addWidget(self.dueLabel)
         self.dueEdit = QtGui.QDateEdit(QtCore.QDate.currentDate())
         self.dueEdit.setCalendarPopup(True)
         self.dueCheckBox = QtGui.QCheckBox()
+        self.dueCheckBox.setText("Due")
         self.dueCheckBox.stateChanged.connect(self.dueDateCheckChanged)
         self.dueEdit.setDisabled(True)
         
+        self.verticalLayout_1.addWidget(self.dueCheckBox)
         self.verticalLayout_1.addWidget(self.dueEdit)
-        self.horizontalLayout_2.addWidget(self.dueCheckBox)
         self.horizontalLayout_2.addLayout(self.verticalLayout_1)
         
         self.verticalLayout_2 = QtGui.QVBoxLayout()
-        self.showFromLabel = QtGui.QLabel(self)
-        self.showFromLabel.setText("Show from")
-        self.verticalLayout_2.addWidget(self.showFromLabel)
         self.showFromEdit = QtGui.QDateEdit(QtCore.QDate.currentDate())
         self.showFromEdit.setCalendarPopup(True)
         self.showFromCheckBox = QtGui.QCheckBox()
+        self.showFromCheckBox.setText("Show from")
         self.showFromCheckBox.stateChanged.connect(self.showFromCheckChanged)
         self.showFromEdit.setDisabled(True)
         
+        self.verticalLayout_2.addWidget(self.showFromCheckBox)
         self.verticalLayout_2.addWidget(self.showFromEdit)
-        self.horizontalLayout_2.addWidget(self.showFromCheckBox)
         self.horizontalLayout_2.addLayout(self.verticalLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
+        
+        # Depends on
+        self.existingActions = []
+        for row in self.databaseCon.execute("select description FROM todos where state='active'"):
+            self.existingActions.append(row[0])
+        #self.existingActions.append("FAKE-TAG")
+        #
+        self.dependsLabel = QtGui.QLabel(self)
+        self.dependsLabel.setText("Depends on (Separate with ;)")
+        self.verticalLayout.addWidget(self.dependsLabel)
+        self.dependsEdit = QtGui.QLineEdit(self)
+        self.verticalLayout.addWidget(self.dependsEdit)
+        # TODO add completion. Consider this: http://john.nachtimwald.com/2009/07/04/qcompleter-and-comma-separated-tags/
+        # make tags all lower case
+        # use set(list of strings) and set.diffence
+        self.dependsEdit.textChanged.connect(self.dependsEditChanged)
+        self.dependsCompleter = QtGui.QCompleter(QtCore.QStringList(self.existingActions))
+        self.dependsCompleter.setWidget(self.dependsEdit)
+        self.dependsCompleter.setCompletionMode(1)
+        self.dependsCompleter.activated.connect(self.dependsCompleterSelect)
         
         # Commit and Cancel button
         # TODO hide cancel button by default??? only show when editing an existing item
@@ -237,12 +253,12 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.contextEdit.setVisible(self.formVisible)
         self.tagsLabel.setVisible(self.formVisible)
         self.tagsEdit.setVisible(self.formVisible)
-        self.dueLabel.setVisible(self.formVisible)
         self.dueEdit.setVisible(self.formVisible)
         self.dueCheckBox.setVisible(self.formVisible)
-        self.showFromLabel.setVisible(self.formVisible)
         self.showFromEdit.setVisible(self.formVisible)
         self.showFromCheckBox.setVisible(self.formVisible)
+        self.dependsLabel.setVisible(self.formVisible)
+        self.dependsEdit.setVisible(self.formVisible)
         self.addActionButton.setVisible(self.formVisible)
         #TODO only reshow cancel button when editing existing item
         self.cancelEditButton.setVisible(self.formVisible and self.current_id != None)
@@ -284,6 +300,43 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.tagsEdit.setText('%s%s, %s' % (before_text[:cursor_pos - prefix_len], theText, after_text))
         self.tagsEdit.setCursorPosition(cursor_pos - prefix_len + len(theText) + 2)
     
+    def dependsEditChanged(self, theText):
+        # refer to this example:
+        # http://john.nachtimwald.com/2009/07/04/qcompleter-and-comma-separated-tags/
+        #logging.info("TracksActionEditor->tagsEditChanged  -  "+str(theText))
+        
+        tagText = str(theText).split(";")
+        theTags = []
+        for tag in tagText:
+            tag = tag.strip()
+            if len(tag) > 0:
+                theTags.append(tag)
+        theSet = list(set(theTags))
+        
+        currentText = str(theText[:self.dependsEdit.cursorPosition()])
+        prefix = currentText.split(';')[-1].strip()
+
+        tags =  list(set(self.existingActions).difference(theSet))
+        model = QtGui.QStringListModel(QtCore.QStringList(tags), self.dependsCompleter)
+        model.sort(0)
+        self.dependsCompleter.setModel(model)
+        self.dependsCompleter.setCompletionPrefix(prefix)
+        if prefix.strip() != '':
+            self.dependsCompleter.complete()
+        self.dependsCompleter.setModelSorting(1)
+        
+    def dependsCompleterSelect(self, theText):
+        # refer to this example:
+        # http://john.nachtimwald.com/2009/07/04/qcompleter-and-comma-separated-tags/
+        #logging.info("TracksActionEditor->tagsCompleterSelect  -  " + str(theText))
+        
+        cursor_pos = self.dependsEdit.cursorPosition()
+        before_text = unicode(self.dependsEdit.text())[:cursor_pos]
+        after_text = unicode(self.dependsEdit.text())[cursor_pos:]
+        prefix_len = len(before_text.split(';')[-1].strip())
+        self.dependsEdit.setText('%s%s; %s' % (before_text[:cursor_pos - prefix_len], theText, after_text))
+        self.dependsEdit.setCursorPosition(cursor_pos - prefix_len + len(theText) + 2)
+    
     def cancelButtonClicked(self):
         logging.info("TracksActionEditor->cancelButtonClicked")
         # Clear all the widgets
@@ -305,6 +358,7 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.showFromEdit.setDate(QtCore.QDate.currentDate())
         self.showFromEdit.setDisabled(True)
         self.showFromCheckBox.setChecked(False)
+        self.dependsEdit.clear()
         
         self.current_id = None
         self.cancelEditButton.setVisible(False)
@@ -348,16 +402,55 @@ class TracksActionEditor(QtGui.QGroupBox):
         show = None
         if self.showFromCheckBox.isChecked():
             show = str(self.showFromEdit.date().toString("yyyy-MM-dd"))
+            
+        # Depends on
+        tagText = str(self.dependsEdit.text()).split(";")
+        theTags = []
+        dependsIDs = []
+        if tagText:
+            for tag in tagText:
+                tag = tag.strip()
+                if len(tag) > 0:
+                    theTags.append(tag)
+        try:
+            for tag in theTags:
+                id = self.databaseCon.execute("select id from todos where description=?",[tag,]).fetchone()[0]
+                dependsIDs.append(id)
+        except:
+            QtGui.QMessageBox.critical(self,
+                        "Error",
+                        "Action doesn't exist\n\nWhat does this depend on?\n\nNothing added")
+            return
         
+        # Insert the data
         if self.current_id == None:
             q = "insert into todos values(NULL,?,?,?,?,DATETIME('now'),?,NULL,1,?,'active',NULL,DATETIME('now'))"
             self.databaseCon.execute(q,[context,project,desc,notes,due,show])
             self.databaseCon.commit()
             
+            if len(dependsIDs) > 0:
+                currentID = self.databaseCon.execute("SELECT last_insert_rowid()").fetchone()[0]
+                for id in dependsIDs:
+                    logging.debug("TracksActionEditor->addActionButtonClicked - Inserting a dependancy")
+                    q = "insert into dependencies values(NULL,?,?,'depends')"
+                    self.databaseCon.execute(q,[currentID,id])
+                    self.databaseCon.commit()
+            
         else:
             q = "UPDATE todos SET context_id=?, project_id=?, description=?, notes=?, due=?, show_from=?, updated_at=DATETIME('now') where id=?"
             self.databaseCon.execute(q,[context,project,desc,notes,due,show,self.current_id])
             self.databaseCon.commit()
+            
+            if len(dependsIDs) > 0:
+                # remove all the old dependancies
+                self.databaseCon.execute("DELETE FROM dependencies WHERE successor_id=?", [self.current_id,])
+                
+                currentID = self.current_id
+                for id in dependsIDs:
+                    logging.debug("TracksActionEditor->addActionButtonClicked - Inserting a dependancy")
+                    q = "insert into dependencies values(NULL,?,?,'depends')"
+                    self.databaseCon.execute(q,[currentID,id])
+                    self.databaseCon.commit()
             
         self.cancelButtonClicked()
         self.emit(QtCore.SIGNAL("actionModified()"))
@@ -420,6 +513,14 @@ class TracksActionEditor(QtGui.QGroupBox):
             #else:
             #   self.statusRadio2.setChecked(True)
         self.tagsEdit.setText(tagText)
+        
+        # The dependancies
+        dependText = ""
+        for row in self.databaseCon.execute("SELECT todos.description FROM dependencies, todos WHERE todos.id=dependencies.predecessor_id and dependencies.successor_id=?",[actionID,]):
+            dependText = dependText + str(row[0]+"; ")
+        self.dependsEdit.setText(dependText)    
+        
+
     
     def refresh(self):
         """This will refresh the action editor, ie update available projects/contexts/tags"""
