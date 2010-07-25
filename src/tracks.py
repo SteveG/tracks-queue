@@ -407,7 +407,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'completed' AND todos.project_id= "+ str(projID) + " order by todos.completed_at, todos.description")
+                       'completed' AND todos.project_id= "+ str(projID) + " order by todos.completed_at DESC, todos.description")
         
     def backToProjectList(self):
         logging.info("tracks->backToProjectList()")
@@ -533,7 +533,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'completed' AND todos.context_id= "+ str(id) + " order by todos.completed_at")
+                       'completed' AND todos.context_id= "+ str(id) + " order by todos.completed_at DESC")
     
     def backToContextList(self):
         logging.info("tracks->backToContextList()")
