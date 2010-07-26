@@ -59,6 +59,7 @@ class TracksActionList(QtGui.QWidget):
         self.displayshow_from = False
         self.displaycompleted_at = False
         self.displaytags = False
+        self.displayprojectfirst = False
         
         
         # Create Layout
@@ -131,6 +132,9 @@ class TracksActionList(QtGui.QWidget):
         #   h += self.listWidget.sizeHintForRow(a)
         #self.listWidget.setFixedHeight(h+6)
     
+    def setDisplayProjectFirst(self, setto):
+        self.displayprojectfirst = setto
+        
     def setDisplayShowFrom(self, setto):
         logging.info("TracksActionList->setDisplayShowFrom")
         self.displayshow_from = setto
@@ -239,6 +243,16 @@ class TracksActionList(QtGui.QWidget):
                 show_fromText.setText("[" + str(date) +"]")
                 show_fromText.setStyleSheet("Font-size: 8px")
                 horizontalLayout.addWidget(show_fromText)
+             
+            # Project first if required
+            if self.displayprojectfirst:
+                projecttext = QtGui.QLabel(widget)
+                #projecttext.setText(" %-30s  \t" % str(project)[0:30])
+                projecttext.setText(project)
+                projecttext.setStyleSheet("Font-size: 8px")
+                projecttext.setMinimumWidth(140)
+                projecttext.setMaximumWidth(140)
+                horizontalLayout.addWidget(projecttext)
                 
             # Due date if required
             data = self.databaseCon.execute("select due, (due < DATE('now','localtime')) from todos where id = " + str(id)).fetchone()

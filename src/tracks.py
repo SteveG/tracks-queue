@@ -108,6 +108,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.hometabid=0
         self.projectstabid = 2
         self.contextstabid = 3
+        self.donetabid = 6
         self.refreshables={}
         for a in range(self.tabWidget.count()):
             self.refreshables[a]=[]
@@ -168,11 +169,13 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.setupTicklerPage()
         
         # NOTE Setup the done page
-        #self.setupDonePage()
+        self.setupDonePage()
+        
+        # enable the appropriate tabs
         self.tabWidget.setTabEnabled(1, False)
         self.tabWidget.setTabEnabled(4, False)
         self.tabWidget.setTabEnabled(5, False)
-        self.tabWidget.setTabEnabled(6, False)
+        #self.tabWidget.setTabEnabled(6, False)
         self.tabWidget.setTabEnabled(7, False)
         self.tabWidget.setTabEnabled(8, False)
         self.refreshCurrentTab()
@@ -552,11 +555,15 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
     def setupDonePage(self):
         """Setup the done page"""
         # No editing on this page, just a list of done actions grouped by various date ranges
-        sql = "SELECT todos.id, todos.description, contexts.name, projects.name\
-              FROM (todos LEFT JOIN contexts ON todos.context_id = contexts.id)\
-              LEFT JOIN projects on todos.project_id = projects.id where \
-              todos.state='completed' order by todos.completed_at"
-        actionList = TracksActionList(self.databaseCon,"Completed Actions'",sql,True)
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'completed' AND todos.completed_at > DATETIME('now','-14days') order by projects.name, todos.completed_at DESC"
+        actionList = TracksActionList(self.databaseCon,"Last Fortnight",sql,False)
+        actionList.setDisplayCompletedAt(True)
+        actionList.setDisplayProjectFirst(True)
+        self.refreshables[self.donetabid].append(actionList)
         self.done_mainpane_layout.addWidget(actionList)
         self.done_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         # TODO add date ranges, e.g. done today, done last two weeks
