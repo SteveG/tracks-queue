@@ -48,10 +48,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # open the database file
         # Locate the database file, or create a new one
         knowFile = False
-        settings = QtCore.QSettings("tracks.cute", "tracks.cute")
+        self.settings = QtCore.QSettings("tracks.cute", "tracks.cute")
         # The last file accessed is contained in the settings
-        if settings.contains("database/lastfile"):
-                filepath = str(settings.value("database/lastfile").toString())
+        if self.settings.contains("database/lastfile"):
+                filepath = str(self.settings.value("database/lastfile").toString())
                 if os.path.exists(filepath):
                         #self.database = DbAccess(filepath)
                         self.databaseCon = sqlite3.connect(filepath)
@@ -85,7 +85,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                         
                         self.databaseCon = sqlite3.connect(str(filename))
                         self.databaseCon.row_factory = sqlite3.Row
-                        settings.setValue("database/lastfile", QtCore.QVariant(filename))
+                        self.settings.setValue("database/lastfile", QtCore.QVariant(filename))
         
         # Open the database
         #self.databaseCon = sqlite3.connect("tracks.db")
@@ -99,8 +99,16 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # Set up the user interface from Designer.
         self.setupUi(self)
-        self.setWindowTitle("tracks.cute")    
+        self.setWindowTitle("tracks.cute")
         
+        
+        
+        # Get the current user
+        if self.settings.contains("database/user"):
+            self.current_user_id = int(self.settings.value("database/user").toString())
+        else:
+            self.current_user_id = False
+            self.tabWidget.setCurrentIndex(8)
         
         
         # Setup the refreshables dictionary, a list of all refreshable elements 
@@ -109,6 +117,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectstabid = 2
         self.contextstabid = 3
         self.donetabid = 6
+        self.settingstabid = 8
         self.refreshables={}
         for a in range(self.tabWidget.count()):
             self.refreshables[a]=[]
@@ -171,13 +180,16 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # NOTE Setup the done page
         self.setupDonePage()
         
+        # NOTE Setup the settings page
+        self.setupSettingsPage()
+        
         # enable the appropriate tabs
         self.tabWidget.setTabEnabled(1, False)
         self.tabWidget.setTabEnabled(4, False)
         self.tabWidget.setTabEnabled(5, False)
         #self.tabWidget.setTabEnabled(6, False)
         self.tabWidget.setTabEnabled(7, False)
-        self.tabWidget.setTabEnabled(8, False)
+        #self.tabWidget.setTabEnabled(8, False)
         self.refreshCurrentTab()
     
     def setupHomePage(self):
@@ -196,18 +208,18 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.refreshables[self.hometabid].append(self.actionEditor)
         
         # Add the recently completed list of actions
-        sqlCompleted = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
-                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
-                       todos.context_id = contexts.id) LEFT JOIN projects on \
-                       todos.project_id = projects.id where todos.state=\
-                       'completed' order by todos.completed_at DESC limit 7"
-        tracksCList = TracksActionList(
-            self.databaseCon,"Recently Completed Actions",sqlCompleted,False)
-        tracksCList.setDisplayCompletedAt(True)
-        self.verticalLayout_4.addWidget(tracksCList)
-        tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
-        tracksCList.gotoProject.connect(self.gotoProject)
-        self.refreshables[self.hometabid].append(tracksCList)
+        #sqlCompleted = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+        #               projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+        #               todos.context_id = contexts.id) LEFT JOIN projects on \
+        #               todos.project_id = projects.id where todos.state=\
+        #               'completed' order by todos.completed_at DESC limit 7"
+        #tracksCList = TracksActionList(
+        #    self.databaseCon,"Recently Completed Actions",sqlCompleted,False)
+        #tracksCList.setDisplayCompletedAt(True)
+        #self.verticalLayout_4.addWidget(tracksCList)
+        #tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
+        #tracksCList.gotoProject.connect(self.gotoProject)
+        #self.refreshables[self.hometabid].append(tracksCList)
         
         # Add a vertical spacer
         spacerItem = QtGui.QSpacerItem(
@@ -215,10 +227,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.verticalLayout_4.addItem(spacerItem)
         
         # Connect the action editor
-        tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
+        #tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
         
         self.actionEditor.actionModified.connect(self.refreshCurrentTab)
-        tracksCList.actionModified.connect(self.refreshCurrentTab)
+        #tracksCList.actionModified.connect(self.refreshCurrentTab)
         
     def refreshHomePage(self):
         """Refreshes complex bits of the home page. Others components are refreshed via refreshables"""
@@ -228,10 +240,31 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         for key in self.homeContexts.keys():
             self.homeContextExpanded[key] = self.homeContexts[key].isExpanded()
         
-        # remove all the existing dynamic lists from the display
+        # remove all the existing lists from the display
         for key in self.homeContexts.keys():
             self.homeContexts[key].hide()
             self.verticalLayout_4.removeWidget(self.homeContexts[key])
+        
+        
+        
+        # add the completed actions
+        expanded = False
+        if self.homeContextExpanded.has_key("completed"):
+            expanded = self.homeContextExpanded["completed"]    
+        sqlCompleted = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id AND todos.user_id=contexts.user_id) LEFT JOIN projects on \
+                       todos.project_id = projects.id AND todos.user_id=projects.user_id where todos.state=\
+                       'completed' AND todos.user_id=%s order by todos.completed_at DESC limit 7" % (self.current_user_id)
+        tracksCList = TracksActionList(self.databaseCon,"Recently Completed Actions",sqlCompleted,expanded)
+        self.homeContexts["completed"] = tracksCList
+        tracksCList.setDisplayCompletedAt(True)
+        self.verticalLayout_4.insertWidget(0,tracksCList)
+        tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
+        tracksCList.gotoProject.connect(self.gotoProject)
+        tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
+        tracksCList.actionModified.connect(self.refreshCurrentTab)
+        tracksCList.refresh()
             
         # Add all of the active contexts
         #activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM (todos LEFT JOIN contexts ON \
@@ -239,14 +272,15 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         #          todos.project_id = projects.id where todos.state='active' and projects.state = 'active' and contexts.hide='f' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) ORDER BY contexts.name"
         
         activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM (todos LEFT JOIN contexts ON \
-                  todos.context_id = contexts.id) LEFT JOIN projects on\
-                  todos.project_id = projects.id where\
+                  todos.context_id = contexts.id AND todos.user_id=contexts.user_id) LEFT JOIN projects on\
+                  todos.project_id = projects.id AND todos.user_id=projects.user_id where\
                   todos.state='active' and \
                   projects.state = 'active' and \
                   contexts.hide='f' and \
                   (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) and\
                   todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active'))\
-                  ORDER BY contexts.name"
+                  AND todos.user_id = %s \
+                  ORDER BY contexts.name" % (self.current_user_id)
         
         for row in self.databaseCon.execute(activeContextQuery):
             expanded = True
@@ -255,10 +289,11 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             
             sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                   projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
-                  todos.context_id = contexts.id) LEFT JOIN projects on \
-                  todos.project_id = projects.id where contexts.id='%s' and \
+                  todos.context_id = contexts.id AND todos.user_id=contexts.user_id) LEFT JOIN projects on \
+                  todos.project_id = projects.id AND todos.user_id=projects.user_id where contexts.id='%s' and \
                   todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) and\
-                  todos.state='active' and projects.state = 'active' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) ORDER BY todos.due, todos.description" % row[0]
+                  todos.state='active' and projects.state = 'active' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) \
+                  AND todos.user_id=%s ORDER BY todos.due, todos.description" % (row[0],self.current_user_id)
             tracksAList = TracksActionList(self.databaseCon,"@"+row[1],sql,expanded)
             self.verticalLayout_4.insertWidget(0,tracksAList)
             
@@ -269,40 +304,24 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             tracksAList.gotoProject.connect(self.gotoProject)
             
             tracksAList.refresh()
+         
+        self.actionEditor.setCurrentUser(self.current_user_id)
+        
     
     def setupProjectsPage(self):
         """Setup the projects page"""
         
         # Active projects
-        queryActive = "SELECT projects.id, projects.name, SUM(CASE WHEN \
-                      todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-                      WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-                      projects LEFT JOIN todos ON projects.id=todos.project_id \
-                      WHERE projects.state='active' GROUP BY projects.id ORDER BY projects.name"
-        self.activeProjectsList = TracksProjectList(self.databaseCon, "Active Projects", queryActive, True)
+        self.activeProjectsList = TracksProjectList(self.databaseCon, "Active Projects", None, True)
         self.projects_mainpane_layout.addWidget(self.activeProjectsList)
-        self.refreshables[self.projectstabid].append(self.activeProjectsList)
         
         # Hidden projects
-        queryHidden = "SELECT projects.id, projects.name, SUM(CASE WHEN \
-                      todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-                      WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-                      projects LEFT JOIN todos ON projects.id=todos.project_id \
-                      WHERE projects.state='hidden' GROUP BY projects.id ORDER BY projects.name"
-        self.hiddenProjectsList = TracksProjectList(self.databaseCon, "Hidden Projects", queryHidden, False)
+        self.hiddenProjectsList = TracksProjectList(self.databaseCon, "Hidden Projects", None, False)
         self.projects_mainpane_layout.addWidget(self.hiddenProjectsList)
-        self.refreshables[self.projectstabid].append(self.hiddenProjectsList)
         
         # Completed Projects
-        queryCompleted = "SELECT projects.id, projects.name, SUM(CASE WHEN \
-                         todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-                         WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM\
-                         projects LEFT JOIN todos ON projects.id=\
-                         todos.project_id WHERE projects.state='completed' \
-                         GROUP BY projects.id ORDER BY projects.name"
-        self.completedProjectsList = TracksProjectList(self.databaseCon, "Completed Projects", queryCompleted, False)
+        self.completedProjectsList = TracksProjectList(self.databaseCon, "Completed Projects", None, False)
         self.projects_mainpane_layout.addWidget(self.completedProjectsList)
-        self.refreshables[self.projectstabid].append(self.completedProjectsList)
         
         # Expanderiser
         self.projects_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
@@ -374,6 +393,36 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
     
         # Expander
         self.projectview_verticalLayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+    
+    def refreshProjectsPage(self):
+        logging.info("tracks->refreshProjectsPage")
+         # Active projects
+        queryActive = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                      todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                      WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                      projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id\
+                      WHERE projects.state='active' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" %(self.current_user_id)
+        self.activeProjectsList.setDBQuery(queryActive)
+        
+        # Hidden projects
+        queryHidden = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                      todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                      WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                      projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id \
+                      WHERE projects.state='hidden' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
+        self.hiddenProjectsList.setDBQuery(queryHidden)
+        
+        # Completed Projects
+        queryCompleted = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                         todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                         WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM\
+                         projects LEFT JOIN todos ON projects.id=\
+                         todos.project_id AND projects.user_id=todos.user_id WHERE projects.state='completed' and projects.user_id=%s \
+                         GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
+        self.completedProjectsList.setDBQuery(queryCompleted)
+        
+        self.projectview_actionEditor.setCurrentUser(self.current_user_id)
+        self.projects_Editor.setCurrentUser(self.current_user_id)
         
     def gotoProject(self, projID):
         logging.info("tracks->gotoProject(" + str(projID) +")")
@@ -419,24 +468,12 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
     def setupContextsPage(self):
         """Setup the contexts page"""
         # Active Contexts
-        queryActive = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
-                      todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE\
-                      WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-                      contexts LEFT JOIN todos ON contexts.id=todos.context_id \
-                      WHERE contexts.hide='f' GROUP BY contexts.id ORDER BY contexts.name"
-        self.activeContextsList = TracksContextList(self.databaseCon, "Visible Contexts", queryActive, True)
+        self.activeContextsList = TracksContextList(self.databaseCon, "Visible Contexts", None, True)
         self.contexts_mainpane_layout.addWidget(self.activeContextsList)
-        self.refreshables[self.contextstabid].append(self.activeContextsList)
                 
         # Hidden Contexts
-        queryHidden = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
-                      todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-                      WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-                      contexts LEFT JOIN todos ON contexts.id=todos.context_id \
-                      WHERE contexts.hide='t' GROUP BY contexts.id ORDER BY contexts.name"
-        self.hiddenContextsList = TracksContextList(self.databaseCon, "Hidden Contexts", queryHidden, False)
+        self.hiddenContextsList = TracksContextList(self.databaseCon, "Hidden Contexts", None, False)
         self.contexts_mainpane_layout.addWidget(self.hiddenContextsList)
-        self.refreshables[self.contextstabid].append(self.hiddenContextsList)
         
         # Expanderiser
         self.contexts_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
@@ -503,6 +540,26 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
     
         # Expander
         self.contextview_verticalLayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+    
+    def refreshContextsPage(self):
+        # Active Contexts
+        queryActive = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
+                      todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE\
+                      WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                      contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id \
+                      WHERE contexts.hide='f' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
+        self.activeContextsList.setDBQuery(queryActive)
+                
+        # Hidden Contexts
+        queryHidden = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
+                      todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                      WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                      contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id\
+                      WHERE contexts.hide='t' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
+        self.hiddenContextsList.setDBQuery(queryHidden)
+        
+        self.contexts_Editor.setCurrentUser(self.current_user_id)
+        self.contextview_actionEditor.setCurrentUser(self.current_user_id)
         
     def gotoContext(self, id):
         logging.info("tracks->gotoContext(" + str(id) +")")
@@ -555,18 +612,55 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
     def setupDonePage(self):
         """Setup the done page"""
         # No editing on this page, just a list of done actions grouped by various date ranges
+        self.doneFortnightActionList = TracksActionList(self.databaseCon,"Last Fortnight",None,False)
+        self.doneFortnightActionList.setDisplayCompletedAt(True)
+        self.doneFortnightActionList.setDisplayProjectFirst(True)
+        self.done_mainpane_layout.addWidget(self.doneFortnightActionList)
+        self.done_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        # TODO add date ranges, e.g. done today, done last two weeks
+        
+    def refreshDonePage(self):
+        logging.info("tracks->refreshDonePage")
         sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'completed' AND todos.completed_at > DATETIME('now','-14days') order by projects.name, todos.completed_at DESC"
-        actionList = TracksActionList(self.databaseCon,"Last Fortnight",sql,False)
-        actionList.setDisplayCompletedAt(True)
-        actionList.setDisplayProjectFirst(True)
-        self.refreshables[self.donetabid].append(actionList)
-        self.done_mainpane_layout.addWidget(actionList)
-        self.done_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
-        # TODO add date ranges, e.g. done today, done last two weeks
+                       'completed' AND todos.completed_at > DATETIME('now','-14days') AND todos.user_id=%s order by projects.name, todos.completed_at DESC" % (self.current_user_id)
+        self.doneFortnightActionList.setDBQuery(sql)
+    
+    
+    
+    def setupSettingsPage(self):
+        logging.info("tracks->setupSettingsPage")
+        self.settingsUserSelectBox.currentIndexChanged.connect(self.settingsUserChanged)
+        
+    def refreshSettingsPage(self):
+        logging.info("tracks->setupSettingsPage")
+        # User setting
+        self.settingsUserSelectBox.currentIndexChanged.disconnect(self.settingsUserChanged)
+        #self.settingsUserSelectBox.setDisabled(True)
+        self.settingsUserSelectBox.clear()
+        data = self.databaseCon.execute("SELECT login, id FROM users ORDER BY login")
+        for item in data:
+            self.settingsUserSelectBox.addItem(item[0],item[1])
+         
+        founduser = False    
+        if self.current_user_id:
+            index = self.settingsUserSelectBox.findData(self.current_user_id)
+            if index:
+                self.settingsUserSelectBox.setCurrentIndex(index)
+                founduser = True
+        
+        if not founduser:
+            self.settingsUserSelectBox.setCurrentIndex(0)
+            self.current_user_id = self.settingsUserSelectBox.itemData(0).toInt()[0]
+            self.settings.setValue("database/user", QtCore.QVariant(self.current_user_id))
+            
+        self.settingsUserSelectBox.currentIndexChanged.connect(self.settingsUserChanged)
+    
+    def settingsUserChanged(self, index):
+        self.current_user_id = self.settingsUserSelectBox.itemData(self.settingsUserSelectBox.currentIndex()).toInt()[0]
+        self.settings.setValue("database/user", QtCore.QVariant(self.current_user_id))
     
     def refreshCurrentTab(self):
         self.refreshTab(self.tabWidget.currentIndex())
@@ -581,6 +675,14 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # for stuff not quite as simple as hitting refresh() call a tab specific method
         if id == 0: #homepage
             self.refreshHomePage()
+        elif id ==2:
+            self.refreshProjectsPage()
+        elif id ==3:
+            self.refreshContextsPage()
+        elif id ==6:
+            self.refreshDonePage()
+        elif id == 8:
+            self.refreshSettingsPage()
 
         
 if __name__ == "__main__":

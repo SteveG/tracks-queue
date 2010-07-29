@@ -117,7 +117,8 @@ class TracksContextList(QtGui.QWidget):
     def fillList(self):
         """Fill the list widget"""
         logging.info("TracksContextList->fillList")
-        
+        if self.dbQuery == None:
+            return
         # The query needs to return [id, name, # of active tasks, # of completed tasks]
         count = 0
         for row in self.databaseCon.execute(self.dbQuery):
@@ -205,6 +206,10 @@ class TracksContextList(QtGui.QWidget):
         self.listWidget.clear()
         self.fillList()
         
+    def setDBQuery(self, query):
+        logging.info("TracksContextList->setDBQuery")
+        self.dbQuery = query
+        self.refresh()
 
 class TracksContextEditor(QtGui.QGroupBox):
     """
@@ -221,6 +226,7 @@ class TracksContextEditor(QtGui.QGroupBox):
         # The current item id
         self.current_id = None
         self.databaseCon = dbCon
+        self.current_user_id = None
         
         QtGui.QGroupBox.__init__(self)
         
@@ -333,6 +339,11 @@ class TracksContextEditor(QtGui.QGroupBox):
                             "Error",
                             "Context editor is either incomplete or erroneous\n\nNo data has been inserted or modified")
             return
+        if self.current_user_id==None:
+            QtGui.QMessageBox.critical(self,
+                            "Error",
+                            "Editor doesn't know which user?\n\nNo data has been inserted or modified")
+            return
         
         # TODO add or modify the context
         name = str(self.nameEdit.text())
@@ -344,8 +355,8 @@ class TracksContextEditor(QtGui.QGroupBox):
         
         if self.current_id == None:
             logging.debug("TracksContextEditor->addButtonClicked->adding new context")
-            q = "INSERT INTO contexts VALUES(NULL,?,NULL,?,1,DATETIME('now'),DATETIME('now'))"
-            self.databaseCon.execute(q,[name,hidden])
+            q = "INSERT INTO contexts VALUES(NULL,?,NULL,?,?,DATETIME('now'),DATETIME('now'))"
+            self.databaseCon.execute(q,[name,hidden,self.current_user_id])
             self.databaseCon.commit()
             
             self.cancelButtonClicked()
@@ -379,7 +390,8 @@ class TracksContextEditor(QtGui.QGroupBox):
         if not self.formVisible:
             self.hideButtonClicked()
         
-        
+    def setCurrentUser(self, user):
+        self.current_user_id = user
                 
         
 		

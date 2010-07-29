@@ -115,7 +115,9 @@ class TracksProjectList(QtGui.QWidget):
     
     def fillList(self):
         """Fill the list widget"""
-        logging.info("TracksActionList->fillList")
+        logging.info("TracksProjectList->fillList")
+        if not self.dbQuery:
+            return
         
         # The query needs to return [id, name, # of active tasks, # of completed tasks]
         count = 0
@@ -186,22 +188,27 @@ class TracksProjectList(QtGui.QWidget):
     
     
     def deleteProjectButtonClicked(self, id):
-        logging.info("TracksContextList->deleteContextButtonClicked  -  " + str(id))
+        logging.info("TracksProjectList->deleteContextButtonClicked  -  " + str(id))
         reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete?", "Are you sure you want to delete this project and clear the project field of all related actions?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         logging.debug("TracksContextList->deleteContextButtonClicked, reallydelete=" + str(reallydelete==QtGui.QMessageBox.Yes))
         
     def editProjectButtonClicked(self, id):
-        logging.info("TracksContextList->editContextButtonClicked  -  " + str(id))
+        logging.info("TracksProjectList->editContextButtonClicked  -  " + str(id))
         self.emit(QtCore.SIGNAL("editProject(int)"),id)
         
     def textProjectButtonClicked(self, id):
-        logging.info("TracksContextList->textContextButtonClicked  -  " + str(id))
+        logging.info("TracksProjectList->textContextButtonClicked  -  " + str(id))
         self.emit(QtCore.SIGNAL("gotoProject(int)"),id)
         
     def refresh(self):
-        logging.info("TracksContextList->refresh")
+        logging.info("TracksProjectList->refresh")
         self.listWidget.clear()
         self.fillList()
+        
+    def setDBQuery(self, query):
+        logging.info("TracksProjectList->setDBQuery")
+        self.dbQuery = query
+        self.refresh()
 
 class TracksProjectEditor(QtGui.QGroupBox):
     """
@@ -217,7 +224,7 @@ class TracksProjectEditor(QtGui.QGroupBox):
         # The current item id
         self.current_id = None
         self.databaseCon = dbCon
-        
+        self.current_user_id = None
         QtGui.QGroupBox.__init__(self)
         
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
@@ -429,6 +436,11 @@ class TracksProjectEditor(QtGui.QGroupBox):
                             "Error",
                             "Project editor is either incomplete or erroneous\n\nNo data has been inserted or modified")
             return
+        if self.current_user_id==None:
+            QtGui.QMessageBox.critical(self,
+                            "Error",
+                            "Editor doesn't know which user??\n\nNo data has been inserted or modified")
+            return
         
         name = str(self.nameEdit.text())
         desc = str(self.descriptionEdit.toPlainText())
@@ -458,10 +470,10 @@ class TracksProjectEditor(QtGui.QGroupBox):
                 #TODO more here            
         if self.current_id == None:
             logging.debug("TracksProjectEditor->saveButtonClicked->adding new project")
-            q = "INSERT INTO projects VALUES(NULL,?,NULL,1,?,?,DATETIME('now'),DATETIME('now'),?,NULL,?)"
+            q = "INSERT INTO projects VALUES(NULL,?,NULL,?,?,?,DATETIME('now'),DATETIME('now'),?,NULL,?)"
             if state == "completed":
-                q = "INSERT INTO projects VALUES(NULL,?,NULL,1,?,?,DATETIME('now'),DATETIME('now'),?,DATETIME('now'),?)"
-            self.databaseCon.execute(q,[name,desc,state,context,tags])
+                q = "INSERT INTO projects VALUES(NULL,?,NULL,?,?,?,DATETIME('now'),DATETIME('now'),?,DATETIME('now'),?)"
+            self.databaseCon.execute(q,[name,self.current_user_id,desc,state,context,tags])
             self.databaseCon.commit()
             
             self.cancelButtonClicked()
@@ -517,5 +529,6 @@ class TracksProjectEditor(QtGui.QGroupBox):
         if not self.formVisible:
             self.hideButtonClicked()
         
-        
+    def setCurrentUser(self, user):
+        self.current_user_id = user
         

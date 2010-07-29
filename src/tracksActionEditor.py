@@ -44,7 +44,9 @@ class TracksActionEditor(QtGui.QGroupBox):
         logging.info("TracksActionEditor initiated...")
         # The current item id
         self.current_id = None
+        
         self.databaseCon = dbCon
+        self.current_user_id = None
         
         # default values
         self.defaultContext = None
@@ -374,7 +376,12 @@ class TracksActionEditor(QtGui.QGroupBox):
         if self.descriptionEdit.text() == "" or self.contextEdit.text()== "":
             QtGui.QMessageBox.critical(self,
                             "Error",
-                            "An action must have a description\n\nNo data has been inserted or modified")
+                            "An action must have a description and a context\n\nNo data has been inserted or modified")
+            return
+        if self.current_user_id==None:
+            QtGui.QMessageBox.critical(self,
+                            "Error",
+                            "Editor doesn't know the user?\n\nNo data has been inserted or modified")
             return
         
         desc = str(self.descriptionEdit.text())
@@ -427,8 +434,8 @@ class TracksActionEditor(QtGui.QGroupBox):
         
         # Insert the data
         if self.current_id == None:
-            q = "insert into todos values(NULL,?,?,?,?,DATETIME('now'),?,NULL,1,?,'active',NULL,DATETIME('now'))"
-            self.databaseCon.execute(q,[context,project,desc,notes,due,show])
+            q = "insert into todos values(NULL,?,?,?,?,DATETIME('now'),?,NULL,?,?,'active',NULL,DATETIME('now'))"
+            self.databaseCon.execute(q,[context,project,desc,notes,due,self.current_user_id,show])
             self.databaseCon.commit()
             
             if len(dependsIDs) > 0:
@@ -556,3 +563,6 @@ class TracksActionEditor(QtGui.QGroupBox):
         
     def setDefaultTags(self, tags):
         self.defaultTags = tags
+        
+    def setCurrentUser(self, user):
+        self.current_user_id = user

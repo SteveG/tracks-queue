@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tracks.ui'
 #
-# Created: Mon Jul 26 21:14:47 2010
+# Created: Thu Jul 29 16:04:48 2010
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -151,7 +151,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_4 = QtGui.QWidget(self.scrollArea_2)
-        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 756, 497))
+        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 65, 16))
         self.scrollAreaWidgetContents_4.setObjectName("scrollAreaWidgetContents_4")
         self.projectview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_4)
         self.projectview_verticalLayout.setMargin(0)
@@ -235,7 +235,7 @@ class Ui_MainWindow(object):
         self.scrollArea_7.setWidgetResizable(True)
         self.scrollArea_7.setObjectName("scrollArea_7")
         self.scrollAreaWidgetContents_9 = QtGui.QWidget(self.scrollArea_7)
-        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 754, 514))
+        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 63, 16))
         self.scrollAreaWidgetContents_9.setObjectName("scrollAreaWidgetContents_9")
         self.contextview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.contextview_verticalLayout.setMargin(0)
@@ -320,6 +320,22 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.statistics_tab, "")
         self.settings_tab = QtGui.QWidget()
         self.settings_tab.setObjectName("settings_tab")
+        self.verticalLayout_7 = QtGui.QVBoxLayout(self.settings_tab)
+        self.verticalLayout_7.setObjectName("verticalLayout_7")
+        self.horizontalLayout_14 = QtGui.QHBoxLayout()
+        self.horizontalLayout_14.setSpacing(0)
+        self.horizontalLayout_14.setObjectName("horizontalLayout_14")
+        self.label = QtGui.QLabel(self.settings_tab)
+        self.label.setObjectName("label")
+        self.horizontalLayout_14.addWidget(self.label)
+        self.settingsUserSelectBox = QtGui.QComboBox(self.settings_tab)
+        self.settingsUserSelectBox.setObjectName("settingsUserSelectBox")
+        self.horizontalLayout_14.addWidget(self.settingsUserSelectBox)
+        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        self.horizontalLayout_14.addItem(spacerItem)
+        self.verticalLayout_7.addLayout(self.horizontalLayout_14)
+        spacerItem1 = QtGui.QSpacerItem(20, 500, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout_7.addItem(spacerItem1)
         self.tabWidget.addTab(self.settings_tab, "")
         self.horizontalLayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
@@ -346,5 +362,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tickler_tab), QtGui.QApplication.translate("MainWindow", "Tickler", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.statistics_tab), QtGui.QApplication.translate("MainWindow", "Statistics", None, QtGui.QApplication.UnicodeUTF8))
+        self.label.setText(QtGui.QApplication.translate("MainWindow", "Active User", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.settings_tab), QtGui.QApplication.translate("MainWindow", "Settings", None, QtGui.QApplication.UnicodeUTF8))
 
