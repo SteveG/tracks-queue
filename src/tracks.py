@@ -70,7 +70,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                         
                         self.databaseCon = sqlite3.connect(str(filename))
                         self.databaseCon.row_factory = sqlite3.Row
-                        settings.setValue("database/lastfile", QtCore.QVariant(filename))
+                        self.settings.setValue("database/lastfile", QtCore.QVariant(filename))
                 
                 # User needs to create a  new Database file
                 elif existing == QtGui.QMessageBox.No:
