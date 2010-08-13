@@ -26,6 +26,7 @@
 
 from PyQt4 import QtCore, QtGui
 import logging
+import sys
 
 class TracksContextList(QtGui.QWidget):
     """
@@ -42,6 +43,8 @@ class TracksContextList(QtGui.QWidget):
     
     def __init__(self, databaseCon, title, dbQuery, startExpanded):
         logging.info("TracksContextList initiated...")
+        self.iconPath = str(sys.path[0])+"/icons/"
+        
         self.databaseCon = databaseCon
         self.dbQuery = dbQuery
         
@@ -61,10 +64,16 @@ class TracksContextList(QtGui.QWidget):
         buttonIcon = None
         if startExpanded:
             self.toggleListButton.setChecked(True)
-            buttonIcon = QtGui.QIcon.fromTheme("go-up")
+            if QtGui.QIcon.hasThemeIcon("go-up"):
+                buttonIcon = QtGui.QIcon.fromTheme("go-up")
+            else:
+                buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
         else:
             self.toggleListButton.setChecked(False)
-            buttonIcon = QtGui.QIcon.fromTheme("go-down")
+            if QtGui.QIcon.hasThemeIcon("go-down"):
+                buttonIcon = QtGui.QIcon.fromTheme("go-down")
+            else:
+                buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
         self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
         self.verticalLayout.addWidget(self.toggleListButton)
         self.connect(self.toggleListButton, QtCore.SIGNAL("clicked()"), self.toggleListButtonClick)
@@ -107,9 +116,16 @@ class TracksContextList(QtGui.QWidget):
         """Toggles the visibility of the list"""
         logging.info("TracksContextList->toggleListButtonClick")
         
-        buttonIcon = QtGui.QIcon.fromTheme("go-up")
+        buttonIcon = None
+        if QtGui.QIcon.hasThemeIcon("go-up"):
+            buttonIcon = QtGui.QIcon.fromTheme("go-up")
+        else:
+            buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
         if self.listWidget.isVisible():
-            buttonIcon = QtGui.QIcon.fromTheme("go-down")
+            if QtGui.QIcon.hasThemeIcon("go-down"):
+                buttonIcon = QtGui.QIcon.fromTheme("go-down")
+            else:
+                buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
         self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
         self.listWidget.setVisible(not self.listWidget.isVisible())
     
@@ -135,8 +151,12 @@ class TracksContextList(QtGui.QWidget):
             
             # Delete Button
             deleteButton = QtGui.QToolButton(widget)
-            #deleteButton.setStyleSheet("border: None;")
-            deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
+            deleteButton.setStyleSheet("border: None;")
+            deleteIcon = None
+            if QtGui.QIcon.hasThemeIcon("edit-delete"):
+                deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
+            else:
+                deleteIcon = QtGui.QIcon(self.iconPath + "edit-delete.png")
             deleteButton.setIcon(QtGui.QIcon(deleteIcon.pixmap(16,16,1,0)))
             horizontalLayout.addWidget(deleteButton)
             self.contextDeleteButtonMapper.setMapping(deleteButton, projectID)
@@ -144,8 +164,13 @@ class TracksContextList(QtGui.QWidget):
             
             # Edit Button
             editButton = QtGui.QToolButton(widget)
-            #editButton.setStyleSheet("Border: none;")
-            editButton.setIcon(QtGui.QIcon.fromTheme("accessories-text-editor"))
+            editButton.setStyleSheet("Border: none;")
+            editIcon = None
+            if QtGui.QIcon.hasThemeIcon("accessories-text-editor"):
+                editIcon = QtGui.QIcon.fromTheme("accessories-text-editor")
+            else:
+                editIcon = QtGui.QIcon(self.iconPath + "accessories-text-editor.png")
+            editButton.setIcon(editIcon)
             horizontalLayout.addWidget(editButton)
             
             # Connect Buttons

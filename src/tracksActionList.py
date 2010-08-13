@@ -28,6 +28,7 @@ Provides an expandable list of GTD actions
 
 from PyQt4 import QtCore, QtGui
 import logging
+import sys
 
 class TracksActionList(QtGui.QWidget):
     # TODO define signals emitted by this widget
@@ -50,6 +51,8 @@ class TracksActionList(QtGui.QWidget):
     # Need to add a list title, a database query, an option for expanded or not
     def __init__(self, databaseCon, title, dbQuery, startExpanded):
         logging.info("TracksActionList initiated...")
+        self.iconPath = str(sys.path[0])+"/icons/"
+        
         self.databaseCon = databaseCon
         self.dbQuery = dbQuery
         
@@ -75,10 +78,16 @@ class TracksActionList(QtGui.QWidget):
         buttonIcon = None
         if startExpanded:
             self.toggleListButton.setChecked(True)
-            buttonIcon = QtGui.QIcon.fromTheme("go-up")
+            if QtGui.QIcon.hasThemeIcon("go-up"):
+                buttonIcon = QtGui.QIcon.fromTheme("go-up")
+            else:
+                buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
         else:
             self.toggleListButton.setChecked(False)
-            buttonIcon = QtGui.QIcon.fromTheme("go-down")
+            if QtGui.QIcon.hasThemeIcon("go-down"):
+                buttonIcon = QtGui.QIcon.fromTheme("go-down")
+            else:
+                buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
         self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
         self.verticalLayout.addWidget(self.toggleListButton)
         
@@ -151,9 +160,16 @@ class TracksActionList(QtGui.QWidget):
         """Toggles the visibility of the list"""
         logging.info("TracksActionList->toggleListButtonClick")
         
-        buttonIcon = QtGui.QIcon.fromTheme("go-up")
+        buttonIcon = None
+        if QtGui.QIcon.hasThemeIcon("go-up"):
+            buttonIcon = QtGui.QIcon.fromTheme("go-up")
+        else:
+            buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
         if self.listWidget.isVisible():
-            buttonIcon = QtGui.QIcon.fromTheme("go-down")
+            if QtGui.QIcon.hasThemeIcon("go-down"):
+                buttonIcon = QtGui.QIcon.fromTheme("go-down")
+            else:
+                buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
         self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
         self.listWidget.setVisible(not self.listWidget.isVisible())
     
@@ -187,8 +203,12 @@ class TracksActionList(QtGui.QWidget):
             
             # Delete Button
             deleteButton = QtGui.QToolButton(widget)
-            #deleteButton.setStyleSheet("border: None;")
-            deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
+            deleteButton.setStyleSheet("border: None;")
+            deleteIcon = None
+            if QtGui.QIcon.hasThemeIcon("edit-delete"):
+                deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
+            else:
+                deleteIcon = QtGui.QIcon(self.iconPath + "edit-delete.png")
             deleteButton.setIcon(QtGui.QIcon(deleteIcon.pixmap(16,16,1,0)))
             #deleteButton.setMaximumSize(QtCore.QSize(16,16)) #TEST
             horizontalLayout.addWidget(deleteButton)
@@ -197,8 +217,13 @@ class TracksActionList(QtGui.QWidget):
             
             # Edit Button
             editButton = QtGui.QToolButton(widget)
-            #editButton.setStyleSheet("Border: none;")
-            editButton.setIcon(QtGui.QIcon.fromTheme("accessories-text-editor"))
+            editButton.setStyleSheet("Border: none;")
+            editIcon = None
+            if QtGui.QIcon.hasThemeIcon("accessories-text-editor"):
+                editIcon = QtGui.QIcon.fromTheme("accessories-text-editor")
+            else:
+                editIcon = QtGui.QIcon(self.iconPath + "accessories-text-editor.png")
+            editButton.setIcon(editIcon)
             #editButton.setMaximumSize(QtCore.QSize(25,25)) #TEST
             horizontalLayout.addWidget(editButton)
             self.itemEditButtonMapper.setMapping(editButton, id)
@@ -206,9 +231,14 @@ class TracksActionList(QtGui.QWidget):
             
             # Star Button
             starButton = QtGui.QToolButton(widget)
-            #starButton.setStyleSheet("border: None;")
+            starButton.setStyleSheet("border: None;")
             importantIcon = QtGui.QIcon.fromTheme("emblem-important")
-            starButton.setIcon(QtGui.QIcon(importantIcon.pixmap(16,16,1,0)))
+            importantIcon = None
+            if QtGui.QIcon.hasThemeIcon("emblem-important"):
+                importantIcon = QtGui.QIcon.fromTheme("emblem-important")
+            else:
+                importantIcon = QtGui.QIcon(self.iconPath + "emblem-important.png")
+            starButton.setIcon(QtGui.QIcon(importantIcon.pixmap(16,16,1,1)))
             #starButton.setMaximumSize(QtCore.QSize(16,16)) #TEST
             horizontalLayout.addWidget(starButton)
             self.itemStarButtonMapper.setMapping(starButton, id)
