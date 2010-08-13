@@ -27,6 +27,7 @@ from PyQt4 import QtCore
 import sys
 import sqlite3
 import os
+from ctypes import *
 # Import the Designer file
 from tracksui import Ui_MainWindow
 # Import tracks widgets
@@ -43,6 +44,23 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         """Initiate the main window"""
         logging.info("Tracks initiated...")
         QtGui.QMainWindow.__init__(self)
+        
+        # for bling on windows(tm)
+        self.doWinComposite = False
+        try:
+            if os.name == "nt" and self.isWindowsCompositionEnabled():
+                self.setAttribute(QtCore.Qt.WA_NoSystemBackground, True)
+                from ctypes import windll, c_int, byref 
+                windll.dwmapi.DwmExtendFrameIntoClientArea(c_int(self.winId()), byref(c_int(-1)))
+                self.doWinComposite = True
+            QtCore.QDir.addSearchPath("image", sys.path[0]+"/")
+        except:
+            None
+
+        
+        
+        
+        
         
         self.setWindowIcon(QtGui.QIcon(sys.path[0] + "/icon.png"))
         # open the database file
@@ -191,6 +209,22 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.tabWidget.setTabEnabled(7, False)
         #self.tabWidget.setTabEnabled(8, False)
         self.refreshCurrentTab()
+    
+    def isWindowsCompositionEnabled(self):
+		
+        value = c_long(False)
+        point = pointer(value)
+        windll.dwmapi.DwmIsCompositionEnabled(point)
+        return bool(value.value)
+    
+    def paintEvent(self, e):
+        # This is a fix for the vista background transparency.
+        if self.doWinComposite:
+            p = QtGui.QPainter(self)
+            p.setCompositionMode(QtGui.QPainter.CompositionMode_DestinationIn)
+            p.fillRect(self.rect(), QtGui.QColor(0, 0, 0, 0))
+
+        QtGui.QMainWindow.paintEvent(self,e)
     
     def setupHomePage(self):
         """Performs initial setup of the homepage.
