@@ -48,14 +48,14 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # for bling on windows(tm)
         self.doWinComposite = False
         try:
-            if os.name == "nt" and self.isWindowsCompositionEnabled():
+        if os.name == "nt" and self.isWindowsCompositionEnabled():
                 self.setAttribute(QtCore.Qt.WA_NoSystemBackground, True)
                 from ctypes import windll, c_int, byref 
                 windll.dwmapi.DwmExtendFrameIntoClientArea(c_int(self.winId()), byref(c_int(-1)))
                 self.doWinComposite = True
-            QtCore.QDir.addSearchPath("image", sys.path[0]+"/")
+        QtCore.QDir.addSearchPath("image", sys.path[0]+"/")
         except:
-            None
+        None
 
         
         
@@ -123,10 +123,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # Get the current user
         if self.settings.contains("database/user"):
-            self.current_user_id = int(self.settings.value("database/user").toString())
+        self.current_user_id = int(self.settings.value("database/user").toString())
         else:
-            self.current_user_id = False
-            self.tabWidget.setCurrentIndex(8)
+        self.current_user_id = False
+        self.tabWidget.setCurrentIndex(8)
         
         
         # Setup the refreshables dictionary, a list of all refreshable elements 
@@ -138,7 +138,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.settingstabid = 8
         self.refreshables={}
         for a in range(self.tabWidget.count()):
-            self.refreshables[a]=[]
+        self.refreshables[a]=[]
         self.tabWidget.currentChanged.connect(self.refreshTab)
         
         
@@ -172,12 +172,12 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.starred_actionEditor = TracksActionEditor(self.databaseCon)
         self.starred_sidepane_layout.addWidget(self.starred_actionEditor)
         self.starred_sidepane_layout.addItem(
-            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         
         
         # Setup the projects page
         self.setupProjectsPage()
-       
+
         
         # Setup the contexts page
         self.setupContextsPage()
@@ -187,7 +187,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.calendar_actionEditor = TracksActionEditor(self.databaseCon)
         self.calendar_sidepane_layout.addWidget(self.calendar_actionEditor)
         self.calendar_sidepane_layout.addItem(
-            QtGui.QSpacerItem(
+        QtGui.QSpacerItem(
                 1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         
         
@@ -433,37 +433,39 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # Are listing all projects, or are we on a specifi project page?
         if self.stackedWidget_2.currentIndex() == 0:
-		# Active projects
-		queryActive = "SELECT projects.id, projects.name, SUM(CASE WHEN \
-			todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-			WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-			projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id\
-			WHERE projects.state='active' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" %(self.current_user_id)
-		self.activeProjectsList.setDBQuery(queryActive)
-		
-		# Hidden projects
-		queryHidden = "SELECT projects.id, projects.name, SUM(CASE WHEN \
-			todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-			WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-			projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id \
-			WHERE projects.state='hidden' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
-		self.hiddenProjectsList.setDBQuery(queryHidden)
-		
-		# Completed Projects
-		queryCompleted = "SELECT projects.id, projects.name, SUM(CASE WHEN \
-				todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-				WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM\
-				projects LEFT JOIN todos ON projects.id=\
-				todos.project_id AND projects.user_id=todos.user_id WHERE projects.state='completed' and projects.user_id=%s \
-				GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
-		self.completedProjectsList.setDBQuery(queryCompleted)
+                # Active projects
+                queryActive = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                        todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                        WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                        projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id\
+                        WHERE projects.state='active' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" %(self.current_user_id)
+                self.activeProjectsList.setDBQuery(queryActive)
+                
+                # Hidden projects
+                queryHidden = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                        todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                        WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                        projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id \
+                        WHERE projects.state='hidden' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
+                self.hiddenProjectsList.setDBQuery(queryHidden)
+                
+                # Completed Projects
+                queryCompleted = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                                todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                                WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM\
+                                projects LEFT JOIN todos ON projects.id=\
+                                todos.project_id AND projects.user_id=todos.user_id WHERE projects.state='completed' and projects.user_id=%s \
+                                GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
+                self.completedProjectsList.setDBQuery(queryCompleted)
+                
+                self.projects_Editor.setCurrentUser(self.current_user_id)
         else:
-		self.projectview_tracksAList.refresh()
-		self.projectview_tracksDList.refresh()
-		self.projectview_tracksCList.refresh()
-		
-		self.projectview_actionEditor.setCurrentUser(self.current_user_id)
-		self.projects_Editor.setCurrentUser(self.current_user_id)
+                self.projectview_tracksAList.refresh()
+                self.projectview_tracksDList.refresh()
+                self.projectview_tracksCList.refresh()
+                
+                self.projectview_actionEditor.setCurrentUser(self.current_user_id)
+        
         
     def gotoProject(self, projID):
         logging.info("tracks->gotoProject(" + str(projID) +")")
@@ -583,31 +585,31 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.contextview_verticalLayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
     
     def refreshContextsPage(self):
-	    
-	#Are we on the contexts list, or a specific context view
-	if self.stackedWidget_3.currentIndex() ==0:
-		# Active Contexts
-		queryActive = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
-			todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE\
-			WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-			contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id \
-			WHERE contexts.hide='f' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
-		self.activeContextsList.setDBQuery(queryActive)
-			
-		# Hidden Contexts
-		queryHidden = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
-			todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-			WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-			contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id\
-			WHERE contexts.hide='t' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
-		self.hiddenContextsList.setDBQuery(queryHidden)
-		
-		self.contexts_Editor.setCurrentUser(self.current_user_id)
-	else:
-		self.contextview_tracksAList.refresh()
-		self.contextview_tracksDList.refresh()
-		self.contextview_tracksCList.refresh()
-		self.contextview_actionEditor.setCurrentUser(self.current_user_id)
+        
+        #Are we on the contexts list, or a specific context view
+        if self.stackedWidget_3.currentIndex() ==0:
+                # Active Contexts
+                queryActive = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
+                        todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE\
+                        WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                        contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id \
+                        WHERE contexts.hide='f' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
+                self.activeContextsList.setDBQuery(queryActive)
+                        
+                # Hidden Contexts
+                queryHidden = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
+                        todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                        WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                        contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id\
+                        WHERE contexts.hide='t' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
+                self.hiddenContextsList.setDBQuery(queryHidden)
+                
+                self.contexts_Editor.setCurrentUser(self.current_user_id)
+        else:
+                self.contextview_tracksAList.refresh()
+                self.contextview_tracksDList.refresh()
+                self.contextview_tracksCList.refresh()
+                self.contextview_actionEditor.setCurrentUser(self.current_user_id)
         
     def gotoContext(self, id):
         logging.info("tracks->gotoContext(" + str(id) +")")
