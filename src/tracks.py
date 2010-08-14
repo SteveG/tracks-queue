@@ -48,14 +48,14 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # for bling on windows(tm)
         self.doWinComposite = False
         try:
-        if os.name == "nt" and self.isWindowsCompositionEnabled():
-                self.setAttribute(QtCore.Qt.WA_NoSystemBackground, True)
-                from ctypes import windll, c_int, byref 
-                windll.dwmapi.DwmExtendFrameIntoClientArea(c_int(self.winId()), byref(c_int(-1)))
-                self.doWinComposite = True
-        QtCore.QDir.addSearchPath("image", sys.path[0]+"/")
+            if os.name == "nt" and self.isWindowsCompositionEnabled():
+                    self.setAttribute(QtCore.Qt.WA_NoSystemBackground, True)
+                    from ctypes import windll, c_int, byref 
+                    windll.dwmapi.DwmExtendFrameIntoClientArea(c_int(self.winId()), byref(c_int(-1)))
+                    self.doWinComposite = True
+            QtCore.QDir.addSearchPath("image", sys.path[0]+"/")
         except:
-        None
+            None
 
         
         
@@ -69,41 +69,41 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.settings = QtCore.QSettings("tracks.cute", "tracks.cute")
         # The last file accessed is contained in the settings
         if self.settings.contains("database/lastfile"):
-                filepath = str(self.settings.value("database/lastfile").toString())
-                if os.path.exists(filepath):
-                        #self.database = DbAccess(filepath)
-                        self.databaseCon = sqlite3.connect(filepath)
-                        self.databaseCon.row_factory = sqlite3.Row
-                        knowFile = True
+            filepath = str(self.settings.value("database/lastfile").toString())
+            if os.path.exists(filepath):
+                #self.database = DbAccess(filepath)
+                self.databaseCon = sqlite3.connect(filepath)
+                self.databaseCon.row_factory = sqlite3.Row
+                knowFile = True
         # We have no record of the last file accessed
         if not knowFile:
-                existing = QtGui.QMessageBox.question(self, "tracks.cute: No file found", "Do you have an existing tracks database file?\n\n"+
-                "No: \tA dialog will ask where to save a new database.\n" +
-                "Yes: \tA dialog will ask where to find the existing database.\n", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            existing = QtGui.QMessageBox.question(self, "tracks.cute: No file found", "Do you have an existing tracks database file?\n\n"+
+            "No: \tA dialog will ask where to save a new database.\n" +
+            "Yes: \tA dialog will ask where to find the existing database.\n", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+            
+            # User has an existing Database file
+            if existing == QtGui.QMessageBox.Yes:
+                dialog = QtGui.QFileDialog
+                filename = dialog.getOpenFileName(self, "Open Database", QtCore.QDir.homePath(), "*.db")
                 
-                # User has an existing Database file
-                if existing == QtGui.QMessageBox.Yes:
-                        dialog = QtGui.QFileDialog
-                        filename = dialog.getOpenFileName(self, "Open Database", QtCore.QDir.homePath(), "*.db")
-                        
-                        self.databaseCon = sqlite3.connect(str(filename))
-                        self.databaseCon.row_factory = sqlite3.Row
-                        self.settings.setValue("database/lastfile", QtCore.QVariant(filename))
+                self.databaseCon = sqlite3.connect(str(filename))
+                self.databaseCon.row_factory = sqlite3.Row
+                self.settings.setValue("database/lastfile", QtCore.QVariant(filename))
+            
+            # User needs to create a  new Database file
+            elif existing == QtGui.QMessageBox.No:
+                dialog = QtGui.QFileDialog
+                filename = dialog.getSaveFileName(self, "Save New Database", QtCore.QDir.homePath(), "*.db")
+                templatePath = sys.path[0]
+                templatePath = templatePath+ "/template.db"
                 
-                # User needs to create a  new Database file
-                elif existing == QtGui.QMessageBox.No:
-                        dialog = QtGui.QFileDialog
-                        filename = dialog.getSaveFileName(self, "Save New Database", QtCore.QDir.homePath(), "*.db")
-                        templatePath = sys.path[0]
-                        templatePath = templatePath+ "/template.db"
-                        
-                        # Copy the template database to the selected location
-                        import shutil
-                        shutil.copyfile(templatePath, filename)
-                        
-                        self.databaseCon = sqlite3.connect(str(filename))
-                        self.databaseCon.row_factory = sqlite3.Row
-                        self.settings.setValue("database/lastfile", QtCore.QVariant(filename))
+                # Copy the template database to the selected location
+                import shutil
+                shutil.copyfile(templatePath, filename)
+                
+                self.databaseCon = sqlite3.connect(str(filename))
+                self.databaseCon.row_factory = sqlite3.Row
+                self.settings.setValue("database/lastfile", QtCore.QVariant(filename))
         
         # Open the database
         #self.databaseCon = sqlite3.connect("tracks.db")
@@ -123,10 +123,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # Get the current user
         if self.settings.contains("database/user"):
-        self.current_user_id = int(self.settings.value("database/user").toString())
+            self.current_user_id = int(self.settings.value("database/user").toString())
         else:
-        self.current_user_id = False
-        self.tabWidget.setCurrentIndex(8)
+            self.current_user_id = False
+            self.tabWidget.setCurrentIndex(8)
         
         
         # Setup the refreshables dictionary, a list of all refreshable elements 
@@ -138,8 +138,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.settingstabid = 8
         self.refreshables={}
         for a in range(self.tabWidget.count()):
-        self.refreshables[a]=[]
-        self.tabWidget.currentChanged.connect(self.refreshTab)
+            self.refreshables[a]=[]
+            self.tabWidget.currentChanged.connect(self.refreshTab)
         
         
         # Setup the home page
@@ -433,38 +433,38 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # Are listing all projects, or are we on a specifi project page?
         if self.stackedWidget_2.currentIndex() == 0:
-                # Active projects
-                queryActive = "SELECT projects.id, projects.name, SUM(CASE WHEN \
-                        todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-                        WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-                        projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id\
-                        WHERE projects.state='active' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" %(self.current_user_id)
-                self.activeProjectsList.setDBQuery(queryActive)
-                
-                # Hidden projects
-                queryHidden = "SELECT projects.id, projects.name, SUM(CASE WHEN \
-                        todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-                        WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-                        projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id \
-                        WHERE projects.state='hidden' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
-                self.hiddenProjectsList.setDBQuery(queryHidden)
-                
-                # Completed Projects
-                queryCompleted = "SELECT projects.id, projects.name, SUM(CASE WHEN \
-                                todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-                                WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM\
-                                projects LEFT JOIN todos ON projects.id=\
-                                todos.project_id AND projects.user_id=todos.user_id WHERE projects.state='completed' and projects.user_id=%s \
-                                GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
-                self.completedProjectsList.setDBQuery(queryCompleted)
-                
-                self.projects_Editor.setCurrentUser(self.current_user_id)
+            # Active projects
+            queryActive = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                    todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                    WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                    projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id\
+                    WHERE projects.state='active' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" %(self.current_user_id)
+            self.activeProjectsList.setDBQuery(queryActive)
+            
+            # Hidden projects
+            queryHidden = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                    todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                    WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                    projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id \
+                    WHERE projects.state='hidden' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
+            self.hiddenProjectsList.setDBQuery(queryHidden)
+            
+            # Completed Projects
+            queryCompleted = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                            todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                            WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM\
+                            projects LEFT JOIN todos ON projects.id=\
+                            todos.project_id AND projects.user_id=todos.user_id WHERE projects.state='completed' and projects.user_id=%s \
+                            GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
+            self.completedProjectsList.setDBQuery(queryCompleted)
+            
+            self.projects_Editor.setCurrentUser(self.current_user_id)
         else:
-                self.projectview_tracksAList.refresh()
-                self.projectview_tracksDList.refresh()
-                self.projectview_tracksCList.refresh()
-                
-                self.projectview_actionEditor.setCurrentUser(self.current_user_id)
+            self.projectview_tracksAList.refresh()
+            self.projectview_tracksDList.refresh()
+            self.projectview_tracksCList.refresh()
+            
+            self.projectview_actionEditor.setCurrentUser(self.current_user_id)
         
         
     def gotoProject(self, projID):
@@ -503,6 +503,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
                        'completed' AND todos.project_id= "+ str(projID) + " order by todos.completed_at DESC, todos.description")
+        
+        self.projectview_actionEditor.setCurrentUser(self.current_user_id)
         
     def backToProjectList(self):
         logging.info("tracks->backToProjectList()")
@@ -588,28 +590,28 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         #Are we on the contexts list, or a specific context view
         if self.stackedWidget_3.currentIndex() ==0:
-                # Active Contexts
-                queryActive = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
-                        todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE\
-                        WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-                        contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id \
-                        WHERE contexts.hide='f' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
-                self.activeContextsList.setDBQuery(queryActive)
-                        
-                # Hidden Contexts
-                queryHidden = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
-                        todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
-                        WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
-                        contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id\
-                        WHERE contexts.hide='t' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
-                self.hiddenContextsList.setDBQuery(queryHidden)
-                
-                self.contexts_Editor.setCurrentUser(self.current_user_id)
+            # Active Contexts
+            queryActive = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
+                    todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE\
+                    WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                    contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id \
+                    WHERE contexts.hide='f' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
+            self.activeContextsList.setDBQuery(queryActive)
+                    
+            # Hidden Contexts
+            queryHidden = "SELECT contexts.id, contexts.name, SUM(CASE WHEN \
+                    todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                    WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                    contexts LEFT JOIN todos ON contexts.id=todos.context_id AND contexts.user_id=todos.user_id\
+                    WHERE contexts.hide='t' and contexts.user_id=%s GROUP BY contexts.id ORDER BY contexts.name" % (self.current_user_id)
+            self.hiddenContextsList.setDBQuery(queryHidden)
+            
+            self.contexts_Editor.setCurrentUser(self.current_user_id)
         else:
-                self.contextview_tracksAList.refresh()
-                self.contextview_tracksDList.refresh()
-                self.contextview_tracksCList.refresh()
-                self.contextview_actionEditor.setCurrentUser(self.current_user_id)
+            self.contextview_tracksAList.refresh()
+            self.contextview_tracksDList.refresh()
+            self.contextview_tracksCList.refresh()
+            self.contextview_actionEditor.setCurrentUser(self.current_user_id)
         
     def gotoContext(self, id):
         logging.info("tracks->gotoContext(" + str(id) +")")
@@ -644,6 +646,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
                        'completed' AND todos.context_id= "+ str(id) + " order by todos.completed_at DESC")
+                       
+        self.contextview_actionEditor.setCurrentUser(self.current_user_id)
     
     def backToContextList(self):
         logging.info("tracks->backToContextList()")
