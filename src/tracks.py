@@ -139,7 +139,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.refreshables={}
         for a in range(self.tabWidget.count()):
             self.refreshables[a]=[]
-            self.tabWidget.currentChanged.connect(self.refreshTab)
+        self.tabWidget.currentChanged.connect(self.refreshTab)
         
         
         # Setup the home page
@@ -717,11 +717,12 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.settings.setValue("database/user", QtCore.QVariant(self.current_user_id))
     
     def refreshCurrentTab(self):
+        logging.info("tracks->refreshCurrentTab")
         self.refreshTab(self.tabWidget.currentIndex())
         
     def refreshTab(self, id):
         """Refreshes all of the refreshable elements of the current tab"""
-        logging.info("tracks->refreshTab")
+        logging.info("tracks->refreshTab - "+str(id))
         
         for element in self.refreshables[id]:
             element.refresh()
