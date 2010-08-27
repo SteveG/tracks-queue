@@ -365,10 +365,21 @@ class TracksActionList(QtGui.QWidget):
             
     def deleteItemButtonClicked(self, id):
         logging.info("TracksActionList->deleteItemButtonClicked  -  " + str(id))
-        reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete", "Are you sure you want to delete this action?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete", "Are you sure you want to delete this action?" +str(id), QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         logging.debug("TracksActionList->deleteItemButtonClicked, reallydelete=" + str(reallydelete==QtGui.QMessageBox.Yes))
         
-        
+        if reallydelete==QtGui.QMessageBox.Yes:
+            # Remove the action
+            sql = "DELETE FROM todos WHERE id=?"
+            self.databaseCon.execute(sql, (id,))
+            
+            # Remove associated dependencies
+            sqlassoc = "DELETE FROM dependencies WHERE successor_id=? OR predecessor_id=?"
+            self.databaseCon.execute(sqlassoc, (id,id,))
+            
+            self.databaseCon.commit()
+            
+            self.emit(QtCore.SIGNAL("actionModified()"))
         
     def editItemButtonClicked(self, id):
         logging.info("TracksActionList->editItemButtonClicked  -  " + str(id))
