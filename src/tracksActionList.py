@@ -209,7 +209,7 @@ class TracksActionList(QtGui.QWidget):
                 deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
             else:
                 deleteIcon = QtGui.QIcon(self.iconPath + "edit-delete.png")
-            deleteButton.setIcon(QtGui.QIcon(deleteIcon.pixmap(16,16,1,0)))
+            deleteButton.setIcon(QtGui.QIcon(deleteIcon.pixmap(16,16,0,0)))
             #deleteButton.setMaximumSize(QtCore.QSize(16,16)) #TEST
             horizontalLayout.addWidget(deleteButton)
             self.itemDeleteButtonMapper.setMapping(deleteButton, id)
@@ -230,6 +230,12 @@ class TracksActionList(QtGui.QWidget):
             editButton.clicked.connect(self.itemEditButtonMapper.map)
             
             # Star Button
+            is_starred_query = "select todos.description, tags.name from todos, tags, taggings where todos.id=taggings.taggable_id and tags.id = taggings.tag_id and tags.name='starred' and todos.id=?"
+            is_starred_data = self.databaseCon.execute(is_starred_query, (id,)).fetchall()
+            is_starred = True
+            if len(is_starred_data)==0:
+                is_starred=False
+            
             starButton = QtGui.QToolButton(widget)
             starButton.setStyleSheet("border: None;")
             importantIcon = QtGui.QIcon.fromTheme("emblem-important")
@@ -238,7 +244,10 @@ class TracksActionList(QtGui.QWidget):
                 importantIcon = QtGui.QIcon.fromTheme("emblem-important")
             else:
                 importantIcon = QtGui.QIcon(self.iconPath + "emblem-important.png")
-            starButton.setIcon(QtGui.QIcon(importantIcon.pixmap(16,16,1,1)))
+            if is_starred:
+                starButton.setIcon(QtGui.QIcon(importantIcon.pixmap(16,16,0,1)))
+            else:
+                starButton.setIcon(QtGui.QIcon(importantIcon.pixmap(16,16,1,1)))
             #starButton.setMaximumSize(QtCore.QSize(16,16)) #TEST
             horizontalLayout.addWidget(starButton)
             self.itemStarButtonMapper.setMapping(starButton, id)
@@ -377,6 +386,28 @@ class TracksActionList(QtGui.QWidget):
         
     def starItemButtonClicked(self, id):
         logging.info("TracksActionList->starItemButtonClicked  -  " + str(id))
+        
+        query = "select todos.description, tags.name from todos, tags, taggings where todos.id=taggings.taggable_id and tags.id = taggings.tag_id and tags.name='starred' and todos.id=?"
+        data = self.databaseCon.execute(query, [id,]).fetchall()
+        
+        if len(data) == 0:
+            # make sure tags contains "starred"
+            query_for_starred = "select tags.id from tags where tags.name='starred'"
+            data_for_starred = self.databaseCon.execute(query_for_starred).fetchall()
+            if len(data_for_starred) == 0:
+                insert_tag_query = "insert into tags values(NULL, 'starred', DATETIME('now'), DATETIME('now'))"
+                self.databaseCon.execute(insert_tag_query)
+                self.databaseCon.commit()
+            # tag the todo as "starred"
+            insert_tagging_query = "insert into taggings values(NULL, ?, (SELECT id from tags where name = 'starred'), 'Todo')"
+            self.databaseCon.execute(insert_tagging_query, (id,))
+            self.databaseCon.commit()
+        else:
+            # the todo is already tagged as starred, remove the tag
+            remove_tagging_query = "delete from taggings where taggable_id=?"
+            self.databaseCon.execute(remove_tagging_query, (id,))
+            self.databaseCon.commit()
+        self.emit(QtCore.SIGNAL("actionModified()"))
         
     def completeItemButtonClicked(self, id):
         logging.info("TracksActionList->completeItemButtonClicked - " + str(id))
