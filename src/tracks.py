@@ -327,7 +327,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                   todos.project_id = projects.id AND todos.user_id=projects.user_id where contexts.id='%s' and \
                   todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) and\
                   todos.state='active' and projects.state = 'active' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) \
-                  AND todos.user_id=%s ORDER BY todos.due, todos.description" % (row[0],self.current_user_id)
+                  AND todos.user_id=%s ORDER BY CASE WHEN todos.due IS null THEN 1 ELSE 0 END, todos.due, todos.description" % (row[0],self.current_user_id)
             tracksAList = TracksActionList(self.databaseCon,"@"+row[1],sql,expanded)
             self.verticalLayout_4.insertWidget(0,tracksAList)
             
@@ -465,6 +465,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.projectview_tracksCList.refresh()
             
             self.projectview_actionEditor.setCurrentUser(self.current_user_id)
+            self.projectview_actionEditor.refresh()
         
         
     def gotoProject(self, projID):
@@ -488,7 +489,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state='active' \
                        AND todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) \
-                       AND (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.project_id= "+ str(projID) + " order by todos.due, todos.description")
+                       AND (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.project_id= "+ str(projID) + " order by CASE WHEN todos.due IS null THEN 1 ELSE 0 END, todos.due, todos.description")
         
         self.projectview_tracksDList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
