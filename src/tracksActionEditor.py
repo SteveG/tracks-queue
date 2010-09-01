@@ -451,10 +451,10 @@ class TracksActionEditor(QtGui.QGroupBox):
             self.databaseCon.execute(q,[context,project,desc,notes,due,show,self.current_id])
             self.databaseCon.commit()
             
+            
+            # remove all the old dependancies
+            self.databaseCon.execute("DELETE FROM dependencies WHERE successor_id=?", [self.current_id,])
             if len(dependsIDs) > 0:
-                # remove all the old dependancies
-                self.databaseCon.execute("DELETE FROM dependencies WHERE successor_id=?", [self.current_id,])
-                
                 currentID = self.current_id
                 for id in dependsIDs:
                     logging.debug("TracksActionEditor->addActionButtonClicked - Inserting a dependancy")
