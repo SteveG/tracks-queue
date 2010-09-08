@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tracks.ui'
 #
-# Created: Wed Sep  8 20:52:52 2010
+# Created: Wed Sep  8 21:26:03 2010
 #      by: PyQt4 UI code generator 4.7.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -120,6 +120,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.setMargin(0)
         self.horizontalLayout_12.setObjectName("horizontalLayout_12")
         self.verticalLayout = QtGui.QVBoxLayout()
+        self.verticalLayout.setMargin(4)
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout_8 = QtGui.QHBoxLayout()
         self.horizontalLayout_8.setObjectName("horizontalLayout_8")
@@ -151,7 +152,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName("scrollArea_2")
         self.scrollAreaWidgetContents_4 = QtGui.QWidget(self.scrollArea_2)
-        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 762, 514))
+        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 756, 508))
         self.scrollAreaWidgetContents_4.setObjectName("scrollAreaWidgetContents_4")
         self.projectview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_4)
         self.projectview_verticalLayout.setMargin(0)
@@ -211,6 +212,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_13.setMargin(0)
         self.horizontalLayout_13.setObjectName("horizontalLayout_13")
         self.verticalLayout_2 = QtGui.QVBoxLayout()
+        self.verticalLayout_2.setMargin(4)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.horizontalLayout_11 = QtGui.QHBoxLayout()
         self.horizontalLayout_11.setObjectName("horizontalLayout_11")
@@ -236,7 +238,7 @@ class Ui_MainWindow(object):
         self.scrollArea_7.setWidgetResizable(True)
         self.scrollArea_7.setObjectName("scrollArea_7")
         self.scrollAreaWidgetContents_9 = QtGui.QWidget(self.scrollArea_7)
-        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 762, 531))
+        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 756, 525))
         self.scrollAreaWidgetContents_9.setObjectName("scrollAreaWidgetContents_9")
         self.contextview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.contextview_verticalLayout.setMargin(0)
