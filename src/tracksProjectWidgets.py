@@ -372,10 +372,18 @@ class TracksProjectEditor(QtGui.QGroupBox):
         
         self.cancelEditButton.setVisible(self.current_id != None)
         
+        # Settings
+        self.settings = QtCore.QSettings("tracks.cute", "tracks.cute")
+        
         
     def hideButtonClicked(self):
         logging.info("TracksProjectEditor->hideButtonClicked")
         self.formVisible = not self.formVisible
+        self.settings.setValue("editor/visible", QtCore.QVariant(self.formVisible))
+        self.updateHidden()
+        
+    def updateHidden(self):
+        logging.info("TracksProjectEditor->updateHidden")
         if self.formVisible:
             self.hideFormButton.setText(">> Hide Form")
             self.setMaximumSize(QtCore.QSize(250, 16777215))
@@ -392,8 +400,8 @@ class TracksProjectEditor(QtGui.QGroupBox):
         self.nameEdit.setVisible(self.formVisible)
         self.contextLabel.setVisible(self.formVisible)
         self.contextEdit.setVisible(self.formVisible)
-        self.tagsLabel.setVisible(self.formVisible)
-        self.tagsEdit.setVisible(self.formVisible)
+        self.tagsLabel.setVisible(False)#self.formVisible) TODO
+        self.tagsEdit.setVisible(False)#self.formVisible) TODO
         self.statusLabel.setVisible(self.formVisible)
         self.statusRadio1.setVisible(self.formVisible)
         self.statusRadio2.setVisible(self.formVisible)
@@ -555,5 +563,12 @@ class TracksProjectEditor(QtGui.QGroupBox):
             self.hideButtonClicked()
         
     def setCurrentUser(self, user):
+        """Change the current database user"""
         self.current_user_id = user
         
+    def refresh(self):
+        logging.info("TracksProjectEditor->refresh")
+        # What is the setting re form visibility?
+        if self.settings.contains("editor/visible"):
+            self.formVisible = bool(self.settings.value("editor/visible").toBool())
+            self.updateHidden()

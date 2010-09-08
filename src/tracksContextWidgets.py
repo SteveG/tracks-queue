@@ -320,11 +320,18 @@ class TracksContextEditor(QtGui.QGroupBox):
         self.cancelEditButton.clicked.connect(self.cancelButtonClicked)
         self.addProjectButton.clicked.connect(self.addButtonClicked)
         
-        
+        # Settings
+        self.settings = QtCore.QSettings("tracks.cute", "tracks.cute")
         
     def hideButtonClicked(self):
         logging.info("TracksContextEditor->hideButtonClicked")
         self.formVisible = not self.formVisible
+        self.settings.setValue("editor/visible", QtCore.QVariant(self.formVisible))
+        self.updateHidden()
+        
+    def updateHidden(self):
+        logging.info("TracksContextEditor->setHidden")
+                
         if self.formVisible:
             self.hideFormButton.setText(">> Hide Form")
             self.setMaximumSize(QtCore.QSize(250, 16777215))
@@ -342,8 +349,6 @@ class TracksContextEditor(QtGui.QGroupBox):
         self.addProjectButton.setVisible(self.formVisible)
         #TODO only reshow cancel button when editing existing item
         self.cancelEditButton.setVisible(self.formVisible and self.current_id != None)
-                
-    
     
     def cancelButtonClicked(self):
         logging.info("TracksContextEditor->cancelButtonClicked")
@@ -416,7 +421,14 @@ class TracksContextEditor(QtGui.QGroupBox):
             self.hideButtonClicked()
         
     def setCurrentUser(self, user):
+        """Change the current database user"""
         self.current_user_id = user
                 
-        
+    def refresh(self):
+        """Refresh the data and display of the editor"""
+        logging.info("TracksContextEditor->refresh")
+        # What is the setting re form visibility?
+        if self.settings.contains("editor/visible"):
+            self.formVisible = bool(self.settings.value("editor/visible").toBool())
+            self.updateHidden()
 		

@@ -365,6 +365,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projects_Editor = TracksProjectEditor(self.databaseCon)
         self.projects_sidepane_layout.addWidget(self.projects_Editor)
         self.projects_sidepane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        self.refreshables[self.projectstabid].append(self.projects_Editor)
         
         #Connect lists to editor
         self.activeProjectsList.editProject.connect(self.projects_Editor.setCurrentProjectID)
@@ -528,6 +529,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.contexts_Editor = TracksContextEditor(self.databaseCon)
         self.contexts_sidepane_layout.addWidget(self.contexts_Editor)
         self.contexts_sidepane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        self.refreshables[self.contextstabid].append(self.contexts_Editor)
         
         #Connect lists to editor
         self.activeContextsList.editContext.connect(self.contexts_Editor.setCurrentContextID)

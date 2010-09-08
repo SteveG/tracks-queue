@@ -224,6 +224,12 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.addActionButton.clicked.connect(self.addActionButtonClicked)
         
         self.cancelEditButton.setVisible(self.current_id != None)
+        
+        
+        # Settings
+        self.settings = QtCore.QSettings("tracks.cute", "tracks.cute")
+        
+            
     
     def dueDateCheckChanged(self):
         """Check box enabling the due date has been clicked"""
@@ -238,6 +244,12 @@ class TracksActionEditor(QtGui.QGroupBox):
     def hideButtonClicked(self):
         logging.info("TracksActionEditor->hideButtonClicked")
         self.formVisible = not self.formVisible
+        self.settings.setValue("editor/visible", QtCore.QVariant(self.formVisible))
+        self.updateHidden()
+        
+    def updateHidden(self):
+        logging.info("TracksActionEditor->updateHidden")
+        
         if self.formVisible:
             self.hideFormButton.setText(">> Hide Form")
             self.setMaximumSize(QtCore.QSize(250, 16777215))
@@ -554,6 +566,11 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.contextEdit.setCompleter(contextCompleter)
         
         # TODO refresh the list of available tags
+        
+        # What is the setting re form visibility?
+        if self.settings.contains("editor/visible"):
+            self.formVisible = bool(self.settings.value("editor/visible").toBool())
+            self.updateHidden()
     
     def setDefaultProject(self, projectName):
         self.defaultProject = projectName
