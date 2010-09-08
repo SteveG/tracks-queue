@@ -292,6 +292,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        'completed' AND todos.user_id=%s order by todos.completed_at DESC limit 7" % (self.current_user_id)
         tracksCList = TracksActionList(self.databaseCon,"Recently Completed Actions",sqlCompleted,expanded)
         self.homeContexts["completed"] = tracksCList
+        tracksCList.setDisplayProjectFirst(True)
         tracksCList.setDisplayCompletedAt(True)
         self.verticalLayout_4.insertWidget(0,tracksCList)
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
@@ -327,8 +328,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                   todos.project_id = projects.id AND todos.user_id=projects.user_id where contexts.id='%s' and \
                   todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) and\
                   todos.state='active' and projects.state = 'active' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) \
-                  AND todos.user_id=%s ORDER BY CASE WHEN todos.due IS null THEN 1 ELSE 0 END, todos.due, todos.description" % (row[0],self.current_user_id)
+                  AND todos.user_id=%s ORDER BY CASE WHEN todos.due IS null THEN 1 ELSE 0 END, todos.due, projects.name, todos.description" % (row[0],self.current_user_id)
             tracksAList = TracksActionList(self.databaseCon,"@"+row[1],sql,expanded)
+            tracksAList.setDisplayProjectFirst(True)
+            
             self.verticalLayout_4.insertWidget(0,tracksAList)
             
             self.homeContexts[row[0]] = tracksAList

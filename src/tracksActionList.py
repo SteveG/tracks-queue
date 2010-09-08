@@ -271,7 +271,7 @@ class TracksActionList(QtGui.QWidget):
                 if date:
                     is_completed = True
                     completed_atText = QtGui.QLabel(widget)
-                    completed_atText.setText("[" + str(date) +"]")
+                    completed_atText.setText("[" + str(date)[0:10] +"]  ")
                     completed_atText.setStyleSheet("Font-size: 8px")
                     horizontalLayout.addWidget(completed_atText)
             
@@ -289,8 +289,8 @@ class TracksActionList(QtGui.QWidget):
                 #projecttext.setText(" %-30s  \t" % str(project)[0:30])
                 projecttext.setText(project)
                 projecttext.setStyleSheet("Font-size: 8px")
-                projecttext.setMinimumWidth(140)
-                projecttext.setMaximumWidth(140)
+                projecttext.setMinimumWidth(70)
+                projecttext.setMaximumWidth(70)
                 horizontalLayout.addWidget(projecttext)
                 
             # Due date if required
@@ -306,7 +306,7 @@ class TracksActionList(QtGui.QWidget):
                 if overdue:
                     dueText.setStyleSheet("Font-size: 8px; color: white; Background-color: 'orangered'")
                 else:
-                    dueText.setStyleSheet("Font-size: 8px; color: black; Background-color: 'aliceblue'")
+                    dueText.setStyleSheet("Font-size: 8px; color: black; Background-color: 'orange'")
     
                 horizontalLayout.addWidget(dueText)
             
