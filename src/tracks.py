@@ -314,7 +314,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                   (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) and\
                   todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active'))\
                   AND todos.user_id = %s \
-                  ORDER BY contexts.name" % (self.current_user_id)
+                  ORDER BY contexts.name DESC" % (self.current_user_id)
         
         for row in self.databaseCon.execute(activeContextQuery):
             expanded = True
