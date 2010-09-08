@@ -263,6 +263,7 @@ class TracksProjectEditor(QtGui.QGroupBox):
         
         self.verticalLayout = QtGui.QVBoxLayout(self)
         self.verticalLayout.setSpacing(0)
+        self.verticalLayout.setMargin(4)
         
         # Hide Form Button
         self.formVisible = True
@@ -388,10 +389,12 @@ class TracksProjectEditor(QtGui.QGroupBox):
             self.hideFormButton.setText(">> Hide Form")
             self.setMaximumSize(QtCore.QSize(250, 16777215))
             self.setMinimumSize(QtCore.QSize(250, 0))
+            self.verticalLayout.setMargin(4)
         else:
             self.hideFormButton.setText("<<")
-            self.setMaximumSize(QtCore.QSize(50, 16777215))
-            self.setMinimumSize(QtCore.QSize(50, 0))
+            self.setMaximumSize(QtCore.QSize(30, 16777215))
+            self.setMinimumSize(QtCore.QSize(30, 0))
+            self.verticalLayout.setMargin(0)
         
         # Hide or show all of the form elements
         self.descriptionLabel.setVisible(self.formVisible)

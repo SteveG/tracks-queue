@@ -57,7 +57,7 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>734</width>
+                 <width>764</width>
                  <height>564</height>
                 </rect>
                </property>
@@ -69,7 +69,7 @@
              <widget class="QWidget" name="widget_2" native="true">
               <property name="minimumSize">
                <size>
-                <width>50</width>
+                <width>20</width>
                 <height>0</height>
                </size>
               </property>
@@ -116,8 +116,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>762</width>
-             <height>556</height>
+             <width>78</width>
+             <height>22</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="starred_mainpane_layout"/>
@@ -280,8 +280,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>756</width>
-                   <height>508</height>
+                   <width>57</width>
+                   <height>16</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="projectview_verticalLayout">
@@ -355,8 +355,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>764</width>
-                 <height>564</height>
+                 <width>80</width>
+                 <height>30</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="contexts_mainpane_layout"/>
@@ -445,8 +445,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>756</width>
-                   <height>525</height>
+                   <width>57</width>
+                   <height>16</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="contextview_verticalLayout">
@@ -501,8 +501,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>672</width>
-             <height>556</height>
+             <width>44</width>
+             <height>22</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3"/>
@@ -540,8 +540,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>672</width>
-             <height>556</height>
+             <width>44</width>
+             <height>22</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="tickler_mainpane_layout"/>
@@ -582,8 +582,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>784</width>
-             <height>564</height>
+             <width>100</width>
+             <height>30</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="done_mainpane_layout"/>
