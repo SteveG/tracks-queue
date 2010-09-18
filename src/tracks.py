@@ -132,6 +132,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # Setup the refreshables dictionary, a list of all refreshable elements 
         # on each tab
         self.hometabid=0
+        self.startabid=1
         self.projectstabid = 2
         self.contextstabid = 3
         self.donetabid = 6
@@ -169,10 +170,13 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 #            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum,
 #                              QtGui.QSizePolicy.Expanding))
         # Add the action editor
-        self.starred_actionEditor = TracksActionEditor(self.databaseCon)
-        self.starred_sidepane_layout.addWidget(self.starred_actionEditor)
-        self.starred_sidepane_layout.addItem(
-        QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        
+        # Setup starred page
+        self.setupStarredPage()
+        #self.starred_actionEditor = TracksActionEditor(self.databaseCon)
+        #self.starred_sidepane_layout.addWidget(self.starred_actionEditor)
+        #self.starred_sidepane_layout.addItem(
+        #QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         
         
         # Setup the projects page
@@ -202,7 +206,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.setupSettingsPage()
         
         # enable the appropriate tabs
-        self.tabWidget.setTabEnabled(1, False)
+        #self.tabWidget.setTabEnabled(1, False)
         self.tabWidget.setTabEnabled(4, False)
         self.tabWidget.setTabEnabled(5, False)
         #self.tabWidget.setTabEnabled(6, False)
@@ -211,7 +215,6 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.refreshCurrentTab()
     
     def isWindowsCompositionEnabled(self):
-		
         value = c_long(False)
         point = pointer(value)
         windll.dwmapi.DwmIsCompositionEnabled(point)
@@ -297,6 +300,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.verticalLayout_4.insertWidget(0,tracksCList)
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
         tracksCList.gotoProject.connect(self.gotoProject)
+        tracksCList.gotoContext.connect(self.gotoContext)
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
         tracksCList.actionModified.connect(self.refreshCurrentTab)
         tracksCList.refresh()
@@ -339,11 +343,64 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             tracksAList.editAction.connect(self.actionEditor.setCurrentActionID)    
             tracksAList.actionModified.connect(self.refreshCurrentTab)
             tracksAList.gotoProject.connect(self.gotoProject)
+            tracksAList.gotoContext.connect(self.gotoContext)
             
             tracksAList.refresh()
          
         self.actionEditor.setCurrentUser(self.current_user_id)
+    
+    def setupStarredPage(self):
+        """Setup the starred actions page"""
+        logging.info("tracks->setupStarredPage()")
         
+        # Create the action editor
+        self.starredactionEditor = TracksActionEditor(self.databaseCon)
+        self.starred_sidepane_layout.addWidget(self.starredactionEditor)
+        # Add a vertical spacer under action editor
+        spacerItem1 = QtGui.QSpacerItem(
+            1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.starred_sidepane_layout.addItem(spacerItem1)
+        self.refreshables[self.startabid].append(self.starredactionEditor)
+        
+    def refreshStarredPage(self):
+        """Refresh the starred actions page"""
+        logging.info("tracks->refreshStarredPage()")
+        
+        # remove all the existing lists from the display
+        item = self.starred_mainpane_layout.takeAt(0)
+        while (item != None):
+            w = item.widget()
+            if w:
+                w.deleteLater()
+            item = self.starred_mainpane_layout.takeAt(0)
+        
+        starredQuery = "select todos.context_id,contexts.name from todos, tags, taggings, contexts where todos.context_id=contexts.id AND todos.id=taggings.taggable_id and tags.id = taggings.tag_id and tags.name='starred' AND todos.state='active' AND todos.user_id=?"
+        
+        for row in self.databaseCon.execute(starredQuery, (str(self.current_user_id),)):
+            # All are expanded by default
+            
+            sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                  todos.context_id = contexts.id AND todos.user_id=contexts.user_id) LEFT JOIN projects on \
+                  todos.project_id = projects.id AND todos.user_id=projects.user_id, tags, taggings where  \
+                  contexts.id=%s AND todos.id=taggings.taggable_id AND tags.id = taggings.tag_id AND tags.name='starred' AND todos.state='active' AND \
+                  todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) and \
+                  todos.state='active' and projects.state = 'active' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null)  \
+                  AND todos.user_id=%s ORDER BY CASE WHEN todos.due IS null THEN 1 ELSE 0 END, todos.due, projects.name, todos.description" % (row[0],self.current_user_id)
+
+            tracksAList = TracksActionList(self.databaseCon,"@"+row[1],sql,True)
+            tracksAList.setDisplayProjectFirst(True)
+            
+            self.starred_mainpane_layout.insertWidget(0,tracksAList)
+            
+            tracksAList.editAction.connect(self.starredactionEditor.setCurrentActionID)    
+            tracksAList.actionModified.connect(self.refreshCurrentTab)
+            tracksAList.gotoProject.connect(self.gotoProject)
+            tracksAList.gotoContext.connect(self.gotoContext)
+            
+            tracksAList.refresh()
+        spacerItem1 = QtGui.QSpacerItem(
+            1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.starred_mainpane_layout.addItem(spacerItem1)
     
     def setupProjectsPage(self):
         """Setup the projects page"""
@@ -407,6 +464,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectview_verticalLayout.addWidget( self.projectview_tracksAList)
         self.projectview_tracksAList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
         self.projectview_tracksAList.actionModified.connect(self.refreshCurrentTab)
+        self.projectview_tracksAList.gotoContext.connect(self.gotoContext)
         #self.refreshables[self.projectstabid].append( self.projectview_tracksAList)
         
         # Deferred actions
@@ -417,6 +475,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectview_verticalLayout.addWidget(self.projectview_tracksDList)
         self.projectview_tracksDList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
         self.projectview_tracksDList.actionModified.connect(self.refreshCurrentTab)
+        self.projectview_tracksDList.gotoContext.connect(self.gotoContext)
         #self.refreshables[self.projectstabid].append(self.projectview_tracksDList)
         
         # Complete actions
@@ -427,6 +486,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectview_verticalLayout.addWidget(self.projectview_tracksCList)
         self.projectview_tracksCList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
         self.projectview_tracksCList.actionModified.connect(self.refreshCurrentTab)
+        self.projectview_tracksCList.gotoContext.connect(self.gotoContext)
         #self.refreshables[self.projectstabid].append(self.projectview_tracksCList)
     
         # Expander
@@ -567,6 +627,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.contextview_verticalLayout.addWidget( self.contextview_tracksAList)
         self.contextview_tracksAList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
         self.contextview_tracksAList.actionModified.connect(self.refreshCurrentTab)
+        self.contextview_tracksAList.gotoProject.connect(self.gotoProject)
         #self.refreshables[self.contextstabid].append( self.contextview_tracksAList)
         
         # Deferred actions
@@ -577,6 +638,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.contextview_verticalLayout.addWidget(self.contextview_tracksDList)
         self.contextview_tracksDList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
         self.contextview_tracksDList.actionModified.connect(self.refreshCurrentTab)
+        self.contextview_tracksDList.gotoProject.connect(self.gotoProject)
         #self.refreshables[self.contextstabid].append(self.contextview_tracksDList)
         
         # Complete actions
@@ -587,6 +649,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.contextview_verticalLayout.addWidget(self.contextview_tracksCList)
         self.contextview_tracksCList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
         self.contextview_tracksCList.actionModified.connect(self.refreshCurrentTab)
+        self.contextview_tracksCList.gotoProject.connect(self.gotoProject)
         #self.refreshables[self.contextstabid].append(self.contextview_tracksCList)
     
         # Expander
@@ -675,6 +738,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.doneFortnightActionList = TracksActionList(self.databaseCon,"Last Fortnight",None,False)
         self.doneFortnightActionList.setDisplayCompletedAt(True)
         self.doneFortnightActionList.setDisplayProjectFirst(True)
+        self.doneFortnightActionList.gotoProject.connect(self.gotoProject)
+        self.doneFortnightActionList.gotoContext.connect(self.gotoContext)
         self.done_mainpane_layout.addWidget(self.doneFortnightActionList)
         self.done_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         # TODO add date ranges, e.g. done today, done last two weeks
@@ -736,6 +801,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # for stuff not quite as simple as hitting refresh() call a tab specific method
         if id == 0: #homepage
             self.refreshHomePage()
+        elif id == 1: #starred tab
+            self.refreshStarredPage()
         elif id ==2:
             self.refreshProjectsPage()
         elif id ==3:

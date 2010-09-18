@@ -38,6 +38,7 @@ class TracksActionList(QtGui.QWidget):
                      "completeAction(int)",
                      "gotoLabel(QString)",
                      "gotoProject(int)",
+                     "gotoContext(int)",
                      "actionModified()"
                      )
     editAction = QtCore.pyqtSignal(int)
@@ -46,6 +47,7 @@ class TracksActionList(QtGui.QWidget):
     completeAction = QtCore.pyqtSignal(int)
     gotoLabel = QtCore.pyqtSignal(QtCore.QString)
     gotoProject = QtCore.pyqtSignal(int)
+    gotoContext = QtCore.pyqtSignal(int)
     actionModified = QtCore.pyqtSignal()
 
     # Need to add a list title, a database query, an option for expanded or not
@@ -128,7 +130,8 @@ class TracksActionList(QtGui.QWidget):
         
         self.itemProjectButtonMapper = QtCore.QSignalMapper(self)
         self.itemProjectButtonMapper.mapped[int].connect(self.projectItemButtonClicked)
-        
+        self.itemContextButtonMapper = QtCore.QSignalMapper(self)
+        self.itemContextButtonMapper.mapped[int].connect(self.contextItemButtonClicked)
         
         # Add items to the list, removed, call refresh() to actually fill list.
         #self.fillList()
@@ -186,6 +189,7 @@ class TracksActionList(QtGui.QWidget):
         for row in self.databaseCon.execute(self.dbQuery):
             id = row[0]
             desc = row[1]
+            context_id = row[3]
             context = row[4]
             if context == 0:
                 context = None
@@ -285,13 +289,15 @@ class TracksActionList(QtGui.QWidget):
              
             # Project first if required
             if self.displayprojectfirst:
-                projecttext = QtGui.QLabel(widget)
-                #projecttext.setText(" %-30s  \t" % str(project)[0:30])
+                projecttext = QtGui.QPushButton(widget)
+                projecttext.setCursor(QtCore.Qt.PointingHandCursor)
+                projecttext.setStyleSheet("border: None; Font-size: 8px; text-align:left")
                 projecttext.setText(project)
-                projecttext.setStyleSheet("Font-size: 8px")
                 projecttext.setMinimumWidth(70)
                 projecttext.setMaximumWidth(70)
                 horizontalLayout.addWidget(projecttext)
+                self.itemProjectButtonMapper.setMapping(projecttext, project_id)
+                projecttext.clicked.connect(self.itemProjectButtonMapper.map)
                 
             # Due date if required
             data = self.databaseCon.execute("select due, (due < DATE('now','localtime')) from todos where id = " + str(id)).fetchone()
@@ -339,9 +345,11 @@ class TracksActionList(QtGui.QWidget):
                 contextButton.setCursor(QtCore.Qt.PointingHandCursor)
                 contextButton.setStyleSheet("border: None;")
                 horizontalLayout.addWidget(contextButton)
+                self.itemContextButtonMapper.setMapping(contextButton, context_id) #TODO fix
+                contextButton.clicked.connect(self.itemContextButtonMapper.map)
                 
             # Add project button #TODO make this optional
-            if project != None:
+            if project != None and not self.displayprojectfirst:
                 projectButton = QtGui.QPushButton(widget)
                 font = QtGui.QFont()
                 font.setPointSize(7)
@@ -442,6 +450,10 @@ class TracksActionList(QtGui.QWidget):
     def projectItemButtonClicked(self, id):
         logging.info("TracksActionList->projectItemButtonClicked  -  " +str(id))
         self.emit(QtCore.SIGNAL("gotoProject(int)"), id)
+        
+    def contextItemButtonClicked(self, id):
+        logging.info("TracksActionList->contextItemButtonClicked  -  " +str(id))
+        self.emit(QtCore.SIGNAL("gotoContext(int)"), id)
         
     def refresh(self):
         logging.info("TracksActionList->refresh")
