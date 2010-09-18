@@ -741,6 +741,15 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.doneFortnightActionList.gotoProject.connect(self.gotoProject)
         self.doneFortnightActionList.gotoContext.connect(self.gotoContext)
         self.done_mainpane_layout.addWidget(self.doneFortnightActionList)
+        
+        self.doneNextFortnightActionList = TracksActionList(self.databaseCon,"Previous Fortnight",None,False)
+        self.doneNextFortnightActionList.setDisplayCompletedAt(True)
+        self.doneNextFortnightActionList.setDisplayProjectFirst(True)
+        self.doneNextFortnightActionList.gotoProject.connect(self.gotoProject)
+        self.doneNextFortnightActionList.gotoContext.connect(self.gotoContext)
+        self.done_mainpane_layout.addWidget(self.doneNextFortnightActionList)
+        
+        
         self.done_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         # TODO add date ranges, e.g. done today, done last two weeks
         
@@ -753,6 +762,12 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        'completed' AND todos.completed_at > DATETIME('now','-14days') AND todos.user_id=%s order by projects.name, todos.completed_at DESC" % (self.current_user_id)
         self.doneFortnightActionList.setDBQuery(sql)
     
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'completed' AND todos.completed_at <= DATETIME('now','-14days') AND todos.completed_at > DATETIME('now','-28days') AND todos.user_id=%s order by projects.name, todos.completed_at DESC" % (self.current_user_id)
+        self.doneNextFortnightActionList.setDBQuery(sql)
     
     
     def setupSettingsPage(self):
