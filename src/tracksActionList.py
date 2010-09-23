@@ -65,8 +65,7 @@ class TracksActionList(QtGui.QWidget):
         self.displaycompleted_at = False
         self.displaytags = False
         self.displayprojectfirst = False
-        
-        
+
         # Create Layout
         self.verticalLayout = QtGui.QVBoxLayout(self)
         self.verticalLayout.setSpacing(0)
@@ -92,8 +91,7 @@ class TracksActionList(QtGui.QWidget):
                 buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
         self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
         self.verticalLayout.addWidget(self.toggleListButton)
-        
-        
+
         # Create the action list
         self.listWidget = QtGui.QListWidget(self)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
@@ -108,9 +106,7 @@ class TracksActionList(QtGui.QWidget):
         self.verticalLayout.addWidget(self.listWidget)
         if not startExpanded:
             self.listWidget.setVisible(False)
-        
-        
-        
+
         # connect the toggle list butotn
         self.connect(self.toggleListButton, QtCore.SIGNAL("clicked()"), self.toggleListButtonClick)
         
@@ -132,17 +128,6 @@ class TracksActionList(QtGui.QWidget):
         self.itemProjectButtonMapper.mapped[int].connect(self.projectItemButtonClicked)
         self.itemContextButtonMapper = QtCore.QSignalMapper(self)
         self.itemContextButtonMapper.mapped[int].connect(self.contextItemButtonClicked)
-        
-        # Add items to the list, removed, call refresh() to actually fill list.
-        #self.fillList()
-        
-        # Resize items in the list and then resize the list.
-        #h = 0
-        #for a in range(self.listWidget.count()):
-        #   i = self.listWidget.item(a)
-        #   i.setSizeHint(QtCore.QSize(0,22))
-        #   h += self.listWidget.sizeHintForRow(a)
-        #self.listWidget.setFixedHeight(h+6)
     
     def setDisplayProjectFirst(self, setto):
         self.displayprojectfirst = setto

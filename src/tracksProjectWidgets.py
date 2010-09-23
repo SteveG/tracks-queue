@@ -194,14 +194,10 @@ class TracksProjectList(QtGui.QWidget):
             projectTaskCount.setText(" (" +str(activeTaskCount)+ " active tasks, " +str(completedTaskCount)+ " completed)")
             horizontalLayout.addWidget(projectTaskCount)
             
-            
-            
-            
+
             listitem = QtGui.QListWidgetItem(self.listWidget)
             listitem.setSizeHint(QtCore.QSize(0,28))
             self.listWidget.setItemWidget(listitem, widget)
-            
-            
             
             count +=1
         
@@ -575,3 +571,12 @@ class TracksProjectEditor(QtGui.QGroupBox):
         if self.settings.contains("editor/visible"):
             self.formVisible = bool(self.settings.value("editor/visible").toBool())
             self.updateHidden()
+            
+        # update the context auto complete list
+        contextList = []
+        for row in self.databaseCon.execute("SELECT name FROM contexts WHERE user_id=? ORDER BY UPPER(name)", (self.current_user_id,)):
+            contextList.append(row[0])
+        contextStringList = QtCore.QStringList(contextList)
+        contextCompleter = QtGui.QCompleter(contextStringList)
+        contextCompleter.setCompletionMode(1)
+        self.contextEdit.setCompleter(contextCompleter) 

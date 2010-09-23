@@ -553,7 +553,7 @@ class TracksActionEditor(QtGui.QGroupBox):
         
         # Update list of available projects
         projectList = []
-        for row in self.databaseCon.execute("SELECT name FROM projects ORDER BY name"):
+        for row in self.databaseCon.execute("select name FROM projects where user_id=? ORDER BY UPPER(name)", (self.current_user_id,)):
             projectList.append(row[0])
         projectCompleter = QtGui.QCompleter(projectList)
         projectCompleter.setCompletionMode(1)
@@ -561,14 +561,17 @@ class TracksActionEditor(QtGui.QGroupBox):
         
         # Update list of available contexts
         contextList = []
-        for row in self.databaseCon.execute("SELECT name FROM contexts ORDER BY name"):
+        for row in self.databaseCon.execute("select name FROM contexts where user_id=? ORDER BY UPPER(name)", (self.current_user_id,)):
             contextList.append(row[0])
         contextStringList = QtCore.QStringList(contextList)
         contextCompleter = QtGui.QCompleter(contextStringList)
         contextCompleter.setCompletionMode(1)
         self.contextEdit.setCompleter(contextCompleter)
         
-        # TODO refresh the list of available tags
+        # TODO refresh the list of available actions for 'depends on'
+        self.existingActions = []
+        for row in self.databaseCon.execute("select description FROM todos WHERE state='active' AND user_id=? ORDER BY UPPER(description)", (self.current_user_id,)):
+            self.existingActions.append(row[0])
         
         # What is the setting re form visibility?
         if self.settings.contains("editor/visible"):
@@ -586,3 +589,4 @@ class TracksActionEditor(QtGui.QGroupBox):
         
     def setCurrentUser(self, user):
         self.current_user_id = user
+        

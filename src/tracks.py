@@ -56,17 +56,15 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             QtCore.QDir.addSearchPath("image", sys.path[0]+"/")
         except:
             None
-
         
-        
-        
-        
-        
+        # set the window icon
         self.setWindowIcon(QtGui.QIcon(sys.path[0] + "/icon.png"))
+        
         # open the database file
         # Locate the database file, or create a new one
         knowFile = False
         self.settings = QtCore.QSettings("tracks.cute", "tracks.cute")
+        
         # The last file accessed is contained in the settings
         if self.settings.contains("database/lastfile"):
             filepath = str(self.settings.value("database/lastfile").toString())
@@ -75,7 +73,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                 self.databaseCon = sqlite3.connect(filepath)
                 self.databaseCon.row_factory = sqlite3.Row
                 knowFile = True
-        # We have no record of the last file accessed
+                
+        # If we have no record of the last file accessed
         if not knowFile:
             existing = QtGui.QMessageBox.question(self, "tracks.cute: No file found", "Do you have an existing tracks database file?\n\n"+
             "No: \tA dialog will ask where to save a new database.\n" +
@@ -105,30 +104,17 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                 self.databaseCon.row_factory = sqlite3.Row
                 self.settings.setValue("database/lastfile", QtCore.QVariant(filename))
         
-        # Open the database
-        #self.databaseCon = sqlite3.connect("tracks.db")
-        #self.databaseCon.row_factory = sqlite3.Row
-        
-        
-        
-        
-        
-        
-        
         # Set up the user interface from Designer.
         self.setupUi(self)
         self.setWindowTitle("tracks.cute")
-        
-        
-        
+
         # Get the current user
         if self.settings.contains("database/user"):
             self.current_user_id = int(self.settings.value("database/user").toString())
         else:
             self.current_user_id = False
             self.tabWidget.setCurrentIndex(8)
-        
-        
+
         # Setup the refreshables dictionary, a list of all refreshable elements 
         # on each tab
         self.hometabid=0
@@ -141,51 +127,22 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         for a in range(self.tabWidget.count()):
             self.refreshables[a]=[]
         self.tabWidget.currentChanged.connect(self.refreshTab)
-        
-        
+
+
         # Setup the home page
         self.homeContexts = {}
         # dict for remembering which contexts have been expanded/collapsed.
         self.homeContextExpanded = {} 
         self.setupHomePage()
         
-        
-        # NOTE Setup the starred page
-        # NOTE Starred actions are those tagged with "starred"
-        # Add each of the contexts with starred items
-        # TODO
-        # Add the deferred/pending starred actions
-        # TODO
-        # Add the hidden starred actions
-        # TODO
-        # Add the completed starred actions
-#        sql = "SELECT todos.id, todos.description, contexts.name, projects.name\
-#              FROM (todos LEFT JOIN contexts ON todos.context_id = contexts.id)\
-#              LEFT JOIN projects on todos.project_id = projects.id where todos.\
-#              state='completed' order by todos.completed_at"
-#        tracksAList = TracksActionList(
-#            self.databaseCon,"Completed Actions tagged with 'starred'",sql,True)
-#        self.starred_mainpane_layout.addWidget(tracksAList)
-#        self.starred_mainpane_layout.addItem(
-#            QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum,
-#                              QtGui.QSizePolicy.Expanding))
-        # Add the action editor
-        
         # Setup starred page
         self.setupStarredPage()
-        #self.starred_actionEditor = TracksActionEditor(self.databaseCon)
-        #self.starred_sidepane_layout.addWidget(self.starred_actionEditor)
-        #self.starred_sidepane_layout.addItem(
-        #QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
-        
-        
+       
         # Setup the projects page
         self.setupProjectsPage()
 
-        
         # Setup the contexts page
         self.setupContextsPage()
-        
         
         # NOTE Setup the calendar page
         self.calendar_actionEditor = TracksActionEditor(self.databaseCon)
@@ -193,8 +150,6 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.calendar_sidepane_layout.addItem(
         QtGui.QSpacerItem(
                 1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
-        
-        
         
         # NOTE Setup the tickler page
         self.setupTicklerPage()
@@ -212,15 +167,19 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         #self.tabWidget.setTabEnabled(6, False)
         self.tabWidget.setTabEnabled(7, False)
         #self.tabWidget.setTabEnabled(8, False)
+        
+        # Refresh the content of the current tab
         self.refreshCurrentTab()
     
     def isWindowsCompositionEnabled(self):
+        """Windows(tm) only method to detect whether composition is enabled"""
         value = c_long(False)
         point = pointer(value)
         windll.dwmapi.DwmIsCompositionEnabled(point)
         return bool(value.value)
     
     def paintEvent(self, e):
+        """overridden method to include transparency for Windows if possible"""
         # This is a fix for the vista background transparency.
         if self.doWinComposite:
             p = QtGui.QPainter(self)
@@ -243,20 +202,6 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_6.addItem(spacerItem1)
         self.refreshables[self.hometabid].append(self.actionEditor)
-        
-        # Add the recently completed list of actions
-        #sqlCompleted = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
-        #               projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
-        #               todos.context_id = contexts.id) LEFT JOIN projects on \
-        #               todos.project_id = projects.id where todos.state=\
-        #               'completed' order by todos.completed_at DESC limit 7"
-        #tracksCList = TracksActionList(
-        #    self.databaseCon,"Recently Completed Actions",sqlCompleted,False)
-        #tracksCList.setDisplayCompletedAt(True)
-        #self.verticalLayout_4.addWidget(tracksCList)
-        #tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
-        #tracksCList.gotoProject.connect(self.gotoProject)
-        #self.refreshables[self.hometabid].append(tracksCList)
         
         # Add a vertical spacer
         spacerItem = QtGui.QSpacerItem(
@@ -282,8 +227,6 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.homeContexts[key].hide()
             self.verticalLayout_4.removeWidget(self.homeContexts[key])
         
-        
-        
         # add the completed actions
         expanded = False
         if self.homeContextExpanded.has_key("completed"):
@@ -304,11 +247,6 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
         tracksCList.actionModified.connect(self.refreshCurrentTab)
         tracksCList.refresh()
-            
-        # Add all of the active contexts
-        #activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM (todos LEFT JOIN contexts ON \
-        #          todos.context_id = contexts.id) LEFT JOIN projects on\
-        #          todos.project_id = projects.id where todos.state='active' and projects.state = 'active' and contexts.hide='f' and (todos.show_from<=DATE('now', 'localtime') or todos.show_from IS null) ORDER BY contexts.name"
         
         activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM (todos LEFT JOIN contexts ON \
                   todos.context_id = contexts.id AND todos.user_id=contexts.user_id) LEFT JOIN projects on\
@@ -493,6 +431,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectview_verticalLayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
     
     def refreshProjectsPage(self):
+        """refreshes the content of the projects page"""
         logging.info("tracks->refreshProjectsPage")
         
         # Are listing all projects, or are we on a specifi project page?
@@ -533,6 +472,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         
     def gotoProject(self, projID):
+        """Changes the project page from a list of all projects to a detailed page of one specific project"""
         logging.info("tracks->gotoProject(" + str(projID) +")")
         
         self.tabWidget.setCurrentIndex(self.projectstabid)
@@ -570,8 +510,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        'completed' AND todos.project_id= "+ str(projID) + " order by todos.completed_at DESC, todos.description")
         
         self.projectview_actionEditor.setCurrentUser(self.current_user_id)
+        self.projectview_actionEditor.refresh()
         
     def backToProjectList(self):
+        """Changes the projects tab from a specific project page back to the list of all projects"""
         logging.info("tracks->backToProjectList()")
         self.stackedWidget_2.setCurrentIndex(0)
     
@@ -656,6 +598,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.contextview_verticalLayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
     
     def refreshContextsPage(self):
+        """Refreshes the content of the contexts tab"""
         
         #Are we on the contexts list, or a specific context view
         if self.stackedWidget_3.currentIndex() ==0:
@@ -683,6 +626,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.contextview_actionEditor.setCurrentUser(self.current_user_id)
         
     def gotoContext(self, id):
+        """Changes the context tab from a list of all contexts to a view of a single specific context"""
+        
         logging.info("tracks->gotoContext(" + str(id) +")")
         
         self.tabWidget.setCurrentIndex(self.contextstabid)
@@ -717,8 +662,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        'completed' AND todos.context_id= "+ str(id) + " order by todos.completed_at DESC")
                        
         self.contextview_actionEditor.setCurrentUser(self.current_user_id)
+        self.contextview_actionEditor.refresh()
     
     def backToContextList(self):
+        """changes the context tab view from a specific context back to the list of all contexts"""
         logging.info("tracks->backToContextList()")
         self.stackedWidget_3.setCurrentIndex(0)
     
@@ -754,6 +701,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # TODO add date ranges, e.g. done today, done last two weeks
         
     def refreshDonePage(self):
+        """Refreshes the content of the done tab"""
         logging.info("tracks->refreshDonePage")
         sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
@@ -775,6 +723,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.settingsUserSelectBox.currentIndexChanged.connect(self.settingsUserChanged)
         
     def refreshSettingsPage(self):
+        """Refreshes the content of the settings tab"""
         logging.info("tracks->setupSettingsPage")
         # User setting
         self.settingsUserSelectBox.currentIndexChanged.disconnect(self.settingsUserChanged)
@@ -803,15 +752,13 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.settings.setValue("database/user", QtCore.QVariant(self.current_user_id))
     
     def refreshCurrentTab(self):
+        """Refreshes the currently visible tab"""
         logging.info("tracks->refreshCurrentTab")
         self.refreshTab(self.tabWidget.currentIndex())
         
     def refreshTab(self, id):
         """Refreshes all of the refreshable elements of the current tab"""
         logging.info("tracks->refreshTab - "+str(id))
-        
-        for element in self.refreshables[id]:
-            element.refresh()
         
         # for stuff not quite as simple as hitting refresh() call a tab specific method
         if id == 0: #homepage
@@ -826,6 +773,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.refreshDonePage()
         elif id == 8:
             self.refreshSettingsPage()
+        
+        # for elements that can simply be refreshed
+        for element in self.refreshables[id]:
+            element.refresh()
 
         
 if __name__ == "__main__":
