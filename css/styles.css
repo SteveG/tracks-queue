@@ -3,7 +3,7 @@
 /* html */
 html
 {
-    background-image: url(images/background.gif);
+    background-image: url(/tracks.cute/images/background.gif);
     background-position: top left;
     background-repeat: repeat;
 }
@@ -39,7 +39,7 @@ blockquote {
     padding-bottom: 3px;
     padding-left: 10px;
     padding-right: 10px;
-    background-image: url(images/background.gif);
+    background-image: url(/tracks.cute/images/background.gif);
     font-family: monospace;
     font-size: 90%;
     text-align: justify;
@@ -63,7 +63,7 @@ a{
     margin-top: 10px;
     padding-bottom: 5px;
     color: white;
-    background-image: url(images/background-content.png);
+    background-image: url(/tracks.cute/images/background-content.png);
 }
 .singlecolumn-noheading{
     width: 80%;
@@ -72,7 +72,7 @@ a{
     padding-top: 5px;
     padding-bottom: 5px;
     color: white;
-    background-image: url(images/background-content.png);
+    background-image: url(/tracks.cute/images/background-content.png);
     border-style:solid;
     border-color:black;
     border-width:10px 0 0 0;
@@ -81,7 +81,7 @@ a{
     width: 35%;
     float: left;
     margin-left: 10%;
-    background-image: url(images/background-content.png);
+    background-image: url(/tracks.cute/images/background-content.png);
     color: white;
 }
 
