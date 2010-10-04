@@ -1,0 +1,98 @@
+
+
+/* html */
+html
+{
+    background-image: url(/images/background.gif);
+    background-position: top left;
+    background-repeat: repeat;
+}
+
+body{
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.clear{
+    clear: both;
+    padding-top: 20px;
+}
+/* content */
+
+h2{
+    color: white;
+    background: black;
+    margin-top: 0px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    text-align: left;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+p{
+    padding-left: 10px;
+    padding-right: 10px;
+    text-align: justify;
+}
+blockquote {
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 10px;
+    padding-right: 10px;
+    background-image: url(/images/background.gif);
+    font-family: monospace;
+    font-size: 90%;
+    text-align: justify;
+}
+a{
+    color: grey;
+}
+.center{
+    text-align: center;
+    text-align:center;
+    margin-top:0px;
+    margin-bottom:0px;
+    padding:0px;
+
+}
+
+
+.singlecolumn{
+    width: 80%;
+    margin-left: 10%;
+    margin-top: 10px;
+    padding-bottom: 5px;
+    color: white;
+    background-image: url(/images/background-content.png);
+}
+.singlecolumn-noheading{
+    width: 80%;
+    margin-left: 10%;
+    margin-top: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    color: white;
+    background-image: url(/images/background-content.png);
+    border-style:solid;
+    border-color:black;
+    border-width:10px 0 0 0;
+}
+.twocolumn{
+    width: 35%;
+    float: left;
+    margin-left: 10%;
+    background-image: url(/images/background-content.png);
+    color: white;
+}
+
+
+
+/* footer */
+#footer {
+    width: 100%;
+    font-size: 80%;
+    color: #666;
+    border-top: 4px solid #000;
+    margin-top: 2em;
+    overflow: hidden;
+}
