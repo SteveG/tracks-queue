@@ -218,6 +218,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         """Refreshes complex bits of the home page. Others components are refreshed via refreshables"""
         logging.info("tracks->refreshHomePage()")
         
+        # signal mapper
+        self.focusListMapper = QtCore.QSignalMapper(self)
+        self.focusListMapper.mapped[str].connect(self.homePageFocusList)
+        
         # get the current states of each context view
         for key in self.homeContexts.keys():
             self.homeContextExpanded[key] = self.homeContexts[key].isExpanded()
@@ -246,6 +250,11 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         tracksCList.gotoContext.connect(self.gotoContext)
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
         tracksCList.actionModified.connect(self.refreshCurrentTab)
+        
+        #tracksCList.getFocus.connect(self.homePageFocus)
+        self.focusListMapper.setMapping(tracksCList, "completed")
+        tracksCList.getFocus.connect(self.focusListMapper.map)
+        
         tracksCList.refresh()
         
         activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM (todos LEFT JOIN contexts ON \
@@ -283,9 +292,21 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             tracksAList.gotoProject.connect(self.gotoProject)
             tracksAList.gotoContext.connect(self.gotoContext)
             
+            
+            self.focusListMapper.setMapping(tracksAList, str(row[0]))
+            tracksAList.getFocus.connect(self.focusListMapper.map)
+            
             tracksAList.refresh()
          
         self.actionEditor.setCurrentUser(self.current_user_id)
+    
+    def homePageFocusList(self, focuskey):
+        """Focus one list on the home page"""
+        logging.info("tracks->homePageFocusList()")
+        # shrink all lists but the expanded list
+        for key in self.homeContexts.keys():
+            if str(key) != focuskey:
+                self.homeContexts[key].setExpanded(False)
     
     def setupStarredPage(self):
         """Setup the starred actions page"""

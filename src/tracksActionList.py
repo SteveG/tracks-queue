@@ -30,6 +30,7 @@ from PyQt4 import QtCore, QtGui
 import logging
 import sys
 
+
 class TracksActionList(QtGui.QWidget):
     # TODO define signals emitted by this widget
     __pyqtSignals__ = ("editAction(int)",
@@ -39,7 +40,8 @@ class TracksActionList(QtGui.QWidget):
                      "gotoLabel(QString)",
                      "gotoProject(int)",
                      "gotoContext(int)",
-                     "actionModified()"
+                     "actionModified()",
+                     "getFocus()"
                      )
     editAction = QtCore.pyqtSignal(int)
     starAction = QtCore.pyqtSignal(int)
@@ -49,6 +51,7 @@ class TracksActionList(QtGui.QWidget):
     gotoProject = QtCore.pyqtSignal(int)
     gotoContext = QtCore.pyqtSignal(int)
     actionModified = QtCore.pyqtSignal()
+    getFocus = QtCore.pyqtSignal()
 
     # Need to add a list title, a database query, an option for expanded or not
     def __init__(self, databaseCon, title, dbQuery, startExpanded):
@@ -72,7 +75,7 @@ class TracksActionList(QtGui.QWidget):
         self.verticalLayout.setMargin(0)
         
         # Create expander button
-        self.toggleListButton = QtGui.QPushButton(self)
+        self.toggleListButton = CustomButton()
         self.toggleListButton.setText(title)
         self.toggleListButton.setStyleSheet("text-align:left;")
         self.toggleListButton.setCheckable(True)
@@ -109,6 +112,7 @@ class TracksActionList(QtGui.QWidget):
 
         # connect the toggle list butotn
         self.connect(self.toggleListButton, QtCore.SIGNAL("clicked()"), self.toggleListButtonClick)
+        self.connect(self.toggleListButton, QtCore.SIGNAL("ctrlclicked()"), self.toggleListButtonCtrlClick)
         
         # Add the item button mappers
         self.itemDeleteButtonMapper = QtCore.QSignalMapper(self)
@@ -148,18 +152,30 @@ class TracksActionList(QtGui.QWidget):
         """Toggles the visibility of the list"""
         logging.info("TracksActionList->toggleListButtonClick")
         
-        buttonIcon = None
-        if QtGui.QIcon.hasThemeIcon("go-up"):
-            buttonIcon = QtGui.QIcon.fromTheme("go-up")
-        else:
-            buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
-        if self.listWidget.isVisible():
-            if QtGui.QIcon.hasThemeIcon("go-down"):
-                buttonIcon = QtGui.QIcon.fromTheme("go-down")
-            else:
-                buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
-        self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
-        self.listWidget.setVisible(not self.listWidget.isVisible())
+        self.setExpanded(not self.isExpanded())
+        #buttonIcon = None
+        #if QtGui.QIcon.hasThemeIcon("go-up"):
+        #    buttonIcon = QtGui.QIcon.fromTheme("go-up")
+        #else:
+        #    buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
+        #if self.listWidget.isVisible():
+        #    if QtGui.QIcon.hasThemeIcon("go-down"):
+        #        buttonIcon = QtGui.QIcon.fromTheme("go-down")
+        #    else:
+        #        buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
+        #self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
+        #self.listWidget.setVisible(not self.listWidget.isVisible())
+    
+    def toggleListButtonCtrlClick(self):
+        """Aim of this is to expand just this list and emit a signal to minimise all others on the screen"""
+        logging.info("TracksActionList->toggleListButtonCtrlClick")
+        
+        # ensure this list is visible
+        if not self.listWidget.isVisible():
+            self.setExpanded(True)
+        # emit signal to parent widget
+        self.emit(QtCore.SIGNAL("getFocus()"))
+        
     
     # The nominated query is expexted to return a table of the following form:
     # action id, action description, state, context_id, context_name, project_id, project_name
@@ -449,6 +465,40 @@ class TracksActionList(QtGui.QWidget):
         logging.info("TracksActionList->setDBQuery")
         self.dbQuery = dbQuery
         self.refresh()
+        
+    def setExpanded(self, expanded):
+        logging.info("TracksActionList->setExpanded")
+        
+        buttonIcon = None
+        if QtGui.QIcon.hasThemeIcon("go-up"):
+            buttonIcon = QtGui.QIcon.fromTheme("go-up")
+        else:
+            buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
+            
+        if not expanded:
+            if QtGui.QIcon.hasThemeIcon("go-down"):
+                buttonIcon = QtGui.QIcon.fromTheme("go-down")
+            else:
+                buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
+        self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
+        
+        self.toggleListButton.setChecked(expanded)
+        self.listWidget.setVisible(expanded)
+
+
+class CustomButton(QtGui.QPushButton):
+    __pyqtSignals__ = ("ctrlclicked()",
+                     )
+    ctrlclicked = QtCore.pyqtSignal()
+    
+    def __init__(self):
+        QtGui.QPushButton.__init__(self)
+    def mousePressEvent(self,event):
+        if event.modifiers()==QtCore.Qt.ControlModifier:
+            self.emit(QtCore.SIGNAL("ctrlclicked()"))
+        else:
+            QtGui.QPushButton.mousePressEvent(self,event)
+        
         
 class DumbWidget(QtGui.QWidget):
     def __init__(self):
