@@ -68,6 +68,7 @@ class TracksActionList(QtGui.QWidget):
         self.displaycompleted_at = False
         self.displaytags = False
         self.displayprojectfirst = False
+        self.displaycontextfirst = False
 
         # Create Layout
         self.verticalLayout = QtGui.QVBoxLayout(self)
@@ -136,6 +137,9 @@ class TracksActionList(QtGui.QWidget):
     def setDisplayProjectFirst(self, setto):
         self.displayprojectfirst = setto
         
+    def setDisplayContextFirst(self, setto):
+        self.displaycontextfirst = setto
+        
     def setDisplayShowFrom(self, setto):
         logging.info("TracksActionList->setDisplayShowFrom")
         self.displayshow_from = setto
@@ -153,26 +157,14 @@ class TracksActionList(QtGui.QWidget):
         logging.info("TracksActionList->toggleListButtonClick")
         
         self.setExpanded(not self.isExpanded())
-        #buttonIcon = None
-        #if QtGui.QIcon.hasThemeIcon("go-up"):
-        #    buttonIcon = QtGui.QIcon.fromTheme("go-up")
-        #else:
-        #    buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
-        #if self.listWidget.isVisible():
-        #    if QtGui.QIcon.hasThemeIcon("go-down"):
-        #        buttonIcon = QtGui.QIcon.fromTheme("go-down")
-        #    else:
-        #        buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
-        #self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
-        #self.listWidget.setVisible(not self.listWidget.isVisible())
     
     def toggleListButtonCtrlClick(self):
         """Aim of this is to expand just this list and emit a signal to minimise all others on the screen"""
         logging.info("TracksActionList->toggleListButtonCtrlClick")
         
         # ensure this list is visible
-        if not self.listWidget.isVisible():
-            self.setExpanded(True)
+        #if not self.listWidget.isVisible():
+        #    self.setExpanded(True)
         # emit signal to parent widget
         self.emit(QtCore.SIGNAL("getFocus()"))
         
@@ -300,6 +292,18 @@ class TracksActionList(QtGui.QWidget):
                 self.itemProjectButtonMapper.setMapping(projecttext, project_id)
                 projecttext.clicked.connect(self.itemProjectButtonMapper.map)
                 
+            # Context first if required
+            if self.displaycontextfirst:
+                contexttext = QtGui.QPushButton(widget)
+                contexttext.setCursor(QtCore.Qt.PointingHandCursor)
+                contexttext.setStyleSheet("border: None; Font-size: 8px; text-align:left")
+                contexttext.setText("@"+context)
+                contexttext.setMinimumWidth(50)
+                contexttext.setMaximumWidth(50)
+                horizontalLayout.addWidget(contexttext)
+                self.itemContextButtonMapper.setMapping(contexttext, context_id)
+                contexttext.clicked.connect(self.itemContextButtonMapper.map)
+                
             # Due date if required
             data = self.databaseCon.execute("select due, (due < DATE('now','localtime')) from todos where id = " + str(id)).fetchone()
             if is_completed:
@@ -335,8 +339,8 @@ class TracksActionList(QtGui.QWidget):
                 self.itemLabelButtonMapper.setMapping(labelButton, id) #TODO fix
                 labelButton.clicked.connect(self.itemLabelButtonMapper.map)
             
-            # Add Context Button #TODO make this optional
-            if context != None:
+            # Add Context Button
+            if context != None and not self.displaycontextfirst:
                 contextButton = QtGui.QPushButton(widget)
                 font = QtGui.QFont()
                 font.setPointSize(7)
@@ -349,7 +353,7 @@ class TracksActionList(QtGui.QWidget):
                 self.itemContextButtonMapper.setMapping(contextButton, context_id) #TODO fix
                 contextButton.clicked.connect(self.itemContextButtonMapper.map)
                 
-            # Add project button #TODO make this optional
+            # Add project button
             if project != None and not self.displayprojectfirst:
                 projectButton = QtGui.QPushButton(widget)
                 font = QtGui.QFont()

@@ -303,10 +303,19 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
     def homePageFocusList(self, focuskey):
         """Focus one list on the home page"""
         logging.info("tracks->homePageFocusList()")
+        
+        # Prevent flickering as things change
+        self.tabWidget.setUpdatesEnabled(False)
         # shrink all lists but the expanded list
         for key in self.homeContexts.keys():
             if str(key) != focuskey:
                 self.homeContexts[key].setExpanded(False)
+        # this is done after to prevent flicker
+        for key in self.homeContexts.keys():
+            if str(key) == focuskey:
+                self.homeContexts[key].setExpanded(True)
+        # Re-enable screen updates
+        self.tabWidget.setUpdatesEnabled(True)
     
     def setupStarredPage(self):
         """Setup the starred actions page"""
@@ -421,6 +430,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectview_tracksAList = TracksActionList(
             self.databaseCon,"Active Actions",sqlActive,True)
         self.projectview_verticalLayout.addWidget( self.projectview_tracksAList)
+        self.projectview_tracksAList.setDisplayContextFirst(True)
         self.projectview_tracksAList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
         self.projectview_tracksAList.actionModified.connect(self.refreshCurrentTab)
         self.projectview_tracksAList.gotoContext.connect(self.gotoContext)
@@ -431,6 +441,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectview_tracksDList = TracksActionList(
             self.databaseCon,"Deferred/Pending Actions",sqlDeferred,False)
         self.projectview_tracksDList.setDisplayShowFrom(True)
+        self.projectview_tracksDList.setDisplayContextFirst(True)
         self.projectview_verticalLayout.addWidget(self.projectview_tracksDList)
         self.projectview_tracksDList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
         self.projectview_tracksDList.actionModified.connect(self.refreshCurrentTab)
@@ -442,6 +453,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectview_tracksCList = TracksActionList(
             self.databaseCon,"Completed Actions",sqlCompleted,False)
         self.projectview_tracksCList.setDisplayCompletedAt(True)
+        self.projectview_tracksCList.setDisplayContextFirst(True)
         self.projectview_verticalLayout.addWidget(self.projectview_tracksCList)
         self.projectview_tracksCList.editAction.connect(self.projectview_actionEditor.setCurrentActionID)
         self.projectview_tracksCList.actionModified.connect(self.refreshCurrentTab)
@@ -588,6 +600,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.contextview_tracksAList = TracksActionList(
             self.databaseCon,"Active Actions",sqlActive,True)
         self.contextview_verticalLayout.addWidget( self.contextview_tracksAList)
+        self.contextview_tracksAList.setDisplayProjectFirst(True)
         self.contextview_tracksAList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
         self.contextview_tracksAList.actionModified.connect(self.refreshCurrentTab)
         self.contextview_tracksAList.gotoProject.connect(self.gotoProject)
@@ -599,6 +612,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.databaseCon,"Deferred/Pending Actions",sqlDeferred,False)
         self.contextview_tracksDList.setDisplayShowFrom(True)
         self.contextview_verticalLayout.addWidget(self.contextview_tracksDList)
+        self.contextview_tracksDList.setDisplayProjectFirst(True)
         self.contextview_tracksDList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
         self.contextview_tracksDList.actionModified.connect(self.refreshCurrentTab)
         self.contextview_tracksDList.gotoProject.connect(self.gotoProject)
@@ -610,6 +624,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.databaseCon,"Completed Actions",sqlCompleted,False)
         self.contextview_tracksCList.setDisplayCompletedAt(True)
         self.contextview_verticalLayout.addWidget(self.contextview_tracksCList)
+        self.contextview_tracksCList.setDisplayProjectFirst(True)
         self.contextview_tracksCList.editAction.connect(self.contextview_actionEditor.setCurrentActionID)
         self.contextview_tracksCList.actionModified.connect(self.refreshCurrentTab)
         self.contextview_tracksCList.gotoProject.connect(self.gotoProject)
