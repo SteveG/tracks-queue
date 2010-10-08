@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tracks.ui'
 #
-# Created: Fri Oct  8 23:46:22 2010
+# Created: Sat Oct  9 00:40:44 2010
 #      by: PyQt4 UI code generator 4.7.7
 #
 # WARNING! All changes made in this file will be lost!
@@ -81,6 +81,8 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 778, 569))
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.starred_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
+        self.starred_mainpane_layout.setSpacing(3)
+        self.starred_mainpane_layout.setMargin(4)
         self.starred_mainpane_layout.setObjectName(_fromUtf8("starred_mainpane_layout"))
         self.starred_mainpane.setWidget(self.scrollAreaWidgetContents)
         self.horizontalLayout_2.addWidget(self.starred_mainpane)
@@ -337,6 +339,8 @@ class Ui_MainWindow(object):
         self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, 0, 788, 569))
         self.scrollAreaWidgetContents_5.setObjectName(_fromUtf8("scrollAreaWidgetContents_5"))
         self.done_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_5)
+        self.done_mainpane_layout.setSpacing(3)
+        self.done_mainpane_layout.setMargin(4)
         self.done_mainpane_layout.setObjectName(_fromUtf8("done_mainpane_layout"))
         self.scrollArea_3.setWidget(self.scrollAreaWidgetContents_5)
         self.horizontalLayout_5.addWidget(self.scrollArea_3)
