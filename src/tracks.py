@@ -121,6 +121,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.startabid=1
         self.projectstabid = 2
         self.contextstabid = 3
+        self.calendartabid = 4
         self.donetabid = 6
         self.settingstabid = 8
         self.refreshables={}
@@ -145,11 +146,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.setupContextsPage()
         
         # NOTE Setup the calendar page
-        self.calendar_actionEditor = TracksActionEditor(self.databaseCon)
-        self.calendar_sidepane_layout.addWidget(self.calendar_actionEditor)
-        self.calendar_sidepane_layout.addItem(
-        QtGui.QSpacerItem(
-                1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        self.setupCalendarPage()
+        
         
         # NOTE Setup the tickler page
         self.setupTicklerPage()
@@ -162,7 +160,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # enable the appropriate tabs
         #self.tabWidget.setTabEnabled(1, False)
-        self.tabWidget.setTabEnabled(4, False)
+        #self.tabWidget.setTabEnabled(4, False)
         self.tabWidget.setTabEnabled(5, False)
         #self.tabWidget.setTabEnabled(6, False)
         self.tabWidget.setTabEnabled(7, False)
@@ -526,7 +524,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state='active' \
                        AND todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) \
-                       AND (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.project_id= "+ str(projID) + " order by CASE WHEN todos.due IS null THEN 1 ELSE 0 END, todos.due, todos.description")
+                       AND (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.project_id= "+ str(projID) + " order by CASE WHEN todos.due IS null THEN 1 ELSE 0 END, todos.due, contexts.name, todos.description")
         
         self.projectview_tracksDList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
@@ -682,7 +680,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
                        'active' AND todos.id not in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active')) AND\
-                       (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.context_id= "+ str(id) + " order by todos.due, todos.description")
+                       (show_from IS NULL OR show_from <= DATETIME('now')) AND todos.context_id= "+ str(id) + " order by CASE WHEN todos.due IS null THEN 1 ELSE 0 END, todos.due, projects.name, todos.description")
         
         self.contextview_tracksDList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
@@ -705,6 +703,122 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         logging.info("tracks->backToContextList()")
         self.stackedWidget_3.setCurrentIndex(0)
     
+    def setupCalendarPage(self):
+        """Setup the calendar page"""
+        logging.info("tracks->setupCalendarPage()")
+        
+        # Setup the action editor
+        self.calendar_actionEditor = TracksActionEditor(self.databaseCon)
+        self.calendar_sidepane_layout.addWidget(self.calendar_actionEditor)
+        self.refreshables[self.calendartabid].append(self.calendar_actionEditor)
+        self.calendar_sidepane_layout.addItem(
+            QtGui.QSpacerItem(
+               1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        self.calendar_actionEditor.actionModified.connect(self.refreshCurrentTab)
+        
+        # Actions overdue
+        self.calendar_tracksOverDueList = TracksActionList(
+            self.databaseCon,"Overdue",None,True)
+        self.verticalLayout_3.addWidget( self.calendar_tracksOverDueList)
+        self.calendar_tracksOverDueList.setDisplayProjectFirst(True)
+        self.calendar_tracksOverDueList.setDisplayContextFirst(True)
+        self.calendar_tracksOverDueList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
+        self.calendar_tracksOverDueList.actionModified.connect(self.refreshCurrentTab)
+        self.calendar_tracksOverDueList.gotoProject.connect(self.gotoProject)
+        self.calendar_tracksOverDueList.gotoContext.connect(self.gotoContext)
+        
+        # Actions due today
+        self.calendar_tracksDTodayList = TracksActionList(
+            self.databaseCon,"Due today",None,True)
+        self.verticalLayout_3.addWidget( self.calendar_tracksDTodayList)
+        self.calendar_tracksDTodayList.setDisplayProjectFirst(True)
+        self.calendar_tracksDTodayList.setDisplayContextFirst(True)
+        self.calendar_tracksDTodayList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
+        self.calendar_tracksDTodayList.actionModified.connect(self.refreshCurrentTab)
+        self.calendar_tracksDTodayList.gotoProject.connect(self.gotoProject)
+        self.calendar_tracksDTodayList.gotoContext.connect(self.gotoContext)
+        
+        # Actions due this week (ending Sunday)
+        self.calendar_tracksDWeekList = TracksActionList(
+            self.databaseCon,"Due this week",None,True)
+        self.verticalLayout_3.addWidget( self.calendar_tracksDWeekList)
+        self.calendar_tracksDWeekList.setDisplayProjectFirst(True)
+        self.calendar_tracksDWeekList.setDisplayContextFirst(True)
+        self.calendar_tracksDWeekList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
+        self.calendar_tracksDWeekList.actionModified.connect(self.refreshCurrentTab)
+        self.calendar_tracksDWeekList.gotoProject.connect(self.gotoProject)
+        self.calendar_tracksDWeekList.gotoContext.connect(self.gotoContext)
+        
+        # Actions due next week
+        self.calendar_tracksDNWeekList = TracksActionList(
+            self.databaseCon,"Due next week",None,False)
+        self.verticalLayout_3.addWidget( self.calendar_tracksDNWeekList)
+        self.calendar_tracksDNWeekList.setDisplayProjectFirst(True)
+        self.calendar_tracksDNWeekList.setDisplayContextFirst(True)
+        self.calendar_tracksDNWeekList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
+        self.calendar_tracksDNWeekList.actionModified.connect(self.refreshCurrentTab)
+        self.calendar_tracksDNWeekList.gotoProject.connect(self.gotoProject)
+        self.calendar_tracksDNWeekList.gotoContext.connect(self.gotoContext)
+        
+        # All other future due actions
+        self.calendar_tracksDueFarList = TracksActionList(
+            self.databaseCon,"Due in the future",None,False)
+        self.verticalLayout_3.addWidget( self.calendar_tracksDueFarList)
+        self.calendar_tracksDueFarList.setDisplayProjectFirst(True)
+        self.calendar_tracksDueFarList.setDisplayContextFirst(True)
+        self.calendar_tracksDueFarList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
+        self.calendar_tracksDueFarList.actionModified.connect(self.refreshCurrentTab)
+        self.calendar_tracksDueFarList.gotoProject.connect(self.gotoProject)
+        self.calendar_tracksDueFarList.gotoContext.connect(self.gotoContext)
+        
+        # Add a spacer
+        self.verticalLayout_3.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+    
+    def refreshCalendarPage(self):
+        """Refreshes the content of the calendar tab"""
+        logging.info("tracks->refreshCalendarPage")
+        # ensure editor has current user
+        self.calendar_actionEditor.setCurrentUser(self.current_user_id)
+        
+        # refresh those overdue
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND todos.due < DATE('now') AND todos.user_id=%s order by todos.due, projects.name" % (self.current_user_id)
+        self.calendar_tracksOverDueList.setDBQuery(sql)
+        
+        # refresh those due today
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND todos.due = DATE('now') AND todos.user_id=%s order by todos.due, projects.name" % (self.current_user_id)
+        self.calendar_tracksDTodayList.setDBQuery(sql)
+        
+        # refresh those due this week (less than or equal Sunday)
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND todos.due > DATE('now') AND todos.due <= DATE('now','weekday 0') AND todos.user_id=%s order by todos.due, projects.name" % (self.current_user_id)
+        self.calendar_tracksDWeekList.setDBQuery(sql)
+        
+        # refresh those due next week
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND todos.due > DATE('now','weekday 0') AND todos.due <= DATE('now','weekday 0', '+7 day') AND todos.user_id=%s order by todos.due, projects.name" % (self.current_user_id)
+        self.calendar_tracksDNWeekList.setDBQuery(sql)
+        
+        # all other future due tasks
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND todos.due > DATE('now','weekday 0', '+7 day') AND todos.user_id=%s order by todos.due, projects.name" % (self.current_user_id)
+        self.calendar_tracksDueFarList.setDBQuery(sql)
     
     def setupTicklerPage(self):
         """Setup the tickler page"""
@@ -805,6 +919,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.refreshProjectsPage()
         elif id ==3:
             self.refreshContextsPage()
+        elif id ==4:
+            self.refreshCalendarPage()
         elif id ==6:
             self.refreshDonePage()
         elif id == 8:
