@@ -384,7 +384,7 @@ class TracksActionList(QtGui.QWidget):
             count +=1
             self.listWidget.addItem("No Actions")
         
-        self.listWidget.setFixedHeight(count*22+2)  
+        self.listWidget.setFixedHeight(count*22+4)  
             
     def deleteItemButtonClicked(self, id):
         logging.info("TracksActionList->deleteItemButtonClicked  -  " + str(id))
