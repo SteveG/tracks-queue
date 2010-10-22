@@ -122,6 +122,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectstabid = 2
         self.contextstabid = 3
         self.calendartabid = 4
+        self.ticklertabid = 5
         self.donetabid = 6
         self.settingstabid = 8
         self.refreshables = {}
@@ -161,7 +162,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # enable the appropriate tabs
         #self.tabWidget.setTabEnabled(1, False)
         #self.tabWidget.setTabEnabled(4, False)
-        self.tabWidget.setTabEnabled(5, False)
+        #self.tabWidget.setTabEnabled(5, False)
         #self.tabWidget.setTabEnabled(6, False)
         self.tabWidget.setTabEnabled(7, False)
         #self.tabWidget.setTabEnabled(8, False)
@@ -720,6 +721,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.calendar_tracksOverDueList = TracksActionList(
             self.databaseCon, "Overdue", None, True)
         self.verticalLayout_3.addWidget(self.calendar_tracksOverDueList)
+        self.calendar_tracksOverDueList.setDisplayShowFrom(True)
         self.calendar_tracksOverDueList.setDisplayProjectFirst(True)
         self.calendar_tracksOverDueList.setDisplayContextFirst(True)
         self.calendar_tracksOverDueList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
@@ -731,6 +733,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.calendar_tracksDTodayList = TracksActionList(
             self.databaseCon, "Due today", None, True)
         self.verticalLayout_3.addWidget(self.calendar_tracksDTodayList)
+        self.calendar_tracksDTodayList.setDisplayShowFrom(True)
         self.calendar_tracksDTodayList.setDisplayProjectFirst(True)
         self.calendar_tracksDTodayList.setDisplayContextFirst(True)
         self.calendar_tracksDTodayList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
@@ -742,6 +745,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.calendar_tracksDWeekList = TracksActionList(
             self.databaseCon, "Due this week", None, True)
         self.verticalLayout_3.addWidget(self.calendar_tracksDWeekList)
+        self.calendar_tracksDWeekList.setDisplayShowFrom(True)
         self.calendar_tracksDWeekList.setDisplayProjectFirst(True)
         self.calendar_tracksDWeekList.setDisplayContextFirst(True)
         self.calendar_tracksDWeekList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
@@ -753,6 +757,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.calendar_tracksDNWeekList = TracksActionList(
             self.databaseCon, "Due next week", None, False)
         self.verticalLayout_3.addWidget(self.calendar_tracksDNWeekList)
+        self.calendar_tracksDNWeekList.setDisplayShowFrom(True)
         self.calendar_tracksDNWeekList.setDisplayProjectFirst(True)
         self.calendar_tracksDNWeekList.setDisplayContextFirst(True)
         self.calendar_tracksDNWeekList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
@@ -764,6 +769,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.calendar_tracksDueFarList = TracksActionList(
             self.databaseCon, "Due in the future", None, False)
         self.verticalLayout_3.addWidget(self.calendar_tracksDueFarList)
+        self.calendar_tracksDueFarList.setDisplayShowFrom(True)
         self.calendar_tracksDueFarList.setDisplayProjectFirst(True)
         self.calendar_tracksDueFarList.setDisplayContextFirst(True)
         self.calendar_tracksDueFarList.editAction.connect(self.calendar_actionEditor.setCurrentActionID)
@@ -822,17 +828,112 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
     def setupTicklerPage(self):
         """Setup the tickler page"""
+        logging.info("tracks->setupTicklerPage()")
         # Tickler actions are those that are deferred via "show_from"
-
-        # Add an action editor
+        
+        # Setup the action editor
         self.tickler_actionEditor = TracksActionEditor(self.databaseCon)
         self.tickler_sidepane_layout.addWidget(self.tickler_actionEditor)
-        self.tickler_sidepane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        self.refreshables[self.ticklertabid].append(self.tickler_actionEditor)
+        self.tickler_sidepane_layout.addItem(
+            QtGui.QSpacerItem(
+               1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        self.tickler_actionEditor.actionModified.connect(self.refreshCurrentTab)
+        
+        # Actions started today
+        self.tickler_tracksSTodayList = TracksActionList(
+            self.databaseCon, "Starting today", None, True)
+        self.tickler_mainpane_layout.addWidget(self.tickler_tracksSTodayList)
+        self.tickler_tracksSTodayList.setDisplayShowFrom(True)
+        self.tickler_tracksSTodayList.setDisplayProjectFirst(True)
+        self.tickler_tracksSTodayList.setDisplayContextFirst(True)
+        self.tickler_tracksSTodayList.editAction.connect(self.tickler_actionEditor.setCurrentActionID)
+        self.tickler_tracksSTodayList.actionModified.connect(self.refreshCurrentTab)
+        self.tickler_tracksSTodayList.gotoProject.connect(self.gotoProject)
+        self.tickler_tracksSTodayList.gotoContext.connect(self.gotoContext)
+        
+        # Actions starting this week
+        self.tickler_tracksSThisWeekList = TracksActionList(
+            self.databaseCon, "Starting this week", None, True)
+        self.tickler_mainpane_layout.addWidget(self.tickler_tracksSThisWeekList)
+        self.tickler_tracksSThisWeekList.setDisplayShowFrom(True)
+        self.tickler_tracksSThisWeekList.setDisplayProjectFirst(True)
+        self.tickler_tracksSThisWeekList.setDisplayContextFirst(True)
+        self.tickler_tracksSThisWeekList.editAction.connect(self.tickler_actionEditor.setCurrentActionID)
+        self.tickler_tracksSThisWeekList.actionModified.connect(self.refreshCurrentTab)
+        self.tickler_tracksSThisWeekList.gotoProject.connect(self.gotoProject)
+        self.tickler_tracksSThisWeekList.gotoContext.connect(self.gotoContext)
+        
+        # Actions starting next week
+        self.tickler_tracksSNextWeekList = TracksActionList(
+            self.databaseCon, "Starting next week", None, False)
+        self.tickler_mainpane_layout.addWidget(self.tickler_tracksSNextWeekList)
+        self.tickler_tracksSNextWeekList.setDisplayShowFrom(True)
+        self.tickler_tracksSNextWeekList.setDisplayProjectFirst(True)
+        self.tickler_tracksSNextWeekList.setDisplayContextFirst(True)
+        self.tickler_tracksSNextWeekList.editAction.connect(self.tickler_actionEditor.setCurrentActionID)
+        self.tickler_tracksSNextWeekList.actionModified.connect(self.refreshCurrentTab)
+        self.tickler_tracksSNextWeekList.gotoProject.connect(self.gotoProject)
+        self.tickler_tracksSNextWeekList.gotoContext.connect(self.gotoContext)
+        
+        # All other actions starting in the future
+        self.tickler_tracksSFutureList = TracksActionList(
+            self.databaseCon, "Starting further in the future", None, False)
+        self.tickler_mainpane_layout.addWidget(self.tickler_tracksSFutureList)
+        self.tickler_tracksSFutureList.setDisplayShowFrom(True)
+        self.tickler_tracksSFutureList.setDisplayProjectFirst(True)
+        self.tickler_tracksSFutureList.setDisplayContextFirst(True)
+        self.tickler_tracksSFutureList.editAction.connect(self.tickler_actionEditor.setCurrentActionID)
+        self.tickler_tracksSFutureList.actionModified.connect(self.refreshCurrentTab)
+        self.tickler_tracksSFutureList.gotoProject.connect(self.gotoProject)
+        self.tickler_tracksSFutureList.gotoContext.connect(self.gotoContext)
+        
+        # Add a spacer
+        self.tickler_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        
+    def refreshTicklerPage(self):
+        """Refresh the tickler page"""
+        logging.info("tracks->refreshTicklerPage()")
+        
+        # ensure editor has current user
+        self.tickler_actionEditor.setCurrentUser(self.current_user_id)
+        
+        # refresh those started today
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND todos.show_from = DATE('now') AND todos.user_id=%s order by todos.show_from, projects.name" % (self.current_user_id)
+        self.tickler_tracksSTodayList.setDBQuery(sql)
+        
+        # refresh those starting this week (less than or equal Sunday)
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND todos.show_from > DATE('now') AND todos.show_from <= DATE('now','weekday 0') AND todos.user_id=%s order by todos.show_from, projects.name" % (self.current_user_id)
+        self.tickler_tracksSThisWeekList.setDBQuery(sql)
+        
+        # refresh those starting next week
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND todos.show_from > DATE('now','weekday 0') AND todos.show_from <= DATE('now','weekday 0', '+7 day') AND todos.user_id=%s order by todos.show_from, projects.name" % (self.current_user_id)
+        self.tickler_tracksSNextWeekList.setDBQuery(sql)
+        
+        # all other future starting tasks
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'active' AND todos.show_from > DATE('now','weekday 0', '+7 day') AND todos.user_id=%s order by todos.show_from, projects.name" % (self.current_user_id)
+        self.tickler_tracksSFutureList.setDBQuery(sql)
 
     def setupDonePage(self):
         """Setup the done page"""
         # No editing on this page, just a list of done actions grouped by various date ranges
-        self.doneFortnightActionList = TracksActionList(self.databaseCon, "Last Fortnight", None, False)
+        self.doneFortnightActionList = TracksActionList(self.databaseCon, "Last Fortnight", None, True)
         self.doneFortnightActionList.setDisplayCompletedAt(True)
         self.doneFortnightActionList.setDisplayProjectFirst(True)
         self.doneFortnightActionList.gotoProject.connect(self.gotoProject)
@@ -921,6 +1022,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.refreshContextsPage()
         elif id == 4:
             self.refreshCalendarPage()
+        elif id == 5:
+            self.refreshTicklerPage()
         elif id == 6:
             self.refreshDonePage()
         elif id == 8:

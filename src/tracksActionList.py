@@ -274,11 +274,12 @@ class TracksActionList(QtGui.QWidget):
             
             # Show_from date if required
             if self.displayshow_from:
-                show_fromText = QtGui.QLabel(widget)
                 date = self.databaseCon.execute("select show_from from todos where id = " + str(id)).fetchone()[0]
-                show_fromText.setText("[" + str(date) +"]")
-                show_fromText.setStyleSheet("Font-size: 8px")
-                horizontalLayout.addWidget(show_fromText)
+                if date:
+                    show_fromText = QtGui.QLabel(widget)
+                    show_fromText.setText("[" + str(date) +"]")
+                    show_fromText.setStyleSheet("Font-size: 8px")
+                    horizontalLayout.addWidget(show_fromText)
              
             # Project first if required
             if self.displayprojectfirst:
@@ -383,7 +384,7 @@ class TracksActionList(QtGui.QWidget):
             count +=1
             self.listWidget.addItem("No Actions")
         
-        self.listWidget.setFixedHeight(count*22+6)  
+        self.listWidget.setFixedHeight(count*22+2)  
             
     def deleteItemButtonClicked(self, id):
         logging.info("TracksActionList->deleteItemButtonClicked  -  " + str(id))
