@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tracks.ui'
 #
-# Created: Fri Oct 22 20:34:05 2010
+# Created: Sat Oct 23 21:02:15 2010
 #      by: PyQt4 UI code generator 4.7.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -347,6 +347,22 @@ class Ui_MainWindow(object):
         self.tabWidget.addTab(self.tab_6, "")
         self.statistics_tab = QtGui.QWidget()
         self.statistics_tab.setObjectName("statistics_tab")
+        self.horizontalLayout_15 = QtGui.QHBoxLayout(self.statistics_tab)
+        self.horizontalLayout_15.setMargin(0)
+        self.horizontalLayout_15.setObjectName("horizontalLayout_15")
+        self.scrollArea_8 = QtGui.QScrollArea(self.statistics_tab)
+        self.scrollArea_8.setFrameShape(QtGui.QFrame.NoFrame)
+        self.scrollArea_8.setWidgetResizable(True)
+        self.scrollArea_8.setObjectName("scrollArea_8")
+        self.scrollAreaWidgetContents_11 = QtGui.QWidget(self.scrollArea_8)
+        self.scrollAreaWidgetContents_11.setGeometry(QtCore.QRect(0, 0, 788, 569))
+        self.scrollAreaWidgetContents_11.setObjectName("scrollAreaWidgetContents_11")
+        self.statslayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_11)
+        self.statslayout.setSpacing(3)
+        self.statslayout.setMargin(4)
+        self.statslayout.setObjectName("statslayout")
+        self.scrollArea_8.setWidget(self.scrollAreaWidgetContents_11)
+        self.horizontalLayout_15.addWidget(self.scrollArea_8)
         self.tabWidget.addTab(self.statistics_tab, "")
         self.settings_tab = QtGui.QWidget()
         self.settings_tab.setObjectName("settings_tab")

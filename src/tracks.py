@@ -124,6 +124,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.calendartabid = 4
         self.ticklertabid = 5
         self.donetabid = 6
+        self.statstabid = 7
         self.settingstabid = 8
         self.refreshables = {}
         for a in range(self.tabWidget.count()):
@@ -155,6 +156,9 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
         # NOTE Setup the done page
         self.setupDonePage()
+        
+        # NOTE Setup the stats page
+        self.setupStatsPage()
 
         # NOTE Setup the settings page
         self.setupSettingsPage()
@@ -164,7 +168,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         #self.tabWidget.setTabEnabled(4, False)
         #self.tabWidget.setTabEnabled(5, False)
         #self.tabWidget.setTabEnabled(6, False)
-        self.tabWidget.setTabEnabled(7, False)
+        #self.tabWidget.setTabEnabled(7, False)
         #self.tabWidget.setTabEnabled(8, False)
 
         # Refresh the content of the current tab
@@ -968,7 +972,62 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        'completed' AND todos.completed_at <= DATETIME('now','-14days') AND todos.completed_at > DATETIME('now','-28days') AND todos.user_id=%s order by projects.name, todos.completed_at DESC" % (self.current_user_id)
         self.doneNextFortnightActionList.setDBQuery(sql)
 
-
+    def setupStatsPage(self):
+        """Sets up the stats tab"""
+        logging.info("tracks->setupStatsPage")
+        
+        # totals stats
+        self.stats_totals_heading = QtGui.QLabel("<b>Totals</b>")
+        self.statslayout.addWidget(self.stats_totals_heading)
+        
+        self.stats_totals_projects = QtGui.QLabel("You have ### projects. Of those ### are active projects, ### hidden projects and ### completed projects")
+        self.statslayout.addWidget(self.stats_totals_projects)
+        
+        self.stats_totals_contexts = QtGui.QLabel("You have ### contexts. Of those ### are visible contexts and ### are hidden contexts")
+        self.statslayout.addWidget(self.stats_totals_contexts)
+        
+        self.stats_totals_actions1 = QtGui.QLabel("Since your first action on ##/##/#### you have a total of ### actions. ### of these are completed.")
+        self.statslayout.addWidget(self.stats_totals_actions1)
+        
+        self.stats_totals_actions2 = QtGui.QLabel("You have ### incomplete actions of which ### are deferred actions in the tickler and ### are dependent on the completion of other actions.")
+        self.statslayout.addWidget(self.stats_totals_actions2)
+        
+        # Add a spacer
+        self.statslayout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+    
+    def refreshStatsPage(self):
+        """Refreshes the content of the stats tab"""
+        logging.info("tracks->setupStatsPage")
+        
+        # update totals
+        # projects
+        totalprojs = self.databaseCon.execute("select count() from projects where user_id=?", (self.current_user_id,)).fetchone()[0]
+        activeprojs = self.databaseCon.execute("select count() from projects where user_id=? and state='active'", (self.current_user_id,)).fetchone()[0]
+        hiddenprojs = self.databaseCon.execute("select count() from projects where user_id=? and state='hidden'", (self.current_user_id,)).fetchone()[0]
+        completeprojs = self.databaseCon.execute("select count() from projects where user_id=? and state='completed'", (self.current_user_id,)).fetchone()[0]
+        theString = "You have %s projects. Of those %s are active projects, %s hidden projects and %s completed projects" % (totalprojs,activeprojs,hiddenprojs,completeprojs)
+        self.stats_totals_projects.setText(theString)
+        
+        # contexts
+        totalcons = self.databaseCon.execute("select count() from contexts where user_id=?", (self.current_user_id,)).fetchone()[0]
+        activecons = self.databaseCon.execute("select count() from contexts where user_id=? and hide='f'", (self.current_user_id,)).fetchone()[0]
+        hiddencons = self.databaseCon.execute("select count() from contexts where user_id=? and hide='t'", (self.current_user_id,)).fetchone()[0]
+        theString = "You have %s contexts. Of those %s are visible contexts and %s are hidden contexts" % (totalcons,activecons,hiddencons)
+        self.stats_totals_contexts.setText(theString)
+        
+        # actions
+        firstdate = self.databaseCon.execute("select created_at from todos where user_id=? order by created_at limit 1", (self.current_user_id,)).fetchone()[0]
+        totalacts = self.databaseCon.execute("select count() from todos where user_id=?", (self.current_user_id,)).fetchone()[0]
+        completeacts = self.databaseCon.execute("select count() from todos where user_id=? and state='completed'", (self.current_user_id,)).fetchone()[0]
+        theString = "Since your first action on %s you have a total of %s actions. %s of these are completed." % (firstdate[0:10],totalacts,completeacts)
+        self.stats_totals_actions1.setText(theString)
+        
+        activeacts = self.databaseCon.execute("select count() from todos where user_id=? and state='active'", (self.current_user_id,)).fetchone()[0]
+        deferacts = self.databaseCon.execute("select count() from todos where user_id=? and state='active' and show_from>DATE('now')", (self.current_user_id,)).fetchone()[0]
+        dependacts = self.databaseCon.execute("select count() from todos where user_id=? and state='active' and id in (select successor_id from dependencies where predecessor_id in (select id from todos where state='active'))", (self.current_user_id,)).fetchone()[0]
+        theString = "You have %s incomplete actions of which %s are deferred actions in the tickler and %s are dependent on the completion of other actions." % (activeacts,deferacts,dependacts)
+        self.stats_totals_actions2.setText(theString)
+    
     def setupSettingsPage(self):
         logging.info("tracks->setupSettingsPage")
         self.settingsUserSelectBox.currentIndexChanged.connect(self.settingsUserChanged)
@@ -1026,6 +1085,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.refreshTicklerPage()
         elif id == 6:
             self.refreshDonePage()
+        elif id == 7:
+            self.refreshStatsPage()
         elif id == 8:
             self.refreshSettingsPage()
 
