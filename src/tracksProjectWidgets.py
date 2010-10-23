@@ -502,9 +502,9 @@ class TracksProjectEditor(QtGui.QGroupBox):
                 #TODO more here            
         if self.current_id == None:
             logging.debug("TracksProjectEditor->saveButtonClicked->adding new project")
-            q = "INSERT INTO projects VALUES(NULL,?,NULL,?,?,?,DATETIME('now'),DATETIME('now'),?,NULL,?)"
+            q = "INSERT INTO projects VALUES(NULL,?,1,?,?,?,DATETIME('now'),DATETIME('now'),?,NULL,?)"
             if state == "completed":
-                q = "INSERT INTO projects VALUES(NULL,?,NULL,?,?,?,DATETIME('now'),DATETIME('now'),?,DATETIME('now'),?)"
+                q = "INSERT INTO projects VALUES(NULL,?,1,?,?,?,DATETIME('now'),DATETIME('now'),?,DATETIME('now'),?)"
             self.databaseCon.execute(q,[name,self.current_user_id,desc,state,context,tags])
             self.databaseCon.commit()
             

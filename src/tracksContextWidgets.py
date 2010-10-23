@@ -388,7 +388,7 @@ class TracksContextEditor(QtGui.QGroupBox):
         
         if self.current_id == None:
             logging.debug("TracksContextEditor->addButtonClicked->adding new context")
-            q = "INSERT INTO contexts VALUES(NULL,?,NULL,?,?,DATETIME('now'),DATETIME('now'))"
+            q = "INSERT INTO contexts VALUES(NULL,?,1,?,?,DATETIME('now'),DATETIME('now'))"
             self.databaseCon.execute(q,[name,hidden,self.current_user_id])
             self.databaseCon.commit()
             
