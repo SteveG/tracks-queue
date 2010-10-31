@@ -376,6 +376,7 @@ class TracksActionList(QtGui.QWidget):
             listitem = QtGui.QListWidgetItem(self.listWidget)
             listitem.setSizeHint(QtCore.QSize(0,22))
             self.listWidget.setItemWidget(listitem, widget)
+            
                 
                 
             count+=1
@@ -384,7 +385,10 @@ class TracksActionList(QtGui.QWidget):
             count +=1
             self.listWidget.addItem("No Actions")
         
-        self.listWidget.setFixedHeight(count*22+4)  
+        # set size of the list to be exactly enough for its contents
+        contentMargins = self.listWidget.getContentsMargins()
+        self.listWidget.setFixedHeight(count*22+contentMargins[1]+contentMargins[3])  
+        #self.listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             
     def deleteItemButtonClicked(self, id):
         logging.info("TracksActionList->deleteItemButtonClicked  -  " + str(id))

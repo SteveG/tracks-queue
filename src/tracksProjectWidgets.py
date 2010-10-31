@@ -205,8 +205,10 @@ class TracksProjectList(QtGui.QWidget):
             count +=1
             self.listWidget.addItem("No Projects")
         
-        self.listWidget.setFixedHeight(count*28+6)  
-    
+        #self.listWidget.setFixedHeight(count*28+6)  
+        # set size of the list to be exactly enough for its contents
+        contentMargins = self.listWidget.getContentsMargins()
+        self.listWidget.setFixedHeight(count*28+contentMargins[1]+contentMargins[3])  
     
     def deleteProjectButtonClicked(self, id):
         logging.info("TracksProjectList->deleteContextButtonClicked  -  " + str(id))
