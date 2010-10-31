@@ -345,7 +345,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                 w.deleteLater()
             item = self.starred_mainpane_layout.takeAt(0)
 
-        starredQuery = "select todos.context_id,contexts.name from todos, tags, taggings, contexts where todos.context_id=contexts.id AND todos.id=taggings.taggable_id and tags.id = taggings.tag_id and tags.name='starred' AND todos.state='active' AND todos.user_id=?"
+        starredQuery = "select todos.context_id,contexts.name from todos, tags, taggings, contexts where todos.context_id=contexts.id AND todos.id=taggings.taggable_id and tags.id = taggings.tag_id and tags.name='starred' AND todos.state='active' AND todos.user_id=? group by todos.context_id order by contexts.name DESC"
 
         for row in self.databaseCon.execute(starredQuery, (str(self.current_user_id),)):
             # All are expanded by default
