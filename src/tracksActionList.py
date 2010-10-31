@@ -387,7 +387,7 @@ class TracksActionList(QtGui.QWidget):
         
         # set size of the list to be exactly enough for its contents
         contentMargins = self.listWidget.getContentsMargins()
-        self.listWidget.setFixedHeight(count*22+contentMargins[1]+contentMargins[3])  
+        self.listWidget.setFixedHeight(count*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth())  
         #self.listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             
     def deleteItemButtonClicked(self, id):
