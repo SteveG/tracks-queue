@@ -51,6 +51,12 @@ class TracksProjectList(QtGui.QWidget):
         
         QtGui.QWidget.__init__(self)
         
+        # Display Options
+        self.show_edit = True
+        self.show_delete = True
+        self.show_state = False
+        self.show_subproject = True
+        
         # Create Layout
         self.verticalLayout = QtGui.QVBoxLayout(self)
         self.verticalLayout.setSpacing(0)
@@ -137,7 +143,18 @@ class TracksProjectList(QtGui.QWidget):
         
         # The query needs to return [id, name, # of active tasks, # of completed tasks]
         count = 0
-        for row in self.databaseCon.execute(self.dbQuery):
+        rows = None
+        if not self.dbQuery_args:
+            rows = self.databaseCon.execute(self.dbQuery).fetchall()
+        else:
+            rows = self.databaseCon.execute(self.dbQuery, self.dbQuery_args).fetchall()
+            
+        if len(rows) == 0:
+            self.setVisible(False)
+        else:
+            self.setVisible(True)
+        
+        for row in rows:
             projectID = int(row[0])
             projectName = str(row[1])
             activeTaskCount = int(row[2])
@@ -150,31 +167,53 @@ class TracksProjectList(QtGui.QWidget):
             horizontalLayout.setSpacing(0)
             
             # Delete Button
-            deleteButton = QtGui.QToolButton(widget)
-            deleteButton.setStyleSheet("border: None;")
-            deleteIcon = None
-            if QtGui.QIcon.hasThemeIcon("edit-delete"):
-                deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
-            else:
-                deleteIcon = QtGui.QIcon(self.iconPath + "edit-delete.png")
-            deleteButton.setIcon(QtGui.QIcon(deleteIcon.pixmap(16,16,1,0)))
-            horizontalLayout.addWidget(deleteButton)
-            self.projectDeleteButtonMapper.setMapping(deleteButton, projectID)
-            deleteButton.clicked.connect(self.projectDeleteButtonMapper.map)
+            if self.show_delete:
+                deleteButton = QtGui.QToolButton(widget)
+                deleteButton.setStyleSheet("border: None;")
+                deleteIcon = None
+                if QtGui.QIcon.hasThemeIcon("edit-delete"):
+                    deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
+                else:
+                    deleteIcon = QtGui.QIcon(self.iconPath + "edit-delete.png")
+                deleteButton.setIcon(QtGui.QIcon(deleteIcon.pixmap(16,16,1,0)))
+                horizontalLayout.addWidget(deleteButton)
+                self.projectDeleteButtonMapper.setMapping(deleteButton, projectID)
+                deleteButton.clicked.connect(self.projectDeleteButtonMapper.map)
             
             # Edit Button
-            editButton = QtGui.QToolButton(widget)
-            editButton.setStyleSheet("Border: none;")
-            editIcon = None
-            if QtGui.QIcon.hasThemeIcon("accessories-text-editor"):
-                editIcon = QtGui.QIcon.fromTheme("accessories-text-editor")
-            else:
-                editIcon = QtGui.QIcon(self.iconPath + "accessories-text-editor.png")
-            editButton.setIcon(editIcon)
-            horizontalLayout.addWidget(editButton)
-            self.projectEditButtonMapper.setMapping(editButton, projectID)
-            editButton.clicked.connect(self.projectEditButtonMapper.map)
+            if self.show_edit:
+                editButton = QtGui.QToolButton(widget)
+                editButton.setStyleSheet("Border: none;")
+                editIcon = None
+                if QtGui.QIcon.hasThemeIcon("accessories-text-editor"):
+                    editIcon = QtGui.QIcon.fromTheme("accessories-text-editor")
+                else:
+                    editIcon = QtGui.QIcon(self.iconPath + "accessories-text-editor.png")
+                editButton.setIcon(editIcon)
+                horizontalLayout.addWidget(editButton)
+                self.projectEditButtonMapper.setMapping(editButton, projectID)
+                editButton.clicked.connect(self.projectEditButtonMapper.map)
             
+            # show state?
+            if self.show_state:
+                state = self.databaseCon.execute("select state from projects where id=?", (projectID,)).fetchone()[0]
+                stateText = QtGui.QLabel()
+                stateText.setText("[" + state + "] " )
+                stateText.setMinimumWidth(70)
+                stateText.setMaximumWidth(70)
+                stateText.setStyleSheet("QLabel{border: None; Font-size: 8px; text-align:left}")
+                horizontalLayout.addWidget(stateText)
+            
+            # is the project a child project?
+            if self.show_subproject:
+                childData = self.databaseCon.execute("select projects.name from dependencies, projects where projects.id=dependencies.predecessor_id AND dependencies.successor_id=? AND dependencies.relationship_type='subproject'",(projectID,)).fetchall()
+                if len(childData) > 0:
+                    childText = QtGui.QLabel()
+                    childText.setText("(sub-project)   ")
+                    childText.setStyleSheet("QLabel{border: None; Font-size: 8px; text-align:left}")
+                    childText.setToolTip("Subordinate to: "+ str(childData[0][0]))
+                    horizontalLayout.addWidget(childText)
+                        
             # Project Text
             projectText = QtGui.QPushButton(widget)
             projectText.setText(projectName)
@@ -183,7 +222,7 @@ class TracksProjectList(QtGui.QWidget):
             horizontalLayout.addWidget(projectText)
             self.projectTextButtonMapper.setMapping(projectText, projectID)
             projectText.clicked.connect(self.projectTextButtonMapper.map)
-            
+                
             # Spacer
             spacerItem = QtGui.QSpacerItem(227, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
             horizontalLayout.addItem(spacerItem)
@@ -231,7 +270,23 @@ class TracksProjectList(QtGui.QWidget):
     def setDBQuery(self, query):
         logging.info("TracksProjectList->setDBQuery")
         self.dbQuery = query
+        self.dbQuery_args = None
         self.refresh()
+        
+    def setDBQuery_args(self, query, query_args):
+        logging.info("TracksProjectList->setDBQuery")
+        self.dbQuery = query
+        self.dbQuery_args = query_args
+        self.refresh()
+        
+    def setShowState(self, setting):
+        self.show_state = setting
+    def setShowEdit(self, setting):
+        self.show_edit = setting
+    def setShowDelete(self, setting):
+        self.show_delete = setting
+    def setShowSubProject(self, setting):
+        self.show_subproject = setting
 
 class TracksProjectEditor(QtGui.QGroupBox):
     """
@@ -303,15 +358,15 @@ class TracksProjectEditor(QtGui.QGroupBox):
         self.verticalLayout.addWidget(self.contextLabel)
         self.contextEdit = QtGui.QLineEdit(self)
         self.verticalLayout.addWidget(self.contextEdit)
-        # Add string list completer
+        # Add string list completer, this is now done in refresh
         # TODO get projects from database
-        contextList = []
-        for row in self.databaseCon.execute("select name FROM contexts"):
-            contextList.append(row[0])
-        contextStringList = QtCore.QStringList(contextList)
-        contextCompleter = QtGui.QCompleter(contextStringList)
-        contextCompleter.setCompletionMode(1)
-        self.contextEdit.setCompleter(contextCompleter)
+        #contextList = []
+        #for row in self.databaseCon.execute("select name FROM contexts"):
+        #    contextList.append(row[0])
+        #contextStringList = QtCore.QStringList(contextList)
+        #contextCompleter = QtGui.QCompleter(contextStringList)
+        #contextCompleter.setCompletionMode(1)
+        #self.contextEdit.setCompleter(contextCompleter)
 
         
         # Default Tags Line Edit
@@ -351,6 +406,28 @@ class TracksProjectEditor(QtGui.QGroupBox):
         self.statusRadio3.setText("completed")
         self.statusLayout.addWidget(self.statusRadio3)
         self.verticalLayout.addLayout(self.statusLayout)
+        
+        
+        # Parent project (If this is a sub project)
+        self.existingProjects = []
+        #for row in self.databaseCon.execute("select description FROM todos where state='active'"):
+        #   self.existingActions.append(row[0])
+        self.existingProjects.append("FAKE-PROJECT")
+        #
+        self.parentLabel = QtGui.QLabel(self)
+        self.parentLabel.setText("\nSubordinate to (optional)") # can it have multiple parents???
+        self.verticalLayout.addWidget(self.parentLabel)
+        self.parentEdit = QtGui.QLineEdit(self)
+        self.verticalLayout.addWidget(self.parentEdit)
+        # TODO add completion. Done in refresh
+        #projectList = []
+        #print self.current_user_id
+        #for row in self.databaseCon.execute("select name FROM projects"):
+        #    projectList.append(row[0])
+        #projectStringList = QtCore.QStringList(projectList)
+        #projectCompleter = QtGui.QCompleter(projectStringList)
+        #projectCompleter.setCompletionMode(1)
+        #self.parentEdit.setCompleter(projectCompleter)
         
         
         # Commit and Cancel button
@@ -407,6 +484,8 @@ class TracksProjectEditor(QtGui.QGroupBox):
         self.statusRadio1.setVisible(self.formVisible)
         self.statusRadio2.setVisible(self.formVisible)
         self.statusRadio3.setVisible(self.formVisible)
+        self.parentLabel.setVisible(self.formVisible)
+        self.parentEdit.setVisible(self.formVisible)
         self.addProjectButton.setVisible(self.formVisible)
         #TODO only reshow cancel button when editing existing item
         self.cancelEditButton.setVisible(self.formVisible and self.current_id != None)
@@ -457,6 +536,7 @@ class TracksProjectEditor(QtGui.QGroupBox):
         self.contextEdit.clear()
         self.tagsEdit.clear()
         self.statusRadio1.setChecked(True)
+        self.parentEdit.clear()
         
         self.current_id = None
         self.cancelEditButton.setVisible(False)
@@ -499,7 +579,21 @@ class TracksProjectEditor(QtGui.QGroupBox):
             state = "hidden"
         elif self.statusRadio3.isChecked():
             state = "completed"
-        
+            
+        # parent project
+        parent = str(self.parentEdit.text())
+        if parent == "":
+            parent= None
+        else:
+            # look up the id in the database, error if it does not exist.
+            result = self.databaseCon.execute("select id FROM projects where name=?", [parent,]).fetchone()
+            if result != None:
+                parent = result[0]
+            else:
+                QtGui.QMessageBox.critical(self,
+                            "Error",
+                            "Nominated parent project doesn't exist\n\nNo data has been inserted or modified")
+                return
     
                 #TODO more here            
         if self.current_id == None:
@@ -509,6 +603,14 @@ class TracksProjectEditor(QtGui.QGroupBox):
                 q = "INSERT INTO projects VALUES(NULL,?,1,?,?,?,DATETIME('now'),DATETIME('now'),?,DATETIME('now'),?)"
             self.databaseCon.execute(q,[name,self.current_user_id,desc,state,context,tags])
             self.databaseCon.commit()
+            
+            # Add the subproject relationship
+            if parent:
+                newID = self.databaseCon.execute("select last_insert_rowid()").fetchone()[0]
+                existing = self.databaseCon.execute("select * from dependencies where successor_id=? AND predecessor_id=? AND relationship_type='subproject'",(newID,parent)).fetchall()
+                if len(existing)==0:
+                    self.databaseCon.execute("INSERT INTO dependencies VALUES(NULL, ?,?,'subproject')",(newID,parent))
+                    self.databaseCon.commit()
             
             self.cancelButtonClicked()
             
@@ -524,9 +626,18 @@ class TracksProjectEditor(QtGui.QGroupBox):
             self.databaseCon.execute(q,[name,desc,state,context,tags,self.current_id])
             self.databaseCon.commit()
             
+            # Add the subproject relationship
+            self.databaseCon.execute("delete from dependencies where successor_id=? AND relationship_type='subproject'",(self.current_id,))
+            if parent:
+                self.databaseCon.execute("INSERT INTO dependencies VALUES(NULL, ?,?,'subproject')",(self.current_id,parent))
+                self.databaseCon.commit()
+            
+            
             self.cancelButtonClicked()
             
             self.emit(QtCore.SIGNAL("projectModified()"))
+            
+            
             
 
     def setCurrentProjectID(self, projectID):
@@ -555,6 +666,12 @@ class TracksProjectEditor(QtGui.QGroupBox):
             else:
                 self.statusRadio1.setChecked(True)
                 self.current_id_prevstatus = "active"
+            #parent
+            parentData = self.databaseCon.execute("select name from projects where id=(select predecessor_id from dependencies where relationship_type='subproject' AND successor_id=?)",(row[0],)).fetchall()
+            if len(parentData) > 0:
+                self.parentEdit.setText(parentData[0][0])
+            else:
+                self.parentEdit.setText("")
         
         self.current_id=projectID
         self.addProjectButton.setText("Save project")
@@ -581,4 +698,13 @@ class TracksProjectEditor(QtGui.QGroupBox):
         contextStringList = QtCore.QStringList(contextList)
         contextCompleter = QtGui.QCompleter(contextStringList)
         contextCompleter.setCompletionMode(1)
-        self.contextEdit.setCompleter(contextCompleter) 
+        self.contextEdit.setCompleter(contextCompleter)
+        
+        # update the parent auto complete list
+        projectList = []
+        for row in self.databaseCon.execute("select name FROM projects WHERE user_id=? ORDER BY UPPER(name)", (self.current_user_id,)):
+            projectList.append(row[0])
+        projectStringList = QtCore.QStringList(projectList)
+        projectCompleter = QtGui.QCompleter(projectStringList)
+        projectCompleter.setCompletionMode(1)
+        self.parentEdit.setCompleter(projectCompleter)

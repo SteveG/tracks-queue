@@ -1,0 +1,11 @@
+tracks.cute is a partial reimplementation of tracks (getontracks.org)
+
+Things not implemented:
+ - Recurring todos
+ - Tags
+ - List drag and drop to re order
+...
+ - Plenty of other stuff
+
+Implementation Differences:
+ - Implemented sub projects through the dependencies table
