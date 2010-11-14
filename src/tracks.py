@@ -488,7 +488,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                     todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
                     WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
                     projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id\
-                    WHERE projects.state='active' and projects.user_id=%s GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
+                    WHERE projects.state='active' and projects.user_id=%s GROUP BY projects.id ORDER BY (CASE WHEN projects.id IN (select successor_id from dependencies where relationship_type='subproject') THEN 1 ELSE 0 END), projects.name" % (self.current_user_id)
             self.activeProjectsList.setDBQuery(queryActive)
 
             # Hidden projects
