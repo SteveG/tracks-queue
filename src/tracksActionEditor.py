@@ -404,7 +404,7 @@ class TracksActionEditor(QtGui.QGroupBox):
         # Context
         context = None
         try:
-            context = self.databaseCon.execute("select id from contexts where name=?",[str(self.contextEdit.text()),]).fetchall()[0][0]
+            context = self.databaseCon.execute("select id from contexts where user_id=? AND name=?",[self.current_user_id, str(self.contextEdit.text()),]).fetchall()[0][0]
         except:
             QtGui.QMessageBox.critical(self,
                         "Error",
@@ -413,7 +413,7 @@ class TracksActionEditor(QtGui.QGroupBox):
         # Project
         project = None
         try:
-            project = self.databaseCon.execute("select id from projects where name=?",[str(self.projectEdit.text()),]).fetchall()[0][0]
+            project = self.databaseCon.execute("select id from projects where user_id=? AND name=?",[self.current_user_id,str(self.projectEdit.text()),]).fetchall()[0][0]
         except:
             QtGui.QMessageBox.critical(self,
                         "Error",
