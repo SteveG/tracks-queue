@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'tracks.ui'
 #
-# Created: Fri Jan 14 19:31:50 2011
-#      by: PyQt4 UI code generator 4.8.2
+# Created: Fri Jan 14 20:40:57 2011
+#      by: PyQt4 UI code generator 4.8.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -46,8 +46,8 @@ class Ui_MainWindow(object):
         self.scrollArea.setFrameShape(QtGui.QFrame.NoFrame)
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
-        self.scrollAreaWidgetContents_2 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 780, 574))
+        self.scrollAreaWidgetContents_2 = QtGui.QWidget(self.scrollArea)
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 778, 577))
         self.scrollAreaWidgetContents_2.setObjectName(_fromUtf8("scrollAreaWidgetContents_2"))
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_4.setSpacing(3)
@@ -58,10 +58,15 @@ class Ui_MainWindow(object):
         self.widget_2 = QtGui.QWidget(self.page_2)
         self.widget_2.setMinimumSize(QtCore.QSize(20, 0))
         self.widget_2.setMaximumSize(QtCore.QSize(250, 16777215))
+        self.widget_2.setStyleSheet(_fromUtf8("TracksActionEditor{\n"
+"background-color:palette(window);\n"
+"border:none;\n"
+"}\n"
+"\n"
+"QWidget#widget_2 {background-color:palette(window);}"))
         self.widget_2.setObjectName(_fromUtf8("widget_2"))
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.widget_2)
         self.verticalLayout_6.setSpacing(0)
-        self.verticalLayout_6.setMargin(0)
         self.verticalLayout_6.setMargin(0)
         self.verticalLayout_6.setObjectName(_fromUtf8("verticalLayout_6"))
         self.horizontalLayout_6.addWidget(self.widget_2)
@@ -79,8 +84,8 @@ class Ui_MainWindow(object):
         self.starred_mainpane.setFrameShape(QtGui.QFrame.NoFrame)
         self.starred_mainpane.setWidgetResizable(True)
         self.starred_mainpane.setObjectName(_fromUtf8("starred_mainpane"))
-        self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents = QtGui.QWidget(self.starred_mainpane)
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 788, 577))
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.starred_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
         self.starred_mainpane_layout.setSpacing(3)
@@ -90,10 +95,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_2.addWidget(self.starred_mainpane)
         self.starred_sidepane = QtGui.QWidget(self.starred_tab)
         self.starred_sidepane.setMinimumSize(QtCore.QSize(10, 0))
+        self.starred_sidepane.setStyleSheet(_fromUtf8("TracksActionEditor{\n"
+"background-color:palette(window);\n"
+"border:none;\n"
+"}\n"
+"\n"
+"QWidget#starred_sidepane {background-color:palette(window);}"))
         self.starred_sidepane.setObjectName(_fromUtf8("starred_sidepane"))
         self.starred_sidepane_layout = QtGui.QVBoxLayout(self.starred_sidepane)
         self.starred_sidepane_layout.setSpacing(0)
-        self.starred_sidepane_layout.setMargin(0)
         self.starred_sidepane_layout.setMargin(0)
         self.starred_sidepane_layout.setObjectName(_fromUtf8("starred_sidepane_layout"))
         self.horizontalLayout_2.addWidget(self.starred_sidepane)
@@ -116,8 +126,8 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setFrameShape(QtGui.QFrame.NoFrame)
         self.scrollArea_5.setWidgetResizable(True)
         self.scrollArea_5.setObjectName(_fromUtf8("scrollArea_5"))
-        self.scrollAreaWidgetContents_7 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_7.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_7 = QtGui.QWidget(self.scrollArea_5)
+        self.scrollAreaWidgetContents_7.setGeometry(QtCore.QRect(0, 0, 778, 577))
         self.scrollAreaWidgetContents_7.setObjectName(_fromUtf8("scrollAreaWidgetContents_7"))
         self.projects_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_7)
         self.projects_mainpane_layout.setSpacing(3)
@@ -127,10 +137,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_9.addWidget(self.scrollArea_5)
         self.widget_5 = QtGui.QWidget(self.projects_page)
         self.widget_5.setMinimumSize(QtCore.QSize(20, 0))
+        self.widget_5.setStyleSheet(_fromUtf8("TracksProjectEditor{\n"
+"background-color:palette(window);\n"
+"border:none;\n"
+"}\n"
+"\n"
+"QWidget#widget_5 {background-color:palette(window);}"))
         self.widget_5.setObjectName(_fromUtf8("widget_5"))
         self.projects_sidepane_layout = QtGui.QVBoxLayout(self.widget_5)
         self.projects_sidepane_layout.setSpacing(0)
-        self.projects_sidepane_layout.setMargin(0)
         self.projects_sidepane_layout.setMargin(0)
         self.projects_sidepane_layout.setObjectName(_fromUtf8("projects_sidepane_layout"))
         self.horizontalLayout_9.addWidget(self.widget_5)
@@ -173,8 +188,8 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setFrameShadow(QtGui.QFrame.Plain)
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName(_fromUtf8("scrollArea_2"))
-        self.scrollAreaWidgetContents_4 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_4 = QtGui.QWidget(self.scrollArea_2)
+        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 770, 519))
         self.scrollAreaWidgetContents_4.setObjectName(_fromUtf8("scrollAreaWidgetContents_4"))
         self.projectview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_4)
         self.projectview_verticalLayout.setMargin(0)
@@ -184,10 +199,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_12.addLayout(self.verticalLayout)
         self.widget = QtGui.QWidget(self.projectview_page)
         self.widget.setMinimumSize(QtCore.QSize(20, 0))
+        self.widget.setStyleSheet(_fromUtf8("TracksActionEditor{\n"
+"background-color:palette(window);\n"
+"border:none;\n"
+"}\n"
+"\n"
+"QWidget#widget {background-color:palette(window);}"))
         self.widget.setObjectName(_fromUtf8("widget"))
         self.projectDetails_sidepane_layout = QtGui.QVBoxLayout(self.widget)
         self.projectDetails_sidepane_layout.setSpacing(0)
-        self.projectDetails_sidepane_layout.setMargin(0)
         self.projectDetails_sidepane_layout.setMargin(0)
         self.projectDetails_sidepane_layout.setObjectName(_fromUtf8("projectDetails_sidepane_layout"))
         self.horizontalLayout_12.addWidget(self.widget)
@@ -212,8 +232,8 @@ class Ui_MainWindow(object):
         self.scrollArea_6.setFrameShape(QtGui.QFrame.NoFrame)
         self.scrollArea_6.setWidgetResizable(True)
         self.scrollArea_6.setObjectName(_fromUtf8("scrollArea_6"))
-        self.scrollAreaWidgetContents_8 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_8.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_8 = QtGui.QWidget(self.scrollArea_6)
+        self.scrollAreaWidgetContents_8.setGeometry(QtCore.QRect(0, 0, 778, 577))
         self.scrollAreaWidgetContents_8.setObjectName(_fromUtf8("scrollAreaWidgetContents_8"))
         self.contexts_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_8)
         self.contexts_mainpane_layout.setSpacing(3)
@@ -223,10 +243,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_10.addWidget(self.scrollArea_6)
         self.widget_6 = QtGui.QWidget(self.contexts_page)
         self.widget_6.setMinimumSize(QtCore.QSize(20, 0))
+        self.widget_6.setStyleSheet(_fromUtf8("TracksContextEditor{\n"
+"background-color:palette(window);\n"
+"border:none;\n"
+"}\n"
+"\n"
+"QWidget#widget_6 {background-color:palette(window);}"))
         self.widget_6.setObjectName(_fromUtf8("widget_6"))
         self.contexts_sidepane_layout = QtGui.QVBoxLayout(self.widget_6)
         self.contexts_sidepane_layout.setSpacing(0)
-        self.contexts_sidepane_layout.setMargin(0)
         self.contexts_sidepane_layout.setMargin(0)
         self.contexts_sidepane_layout.setObjectName(_fromUtf8("contexts_sidepane_layout"))
         self.horizontalLayout_10.addWidget(self.widget_6)
@@ -263,8 +288,8 @@ class Ui_MainWindow(object):
         self.scrollArea_7.setFrameShape(QtGui.QFrame.NoFrame)
         self.scrollArea_7.setWidgetResizable(True)
         self.scrollArea_7.setObjectName(_fromUtf8("scrollArea_7"))
-        self.scrollAreaWidgetContents_9 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_9 = QtGui.QWidget(self.scrollArea_7)
+        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 770, 538))
         self.scrollAreaWidgetContents_9.setObjectName(_fromUtf8("scrollAreaWidgetContents_9"))
         self.contextview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.contextview_verticalLayout.setMargin(0)
@@ -274,10 +299,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_13.addLayout(self.verticalLayout_2)
         self.widget_7 = QtGui.QWidget(self.contextview_page)
         self.widget_7.setMinimumSize(QtCore.QSize(20, 0))
+        self.widget_7.setStyleSheet(_fromUtf8("TracksActionEditor{\n"
+"background-color:palette(window);\n"
+"border:none;\n"
+"}\n"
+"\n"
+"QWidget#widget_7 {background-color:palette(window);}"))
         self.widget_7.setObjectName(_fromUtf8("widget_7"))
         self.contextDetails_sidepane_layout = QtGui.QVBoxLayout(self.widget_7)
         self.contextDetails_sidepane_layout.setSpacing(0)
-        self.contextDetails_sidepane_layout.setMargin(0)
         self.contextDetails_sidepane_layout.setMargin(0)
         self.contextDetails_sidepane_layout.setObjectName(_fromUtf8("contextDetails_sidepane_layout"))
         self.horizontalLayout_13.addWidget(self.widget_7)
@@ -294,8 +324,8 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setFrameShape(QtGui.QFrame.NoFrame)
         self.scrollArea_4.setWidgetResizable(True)
         self.scrollArea_4.setObjectName(_fromUtf8("scrollArea_4"))
-        self.scrollAreaWidgetContents_6 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_6.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_6 = QtGui.QWidget(self.scrollArea_4)
+        self.scrollAreaWidgetContents_6.setGeometry(QtCore.QRect(0, 0, 778, 577))
         self.scrollAreaWidgetContents_6.setObjectName(_fromUtf8("scrollAreaWidgetContents_6"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_6)
         self.verticalLayout_3.setMargin(4)
@@ -304,10 +334,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_7.addWidget(self.scrollArea_4)
         self.widget_4 = QtGui.QWidget(self.calendar_tab)
         self.widget_4.setMinimumSize(QtCore.QSize(20, 0))
+        self.widget_4.setStyleSheet(_fromUtf8("TracksActionEditor{\n"
+"background-color:palette(window);\n"
+"border:none;\n"
+"}\n"
+"\n"
+"QWidget#widget_4 {background-color:palette(window);}"))
         self.widget_4.setObjectName(_fromUtf8("widget_4"))
         self.calendar_sidepane_layout = QtGui.QVBoxLayout(self.widget_4)
         self.calendar_sidepane_layout.setSpacing(0)
-        self.calendar_sidepane_layout.setMargin(0)
         self.calendar_sidepane_layout.setMargin(0)
         self.calendar_sidepane_layout.setObjectName(_fromUtf8("calendar_sidepane_layout"))
         self.horizontalLayout_7.addWidget(self.widget_4)
@@ -322,8 +357,8 @@ class Ui_MainWindow(object):
         self.tickler_mainpane.setFrameShape(QtGui.QFrame.NoFrame)
         self.tickler_mainpane.setWidgetResizable(True)
         self.tickler_mainpane.setObjectName(_fromUtf8("tickler_mainpane"))
-        self.scrollAreaWidgetContents_3 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_3 = QtGui.QWidget(self.tickler_mainpane)
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 778, 577))
         self.scrollAreaWidgetContents_3.setObjectName(_fromUtf8("scrollAreaWidgetContents_3"))
         self.tickler_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_3)
         self.tickler_mainpane_layout.setMargin(4)
@@ -332,10 +367,15 @@ class Ui_MainWindow(object):
         self.horizontalLayout_3.addWidget(self.tickler_mainpane)
         self.tickler_sidepane = QtGui.QWidget(self.tickler_tab)
         self.tickler_sidepane.setMinimumSize(QtCore.QSize(20, 0))
+        self.tickler_sidepane.setStyleSheet(_fromUtf8("TracksActionEditor{\n"
+"background-color:palette(window);\n"
+"border:none;\n"
+"}\n"
+"\n"
+"QWidget#tickler_sidepane {background-color:palette(window);}"))
         self.tickler_sidepane.setObjectName(_fromUtf8("tickler_sidepane"))
         self.tickler_sidepane_layout = QtGui.QVBoxLayout(self.tickler_sidepane)
         self.tickler_sidepane_layout.setSpacing(0)
-        self.tickler_sidepane_layout.setMargin(0)
         self.tickler_sidepane_layout.setMargin(0)
         self.tickler_sidepane_layout.setObjectName(_fromUtf8("tickler_sidepane_layout"))
         self.horizontalLayout_3.addWidget(self.tickler_sidepane)
@@ -349,8 +389,8 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setFrameShape(QtGui.QFrame.NoFrame)
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName(_fromUtf8("scrollArea_3"))
-        self.scrollAreaWidgetContents_5 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_5 = QtGui.QWidget(self.scrollArea_3)
+        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, 0, 798, 577))
         self.scrollAreaWidgetContents_5.setObjectName(_fromUtf8("scrollAreaWidgetContents_5"))
         self.done_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_5)
         self.done_mainpane_layout.setSpacing(3)
@@ -368,8 +408,8 @@ class Ui_MainWindow(object):
         self.scrollArea_8.setFrameShape(QtGui.QFrame.NoFrame)
         self.scrollArea_8.setWidgetResizable(True)
         self.scrollArea_8.setObjectName(_fromUtf8("scrollArea_8"))
-        self.scrollAreaWidgetContents_11 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_11.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_11 = QtGui.QWidget(self.scrollArea_8)
+        self.scrollAreaWidgetContents_11.setGeometry(QtCore.QRect(0, 0, 798, 577))
         self.scrollAreaWidgetContents_11.setObjectName(_fromUtf8("scrollAreaWidgetContents_11"))
         self.statslayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_11)
         self.statslayout.setSpacing(3)
@@ -379,6 +419,7 @@ class Ui_MainWindow(object):
         self.horizontalLayout_15.addWidget(self.scrollArea_8)
         self.tabWidget.addTab(self.statistics_tab, _fromUtf8(""))
         self.settings_tab = QtGui.QWidget()
+        self.settings_tab.setStyleSheet(_fromUtf8("QWidget#settings_tab {background-color:palette(window);}"))
         self.settings_tab.setObjectName(_fromUtf8("settings_tab"))
         self.verticalLayout_7 = QtGui.QVBoxLayout(self.settings_tab)
         self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))

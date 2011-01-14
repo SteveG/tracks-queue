@@ -69,8 +69,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>780</width>
-                 <height>574</height>
+                 <width>778</width>
+                 <height>577</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -97,6 +97,14 @@
                 <width>250</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">TracksActionEditor{
+background-color:palette(window);
+border:none;
+}
+
+QWidget#widget_2 {background-color:palette(window);}</string>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_6">
                <property name="spacing">
@@ -141,8 +149,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>788</width>
+             <height>577</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="starred_mainpane_layout">
@@ -163,6 +171,14 @@
             <width>10</width>
             <height>0</height>
            </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">TracksActionEditor{
+background-color:palette(window);
+border:none;
+}
+
+QWidget#starred_sidepane {background-color:palette(window);}</string>
           </property>
           <layout class="QVBoxLayout" name="starred_sidepane_layout">
            <property name="spacing">
@@ -213,8 +229,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>100</width>
-                 <height>30</height>
+                 <width>778</width>
+                 <height>577</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="projects_mainpane_layout">
@@ -235,6 +251,14 @@
                 <width>20</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">TracksProjectEditor{
+background-color:palette(window);
+border:none;
+}
+
+QWidget#widget_5 {background-color:palette(window);}</string>
               </property>
               <layout class="QVBoxLayout" name="projects_sidepane_layout">
                <property name="spacing">
@@ -326,8 +350,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>100</width>
-                   <height>30</height>
+                   <width>770</width>
+                   <height>519</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="projectview_verticalLayout">
@@ -347,6 +371,14 @@
                 <width>20</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">TracksActionEditor{
+background-color:palette(window);
+border:none;
+}
+
+QWidget#widget {background-color:palette(window);}</string>
               </property>
               <layout class="QVBoxLayout" name="projectDetails_sidepane_layout">
                <property name="spacing">
@@ -401,8 +433,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>100</width>
-                 <height>30</height>
+                 <width>778</width>
+                 <height>577</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="contexts_mainpane_layout">
@@ -423,6 +455,14 @@
                 <width>20</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">TracksContextEditor{
+background-color:palette(window);
+border:none;
+}
+
+QWidget#widget_6 {background-color:palette(window);}</string>
               </property>
               <layout class="QVBoxLayout" name="contexts_sidepane_layout">
                <property name="spacing">
@@ -498,8 +538,8 @@
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>100</width>
-                   <height>30</height>
+                   <width>770</width>
+                   <height>538</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="contextview_verticalLayout">
@@ -519,6 +559,14 @@
                 <width>20</width>
                 <height>0</height>
                </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">TracksActionEditor{
+background-color:palette(window);
+border:none;
+}
+
+QWidget#widget_7 {background-color:palette(window);}</string>
               </property>
               <layout class="QVBoxLayout" name="contextDetails_sidepane_layout">
                <property name="spacing">
@@ -560,8 +608,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>778</width>
+             <height>577</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -579,6 +627,14 @@
             <width>20</width>
             <height>0</height>
            </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">TracksActionEditor{
+background-color:palette(window);
+border:none;
+}
+
+QWidget#widget_4 {background-color:palette(window);}</string>
           </property>
           <layout class="QVBoxLayout" name="calendar_sidepane_layout">
            <property name="spacing">
@@ -616,8 +672,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>778</width>
+             <height>577</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="tickler_mainpane_layout">
@@ -635,6 +691,14 @@
             <width>20</width>
             <height>0</height>
            </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">TracksActionEditor{
+background-color:palette(window);
+border:none;
+}
+
+QWidget#tickler_sidepane {background-color:palette(window);}</string>
           </property>
           <layout class="QVBoxLayout" name="tickler_sidepane_layout">
            <property name="spacing">
@@ -669,8 +733,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>798</width>
+             <height>577</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="done_mainpane_layout">
@@ -707,8 +771,8 @@
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>100</width>
-             <height>30</height>
+             <width>798</width>
+             <height>577</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="statslayout">
@@ -725,6 +789,9 @@
        </layout>
       </widget>
       <widget class="QWidget" name="settings_tab">
+       <property name="styleSheet">
+        <string notr="true">QWidget#settings_tab {background-color:palette(window);}</string>
+       </property>
        <attribute name="title">
         <string>Settings</string>
        </attribute>
