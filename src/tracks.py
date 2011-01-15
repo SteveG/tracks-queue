@@ -106,6 +106,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
         # Set up the user interface from Designer.
         self.setupUi(self)
+        
+        label = QtGui.QLabel()
+        label.setPixmap(QtGui.QPixmap(sys.path[0] + "/tracks.cute.small.png"))
+        self.tabWidget.setCornerWidget(label,QtCore.Qt.TopRightCorner)
         self.setWindowTitle("tracks.cute")
 
         # Get the current user
