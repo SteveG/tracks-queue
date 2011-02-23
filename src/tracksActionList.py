@@ -175,10 +175,11 @@ class TracksActionList(QtGui.QWidget):
         """Fill the list widget"""
         logging.info("TracksActionList->fillList")
         numberOfItems = 6
-        
+
         count = 0
         if self.dbQuery == None:
             self.dbQuery = "select id, description, 0, 0, 0, 0, 0 from todos order by description"
+
         for row in self.databaseCon.execute(self.dbQuery):
             id = row[0]
             desc = row[1]
@@ -225,6 +226,9 @@ class TracksActionList(QtGui.QWidget):
             horizontalLayout.addWidget(editButton)
             self.itemEditButtonMapper.setMapping(editButton, id)
             editButton.clicked.connect(self.itemEditButtonMapper.map)
+            # Add action time stamp data to edit button mouseover
+            time_data = self.databaseCon.execute("select created_at, updated_at from todos where id=?", (id,)).fetchall()
+            editButton.setToolTip(str("Created: " + time_data[0][0] +"\nModified: " + time_data[0][1]))
             
             # Star Button
             is_starred_query = "select todos.description, tags.name from todos, tags, taggings where todos.id=taggings.taggable_id and tags.id = taggings.tag_id and tags.name='starred' and todos.id=?"
@@ -377,10 +381,9 @@ class TracksActionList(QtGui.QWidget):
             listitem.setSizeHint(QtCore.QSize(0,22))
             self.listWidget.setItemWidget(listitem, widget)
             
-                
-                
+                   
             count+=1
-        
+
         if count == 0:
             count +=1
             self.listWidget.addItem("No Actions")

@@ -172,6 +172,9 @@ class TracksContextList(QtGui.QWidget):
                 editIcon = QtGui.QIcon(self.iconPath + "accessories-text-editor.png")
             editButton.setIcon(editIcon)
             horizontalLayout.addWidget(editButton)
+            # Add action time stamp data to edit button mouseover
+            time_data = self.databaseCon.execute("select created_at, updated_at from contexts where id=?", (projectID,)).fetchall()
+            editButton.setToolTip(str("Created: " + time_data[0][0] +"\nModified: " + time_data[0][1]))
             
             # Connect Buttons
             self.contextEditButtonMapper.setMapping(editButton, projectID)

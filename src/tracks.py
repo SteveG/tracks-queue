@@ -842,7 +842,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'active' AND todos.due > DATE('now','weekday 0') AND todos.due <= DATE('now','weekday 0', '+7 day') AND todos.user_id=%s order by todos.due, projects.name" % (self.current_user_id)
+                       'active' AND todos.due > DATE('now','weekday 0') AND todos.due <= DATE('now','weekday 0', '+7 days') AND todos.user_id=%s order by todos.due, projects.name" % (self.current_user_id)
         self.calendar_tracksDNWeekList.setDBQuery(sql)
 
         # all other future due tasks
@@ -850,7 +850,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'active' AND todos.due > DATE('now','weekday 0', '+7 day') AND todos.user_id=%s order by todos.due, projects.name" % (self.current_user_id)
+                       'active' AND todos.due > DATE('now','weekday 0', '+7 days') AND todos.user_id=%s order by todos.due, projects.name" % (self.current_user_id)
         self.calendar_tracksDueFarList.setDBQuery(sql)
 
     def setupTicklerPage(self):
@@ -946,7 +946,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'active' AND todos.show_from > DATE('now','weekday 0') AND todos.show_from <= DATE('now','weekday 0', '+7 day') AND todos.user_id=%s order by todos.show_from, projects.name" % (self.current_user_id)
+                       'active' AND todos.show_from > DATE('now','weekday 0') AND todos.show_from <= DATE('now','weekday 0', '+7 days') AND todos.user_id=%s order by todos.show_from, projects.name" % (self.current_user_id)
         self.tickler_tracksSNextWeekList.setDBQuery(sql)
         
         # all other future starting tasks
@@ -954,7 +954,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'active' AND todos.show_from > DATE('now','weekday 0', '+7 day') AND todos.user_id=%s order by todos.show_from, projects.name" % (self.current_user_id)
+                       'active' AND todos.show_from > DATE('now','weekday 0', '+7 days') AND todos.user_id=%s order by todos.show_from, projects.name" % (self.current_user_id)
         self.tickler_tracksSFutureList.setDBQuery(sql)
 
     def setupDonePage(self):
@@ -984,15 +984,15 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
-                       todos.project_id = projects.id where todos.state=\
-                       'completed' AND todos.completed_at > DATETIME('now','-14days') AND todos.user_id=%s order by projects.name, todos.completed_at DESC" % (self.current_user_id)
+                       todos.project_id = projects.id where todos.state = \
+                       'completed' AND todos.completed_at > DATETIME('now','-14 days') AND todos.user_id=%s order by projects.name, todos.completed_at DESC" % (self.current_user_id)
         self.doneFortnightActionList.setDBQuery(sql)
 
         sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
                        todos.context_id = contexts.id) LEFT JOIN projects on \
                        todos.project_id = projects.id where todos.state=\
-                       'completed' AND todos.completed_at <= DATETIME('now','-14days') AND todos.completed_at > DATETIME('now','-28days') AND todos.user_id=%s order by projects.name, todos.completed_at DESC" % (self.current_user_id)
+                       'completed' AND todos.completed_at <= DATETIME('now','-14 days') AND todos.completed_at > DATETIME('now','-28 days') AND todos.user_id=%s order by projects.name, todos.completed_at DESC" % (self.current_user_id)
         self.doneNextFortnightActionList.setDBQuery(sql)
 
     def setupStatsPage(self):

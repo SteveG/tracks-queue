@@ -193,6 +193,9 @@ class TracksProjectList(QtGui.QWidget):
                 horizontalLayout.addWidget(editButton)
                 self.projectEditButtonMapper.setMapping(editButton, projectID)
                 editButton.clicked.connect(self.projectEditButtonMapper.map)
+                # Add action time stamp data to edit button mouseover
+                time_data = self.databaseCon.execute("select created_at, updated_at from projects where id=?", (projectID,)).fetchall()
+                editButton.setToolTip(str("Created: " + time_data[0][0] +"\nModified: " + time_data[0][1]))
             
             # show state?
             if self.show_state:
