@@ -133,6 +133,12 @@ class TracksActionList(QtGui.QWidget):
         self.itemProjectButtonMapper.mapped[int].connect(self.projectItemButtonClicked)
         self.itemContextButtonMapper = QtCore.QSignalMapper(self)
         self.itemContextButtonMapper.mapped[int].connect(self.contextItemButtonClicked)
+        
+        
+        self.notesExpand = False
+        self.notesExpandID = None
+        self.itemNotesButtonMapper = QtCore.QSignalMapper(self)
+        self.itemNotesButtonMapper.mapped[int].connect(self.notesItemButtonClicked)
     
     def setDisplayProjectFirst(self, setto):
         self.displayprojectfirst = setto
@@ -179,6 +185,7 @@ class TracksActionList(QtGui.QWidget):
         count = 0
         if self.dbQuery == None:
             self.dbQuery = "select id, description, 0, 0, 0, 0, 0 from todos order by description"
+        notesHeight = 0
 
         for row in self.databaseCon.execute(self.dbQuery):
             id = row[0]
@@ -193,11 +200,53 @@ class TracksActionList(QtGui.QWidget):
                 project = None
             state = row[2]
 
-        #for a in range(numberOfItems):
+            
+            
+            # Set layout of list item widget
             widget = QtGui.QWidget()
-            horizontalLayout = QtGui.QHBoxLayout(widget)
+            horizontalLayout = QtGui.QHBoxLayout()
             horizontalLayout.setContentsMargins(-1, 2, -1, 0)
             horizontalLayout.setSpacing(2)
+            
+            # Do we have an expanded notes section?
+            if self.notesExpand and self.notesExpandID == id:
+                # Set up layout to add the notes section
+                subwidget = QtGui.QWidget()
+                subwidget.setLayout(horizontalLayout)
+                verticalLayout = QtGui.QVBoxLayout()
+                verticalLayout.setContentsMargins(-1, 2, -1, 0)
+                verticalLayout.setSpacing(0)
+                widget.setLayout(verticalLayout)
+                verticalLayout.addWidget(subwidget)
+                
+                # text area for the notes
+                notes = self.databaseCon.execute("select notes from todos where id = " + str(id)).fetchone()[0]
+                notesTextEdit = QtGui.QTextEdit(notes)
+                notesTextEdit.document().setTextWidth(notesTextEdit.viewport().width())
+                
+                # required height
+                margins = notesTextEdit.getContentsMargins()
+                requiredHeight = notesTextEdit.document().size().toSize().height()+margins[1] + margins[3]
+                #notesTextEdit.setMinimumHeight(requiredHeight)
+                verticalLayout.addWidget(notesTextEdit)
+                notesTextEdit.textChanged.connect(self.notesTextEditChanged)
+                                
+                
+                listitem = QtGui.QListWidgetItem(self.listWidget)
+                listitem.setSizeHint(QtCore.QSize(0,22+requiredHeight+5))
+                self.listWidget.setItemWidget(listitem, widget)
+                
+                self.notesEdit = notesTextEdit
+                self.notesEditListItem = listitem
+                notesHeight = requiredHeight
+            else:
+                widget.setLayout(horizontalLayout)
+                listitem = QtGui.QListWidgetItem(self.listWidget)
+                listitem.setSizeHint(QtCore.QSize(0,22))
+                self.listWidget.setItemWidget(listitem, widget)
+            
+            
+            
             
             # Delete Button
             deleteButton = QtGui.QToolButton(widget)
@@ -326,10 +375,15 @@ class TracksActionList(QtGui.QWidget):
     
                 horizontalLayout.addWidget(dueText)
             
+            
             # Action Text
-            actionText = QtGui.QLabel(widget)
+            actionText = QtGui.QPushButton(widget)
+            actionText.setCursor(QtCore.Qt.PointingHandCursor)
+            actionText.setStyleSheet("border: None; text-align:left")
             actionText.setText(desc)
             horizontalLayout.addWidget(actionText)
+            self.itemNotesButtonMapper.setMapping(actionText, id) #TODO fix
+            actionText.clicked.connect(self.itemNotesButtonMapper.map)
             
             # Label Button
             if self.displaytags:
@@ -376,21 +430,19 @@ class TracksActionList(QtGui.QWidget):
             spacerItem = QtGui.QSpacerItem(227, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
             horizontalLayout.addItem(spacerItem)
             
-            
-            listitem = QtGui.QListWidgetItem(self.listWidget)
-            listitem.setSizeHint(QtCore.QSize(0,22))
-            self.listWidget.setItemWidget(listitem, widget)
-            
-                   
             count+=1
 
         if count == 0:
             count +=1
             self.listWidget.addItem("No Actions")
+            
+        self.listCount = count
         
         # set size of the list to be exactly enough for its contents
         contentMargins = self.listWidget.getContentsMargins()
-        self.listWidget.setFixedHeight(count*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth())  
+        # REMOVE THE INITIAL 10x
+        #self.listWidget.setFixedHeight(10*count*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth())  
+        self.listWidget.setFixedHeight(self.listCount*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth() + notesHeight+4)
         #self.listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             
     def deleteItemButtonClicked(self, id):
@@ -467,6 +519,30 @@ class TracksActionList(QtGui.QWidget):
     def contextItemButtonClicked(self, id):
         logging.info("TracksActionList->contextItemButtonClicked  -  " +str(id))
         self.emit(QtCore.SIGNAL("gotoContext(int)"), id)
+    
+    def notesItemButtonClicked(self, id):
+        if self.notesExpand and self.notesExpandID==id:
+            self.notesExpand = False
+        else:
+            self.notesExpand = True
+            self.notesExpandID = id
+        self.refresh()
+        
+    def notesTextEditChanged(self):
+        logging.info("TracksActionList->notesTextEditChanged")
+        
+        # resize the list item
+        margins = self.notesEdit.getContentsMargins()
+        requiredHeight = self.notesEdit.document().size().toSize().height()+margins[1] + margins[3]
+        self.notesEditListItem.setSizeHint(QtCore.QSize(0,22+requiredHeight+5))
+        # resize the list
+        contentMargins = self.listWidget.getContentsMargins()
+        self.listWidget.setFixedHeight(self.listCount*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth() + requiredHeight+4)  
+        
+        #TODO Save the text
+        notes = str(self.notesEdit.toPlainText())
+        self.databaseCon.execute("UPDATE todos SET notes=? WHERE id=?", (notes, self.notesExpandID))
+            
         
     def refresh(self):
         logging.info("TracksActionList->refresh")
