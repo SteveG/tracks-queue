@@ -540,9 +540,10 @@ class TracksActionList(QtGui.QWidget):
         contentMargins = self.listWidget.getContentsMargins()
         self.listWidget.setFixedHeight(self.listCount*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth() + requiredHeight+4)  
         
-        #TODO Save the text
+        #Save the text
         notes = str(self.notesEdit.toPlainText())
         self.databaseCon.execute("UPDATE todos SET notes=? WHERE id=?", (notes, self.notesExpandID))
+        self.databaseCon.commit()
             
         
     def refresh(self):
