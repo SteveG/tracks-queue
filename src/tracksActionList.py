@@ -221,7 +221,8 @@ class TracksActionList(QtGui.QWidget):
                 
                 # text area for the notes
                 notes = self.databaseCon.execute("select notes from todos where id = " + str(id)).fetchone()[0]
-                notesTextEdit = QtGui.QTextEdit(notes)
+                notesTextEdit = QtGui.QTextEdit()
+                notesTextEdit.insertPlainText(notes)
                 notesTextEdit.document().setTextWidth(notesTextEdit.viewport().width())
                 
                 # required height
