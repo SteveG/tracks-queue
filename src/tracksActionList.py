@@ -139,6 +139,12 @@ class TracksActionList(QtGui.QWidget):
         self.notesExpandID = None
         self.itemNotesButtonMapper = QtCore.QSignalMapper(self)
         self.itemNotesButtonMapper.mapped[int].connect(self.notesItemButtonClicked)
+        
+        # A timer for delayed commits to database
+        self.commitTimer = QtCore.QTimer(self)
+        self.commitTimer.setSingleShot(True)
+        self.commitTimer.setInterval(500)
+        self.commitTimer.timeout.connect(self.commitTimeout)
     
     def setDisplayProjectFirst(self, setto):
         self.displayprojectfirst = setto
@@ -543,6 +549,11 @@ class TracksActionList(QtGui.QWidget):
         #Save the text
         notes = str(self.notesEdit.toPlainText())
         self.databaseCon.execute("UPDATE todos SET notes=? WHERE id=?", (notes, self.notesExpandID))
+        # Start the commit timer
+        self.commitTimer.start()
+        
+    def commitTimeout(self):
+        logging.info("TracksActionList->commitTimeout")
         self.databaseCon.commit()
             
         
