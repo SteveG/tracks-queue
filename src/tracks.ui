@@ -69,8 +69,8 @@
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>778</width>
-                 <height>577</height>
+                 <width>780</width>
+                 <height>574</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -149,8 +149,8 @@ QWidget#widget_2 {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>788</width>
-             <height>577</height>
+             <width>790</width>
+             <height>574</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="starred_mainpane_layout">
@@ -229,8 +229,8 @@ QWidget#starred_sidepane {background-color:palette(window);}</string>
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>778</width>
-                 <height>577</height>
+                 <width>780</width>
+                 <height>574</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="projects_mainpane_layout">
@@ -273,6 +273,9 @@ QWidget#widget_5 {background-color:palette(window);}</string>
            </layout>
           </widget>
           <widget class="QWidget" name="projectview_page">
+           <property name="styleSheet">
+            <string notr="true">QWidget#projectview_page {background-color:palette(window);}</string>
+           </property>
            <layout class="QHBoxLayout" name="horizontalLayout_12">
             <property name="spacing">
              <number>0</number>
@@ -350,8 +353,8 @@ QWidget#widget_5 {background-color:palette(window);}</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>770</width>
-                   <height>519</height>
+                   <width>772</width>
+                   <height>512</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="projectview_verticalLayout">
@@ -433,8 +436,8 @@ QWidget#widget {background-color:palette(window);}</string>
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>778</width>
-                 <height>577</height>
+                 <width>780</width>
+                 <height>574</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="contexts_mainpane_layout">
@@ -477,6 +480,9 @@ QWidget#widget_6 {background-color:palette(window);}</string>
            </layout>
           </widget>
           <widget class="QWidget" name="contextview_page">
+           <property name="styleSheet">
+            <string notr="true">QWidget#contextview_page {background-color:palette(window);}</string>
+           </property>
            <layout class="QHBoxLayout" name="horizontalLayout_13">
             <property name="spacing">
              <number>0</number>
@@ -538,8 +544,8 @@ QWidget#widget_6 {background-color:palette(window);}</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>770</width>
-                   <height>538</height>
+                   <width>772</width>
+                   <height>531</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="contextview_verticalLayout">
@@ -608,8 +614,8 @@ QWidget#widget_7 {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>778</width>
-             <height>577</height>
+             <width>780</width>
+             <height>574</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -672,8 +678,8 @@ QWidget#widget_4 {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>778</width>
-             <height>577</height>
+             <width>780</width>
+             <height>574</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="tickler_mainpane_layout">
@@ -733,8 +739,8 @@ QWidget#tickler_sidepane {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>798</width>
-             <height>577</height>
+             <width>800</width>
+             <height>574</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="done_mainpane_layout">
@@ -771,8 +777,8 @@ QWidget#tickler_sidepane {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>798</width>
-             <height>577</height>
+             <width>800</width>
+             <height>574</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="statslayout">
