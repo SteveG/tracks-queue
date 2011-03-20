@@ -135,10 +135,13 @@ class TracksActionList(QtGui.QWidget):
         self.itemContextButtonMapper.mapped[int].connect(self.contextItemButtonClicked)
         
         
-        self.notesExpand = False
-        self.notesExpandID = None
+        # The notes part of each list item
+        self.notesIDDictEditor = dict()
+        self.notesIDDictItem = dict()
         self.itemNotesButtonMapper = QtCore.QSignalMapper(self)
         self.itemNotesButtonMapper.mapped[int].connect(self.notesItemButtonClicked)
+        self.itemNotesEditMapper = QtCore.QSignalMapper(self)
+        self.itemNotesEditMapper.mapped[int].connect(self.notesTextEditChanged)
         
         # A timer for delayed commits to database
         self.commitTimer = QtCore.QTimer(self)
@@ -191,7 +194,6 @@ class TracksActionList(QtGui.QWidget):
         count = 0
         if self.dbQuery == None:
             self.dbQuery = "select id, description, 0, 0, 0, 0, 0 from todos order by description"
-        notesHeight = 0
 
         for row in self.databaseCon.execute(self.dbQuery):
             id = row[0]
@@ -214,13 +216,16 @@ class TracksActionList(QtGui.QWidget):
             horizontalLayout.setContentsMargins(-1, 2, -1, 0)
             horizontalLayout.setSpacing(2)
             
-            # Do we have an expanded notes section?
-            if self.notesExpand and self.notesExpandID == id:
+            
+            
+            
+            # Expanded notes section 
+            if True:  # Always make the section and have it hidden
                 # Set up layout to add the notes section
                 subwidget = QtGui.QWidget()
                 subwidget.setLayout(horizontalLayout)
                 verticalLayout = QtGui.QVBoxLayout()
-                verticalLayout.setContentsMargins(-1, 2, -1, 0)
+                verticalLayout.setContentsMargins(0, 0, 0, 0)
                 verticalLayout.setSpacing(0)
                 widget.setLayout(verticalLayout)
                 verticalLayout.addWidget(subwidget)
@@ -230,30 +235,28 @@ class TracksActionList(QtGui.QWidget):
                 notesTextEdit = QtGui.QTextEdit()
                 notesTextEdit.insertPlainText(notes)
                 notesTextEdit.document().setTextWidth(notesTextEdit.viewport().width())
+                notesTextEdit.setFrameShape(QtGui.QFrame.Box)
+                notesTextEdit.setFrameShadow(QtGui.QFrame.Plain)
                 
-                # required height
-                margins = notesTextEdit.getContentsMargins()
-                requiredHeight = notesTextEdit.document().size().toSize().height()+margins[1] + margins[3]
-                #notesTextEdit.setMinimumHeight(requiredHeight)
-                verticalLayout.addWidget(notesTextEdit)
-                notesTextEdit.textChanged.connect(self.notesTextEditChanged)
-                                
+                # It starts hidden
+                notesTextEdit.setVisible(False)
+                notesLayout = QtGui.QVBoxLayout()
+                notesLayout.setContentsMargins(15, 0, 15, 0)
+                notesLayout.setSpacing(0)
+                notesLayout.addWidget(notesTextEdit)
+                verticalLayout.addLayout(notesLayout)
                 
-                listitem = QtGui.QListWidgetItem(self.listWidget)
-                listitem.setSizeHint(QtCore.QSize(0,22+requiredHeight+5))
-                self.listWidget.setItemWidget(listitem, widget)
                 
-                self.notesEdit = notesTextEdit
-                self.notesEditListItem = listitem
-                notesHeight = requiredHeight
-            else:
-                widget.setLayout(horizontalLayout)
                 listitem = QtGui.QListWidgetItem(self.listWidget)
                 listitem.setSizeHint(QtCore.QSize(0,22))
                 self.listWidget.setItemWidget(listitem, widget)
-            
-            
-            
+                
+                
+                self.notesIDDictEditor[id] = notesTextEdit
+                self.notesIDDictItem[id] = listitem
+                self.itemNotesEditMapper.setMapping(notesTextEdit, id)
+                notesTextEdit.textChanged.connect(self.itemNotesEditMapper.map)
+
             
             # Delete Button
             deleteButton = QtGui.QToolButton(widget)
@@ -449,7 +452,7 @@ class TracksActionList(QtGui.QWidget):
         contentMargins = self.listWidget.getContentsMargins()
         # REMOVE THE INITIAL 10x
         #self.listWidget.setFixedHeight(10*count*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth())  
-        self.listWidget.setFixedHeight(self.listCount*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth() + notesHeight+4)
+        self.listWidget.setFixedHeight(self.listCount*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth())
         #self.listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             
     def deleteItemButtonClicked(self, id):
@@ -528,27 +531,63 @@ class TracksActionList(QtGui.QWidget):
         self.emit(QtCore.SIGNAL("gotoContext(int)"), id)
     
     def notesItemButtonClicked(self, id):
-        if self.notesExpand and self.notesExpandID==id:
-            self.notesExpand = False
-        else:
-            self.notesExpand = True
-            self.notesExpandID = id
-        self.refresh()
+        logging.info("TracksActionList->notesItemButtonClicked")
         
-    def notesTextEditChanged(self):
-        logging.info("TracksActionList->notesTextEditChanged")
+        self.setUpdatesEnabled(False)
+        
+        listitem = self.notesIDDictItem[id]
+        visible = self.notesIDDictEditor[id].isVisible()
+        editor = self.notesIDDictEditor[id]
+        
+        editor.setVisible(not visible)
+        
+        previousListHeight = self.listWidget.height()
+        
+        # size of item
+        margins = editor.getContentsMargins()
+        requiredHeight = editor.document().size().toSize().height()+margins[1] + margins[3]
+        if not visible:
+            listitem.setSizeHint(QtCore.QSize(0,22+requiredHeight))
+            # size of list
+            editor.setMaximumHeight(requiredHeight)
+            contentMargins = self.listWidget.getContentsMargins()
+            self.listWidget.setFixedHeight(previousListHeight + requiredHeight)  
+        else:
+            listitem.setSizeHint(QtCore.QSize(0,22))
+            contentMargins = self.listWidget.getContentsMargins()
+            self.listWidget.setFixedHeight(previousListHeight - requiredHeight)  
+        
+        self.verticalLayout.activate()
+        editor.setFocus()
+        self.setUpdatesEnabled(True)
+
+    def notesTextEditChanged(self,id):
+        logging.info("TracksActionList->notesTextEditChanged - " + str(id))
+        self.setUpdatesEnabled(False)
+        
+        listitem = self.notesIDDictItem[id]
+        visible = self.notesIDDictEditor[id].isVisible()
+        editor = self.notesIDDictEditor[id]
         
         # resize the list item
-        margins = self.notesEdit.getContentsMargins()
-        requiredHeight = self.notesEdit.document().size().toSize().height()+margins[1] + margins[3]
-        self.notesEditListItem.setSizeHint(QtCore.QSize(0,22+requiredHeight+5))
-        # resize the list
-        contentMargins = self.listWidget.getContentsMargins()
-        self.listWidget.setFixedHeight(self.listCount*22+contentMargins[1]+contentMargins[3]+self.listWidget.frameWidth() + requiredHeight+4)  
+        margins = editor.getContentsMargins()
+        oldheight = listitem.sizeHint().height()
+        requiredHeight = editor.document().size().toSize().height()+margins[1] + margins[3]
+        
+        editor.setMaximumHeight(requiredHeight)
+        listitem.setSizeHint(QtCore.QSize(0,22+requiredHeight))
+        delta = oldheight - listitem.sizeHint().height()
+        
+        # size of list
+        previousListHeight = self.listWidget.height()
+        self.listWidget.setFixedHeight(previousListHeight - (delta))
+        
+        self.verticalLayout.activate()
+        self.setUpdatesEnabled(True)
         
         #Save the text
-        notes = str(self.notesEdit.toPlainText())
-        self.databaseCon.execute("UPDATE todos SET notes=? WHERE id=?", (notes, self.notesExpandID))
+        notes = str(editor.toPlainText())
+        self.databaseCon.execute("UPDATE todos SET notes=? WHERE id=?", (notes, id))
         # Start the commit timer
         self.commitTimer.start()
         
