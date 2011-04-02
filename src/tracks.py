@@ -1132,7 +1132,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         level_name = sys.argv[1]
         level = LEVELS.get(level_name, logging.NOTSET)
-        logging.basicConfig(level=level)
+        logging.basicConfig(level=level, format="%(asctime)s,%(msecs)03d %(message)s", datefmt='%H:%M:%S')
 
     #logging.debug('This is a debug message')
     #logging.info('This is an info message')
