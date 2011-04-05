@@ -24,6 +24,7 @@
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
+import logging
 import sys
 import sqlite3
 import os
@@ -1120,8 +1121,6 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
 if __name__ == "__main__":
     # Start logging, first argument sets the level.
-    import logging
-    import sys
 
     LEVELS = {'debug': logging.DEBUG,
         'info': logging.INFO,
@@ -1147,5 +1146,6 @@ if __name__ == "__main__":
     window = Tracks()
 
     window.show()
+    logging.info("tracks.pyqt executing...")
     app.exec_()
     sys.exit()
