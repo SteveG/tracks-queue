@@ -783,7 +783,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
         # Actions due next week
         self.calendar_tracksDNWeekList = TracksActionList(
-            self.databaseCon, "Due next week", None, False)
+            self.databaseCon, "Due next week", None, True)
         self.verticalLayout_3.addWidget(self.calendar_tracksDNWeekList)
         self.calendar_tracksDNWeekList.setDisplayShowFrom(True)
         self.calendar_tracksDNWeekList.setDisplayProjectFirst(True)
@@ -894,7 +894,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # Actions starting next week
         self.tickler_tracksSNextWeekList = TracksActionList(
-            self.databaseCon, "Starting next week", None, False)
+            self.databaseCon, "Starting next week", None, True)
         self.tickler_mainpane_layout.addWidget(self.tickler_tracksSNextWeekList)
         self.tickler_tracksSNextWeekList.setDisplayShowFrom(True)
         self.tickler_tracksSNextWeekList.setDisplayProjectFirst(True)
