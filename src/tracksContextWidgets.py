@@ -344,6 +344,7 @@ class TracksContextEditor(QtGui.QGroupBox):
             self.setMaximumSize(QtCore.QSize(250, 16777215))
             self.setMinimumSize(QtCore.QSize(250, 0))
             self.verticalLayout.setMargin(4)
+            self.nameEdit.setFocus()
         else:
             self.hideFormButton.setText("<<")
             self.setMaximumSize(QtCore.QSize(30, 16777215))
