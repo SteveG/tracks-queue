@@ -163,7 +163,7 @@ class TracksProjectList(QtGui.QWidget):
             # Create the project widget
             widget = QtGui.QWidget()
             horizontalLayout = QtGui.QHBoxLayout(widget)
-            horizontalLayout.setContentsMargins(-1, 2, -1, 0)
+            horizontalLayout.setContentsMargins(2, 2, -1, 0)
             horizontalLayout.setSpacing(0)
             
             # Delete Button
