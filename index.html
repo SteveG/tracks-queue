@@ -37,29 +37,29 @@ title:  tracks.cute
 
 <div class="singlecolumn">
 <h2>how do I get it?</h2>
-<p>Current there are no packaged releases of tracks.cute. The current source code can be retrieved using the following command.
+<p>There are no packaged releases of tracks.cute. The current source code can be retrieved using the following command.
 </p>
 <blockquote>git clone git://github.com/SteveG/tracks.cute.git
 </blockquote>
 <p>There are several dependencies. These are: </p>
 <ul>
-<li>Python 2.6 or 2.7
-<li>PyQT 4.6 or 4.7
+<li>Python 2.7
+<li>PyQt 4.7
 </ul>
-<p>It is also currently assumed that you will have an existing tracks database, in sqlite format. 
+<p>tracks.cute utilises the SQLite database from tracks. It should be able to open an existing tracks SQLite database file. 
 </p>
 </div>
 
 <div class="singlecolumn">
 <h2>how do I use it?</h2>
 <p>
-<b>WARNING: tracks.cute is pre-pre-alpha software, use at your own risk<br><br></b>
+<b>WARNING: use of tracks.cute is at your own risk<br><br></b>
 </p>
 <p>Navigate to the src directory and execute tracks.py as follows:
 </p>
 <blockquote>./tracks.py
 </blockquote>
-<p>Tracks.cute will then ask you to select your database file. Whilst it will claim that it can create one for you this hasn't been implemented yet and will fall over.
+<p>Tracks.cute will then ask you to select your database file. If you don't have an existing SQLite database file tracks.cute will create a new one using a template.
 </p>
 <p>Finally tracks.cute will ask you to nominate a user from within the database file.
 </p>
