@@ -1,0 +1,10 @@
+Install cx_freeze
+
+move setup.py to the src directory
+
+override sys.path[0] as it gets changed to reflect the exe file, need it to be the parent directory
+sys.path[0] = sys.path[0][0:sys.path[0].rfind("\\")]
+
+change sys.exit() to sys.exit(1)?
+
+run "setup.py build"
