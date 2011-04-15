@@ -1143,6 +1143,16 @@ if __name__ == "__main__":
     logging.info("tracks.pyqt initialising...")
 
     app = QtGui.QApplication(sys.argv)
+    
+    # This style sheet is to make tracks.cute look pretty for the elementary theme
+    #app.setStyleSheet("\
+    #QTabWidget>QLabel{\
+    #    background:qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(224, 224, 224, 255), stop:1 rgba(197, 197, 197, 255) );\
+    #    border-bottom: 1px solid rgba(168, 168, 168, 255);\
+    #    }\
+    #QTabWidget>QTabBar{\
+    #    background: qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(224, 224, 224, 255), stop:1 rgba(197, 197, 197, 255) );\
+    #    }")
 
     window = Tracks()
 
