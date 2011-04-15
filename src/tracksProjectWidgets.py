@@ -163,7 +163,7 @@ class TracksProjectList(QtGui.QWidget):
             # Create the project widget
             widget = QtGui.QWidget()
             horizontalLayout = QtGui.QHBoxLayout(widget)
-            horizontalLayout.setContentsMargins(-1, 2, -1, 0)
+            horizontalLayout.setContentsMargins(2, 2, -1, 0)
             horizontalLayout.setSpacing(0)
             
             # Delete Button
@@ -463,11 +463,13 @@ class TracksProjectEditor(QtGui.QGroupBox):
         
     def updateHidden(self):
         logging.info("TracksProjectEditor->updateHidden")
+        
         if self.formVisible:
             self.hideFormButton.setText(">> Hide Form")
             self.setMaximumSize(QtCore.QSize(250, 16777215))
             self.setMinimumSize(QtCore.QSize(250, 0))
             self.verticalLayout.setMargin(4)
+            self.nameEdit.setFocus()
         else:
             self.hideFormButton.setText("<<")
             self.setMaximumSize(QtCore.QSize(30, 16777215))

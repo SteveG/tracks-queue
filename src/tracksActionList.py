@@ -213,7 +213,7 @@ class TracksActionList(QtGui.QWidget):
             # Set layout of list item widget
             widget = QtGui.QWidget()
             horizontalLayout = QtGui.QHBoxLayout()
-            horizontalLayout.setContentsMargins(-1, 2, -1, 0)
+            horizontalLayout.setContentsMargins(2, 2, -1, 0)
             horizontalLayout.setSpacing(2)
             
             

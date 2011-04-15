@@ -24,6 +24,7 @@
 
 from PyQt4 import QtGui
 from PyQt4 import QtCore
+import logging
 import sys
 import sqlite3
 import os
@@ -166,6 +167,15 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
         # NOTE Setup the settings page
         self.setupSettingsPage()
+        
+        # Setup the keyboard shortcuts
+        QtGui.QShortcut(QtGui.QKeySequence("alt+n"),self,self.shortcutToggleForm)
+        QtGui.QShortcut(QtGui.QKeySequence("alt+t"),self,self.shortcutHome)
+        QtGui.QShortcut(QtGui.QKeySequence("alt+p"),self,self.shortcutProjects)
+        QtGui.QShortcut(QtGui.QKeySequence("alt+c"),self,self.shortcutContexts)
+        QtGui.QShortcut(QtGui.QKeySequence("alt+k"),self,self.shortcutTickler)
+        QtGui.QShortcut(QtGui.QKeySequence("alt+d"),self,self.shortcutDone)
+        QtGui.QShortcut(QtGui.QKeySequence("alt+l"),self,self.shortcutCalendar)
 
         # enable the appropriate tabs
         #self.tabWidget.setTabEnabled(1, False)
@@ -782,7 +792,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
         # Actions due next week
         self.calendar_tracksDNWeekList = TracksActionList(
-            self.databaseCon, "Due next week", None, False)
+            self.databaseCon, "Due next week", None, True)
         self.verticalLayout_3.addWidget(self.calendar_tracksDNWeekList)
         self.calendar_tracksDNWeekList.setDisplayShowFrom(True)
         self.calendar_tracksDNWeekList.setDisplayProjectFirst(True)
@@ -893,7 +903,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         
         # Actions starting next week
         self.tickler_tracksSNextWeekList = TracksActionList(
-            self.databaseCon, "Starting next week", None, False)
+            self.databaseCon, "Starting next week", None, True)
         self.tickler_mainpane_layout.addWidget(self.tickler_tracksSNextWeekList)
         self.tickler_tracksSNextWeekList.setDisplayShowFrom(True)
         self.tickler_tracksSNextWeekList.setDisplayProjectFirst(True)
@@ -976,7 +986,6 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
 
         self.done_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
-        # TODO add date ranges, e.g. done today, done last two weeks
 
     def refreshDonePage(self):
         """Refreshes the content of the done tab"""
@@ -1117,11 +1126,54 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         for element in self.refreshables[id]:
             element.refresh()
 
+    #
+    #Shortcut routines
+    #
+    
+    def shortcutToggleForm(self):
+        logging.info("tracks->shortcutToggleForm")
+        
+        id = self.tabWidget.currentIndex()
+        if id == self.hometabid:
+            self.actionEditor.hideButtonClicked()
+        elif id == self.startabid:
+            self.starredactionEditor.hideButtonClicked()
+        elif id == self.projectstabid:
+            if self.stackedWidget_2.currentIndex() == 0:
+                self.projects_Editor.hideButtonClicked()
+            else:
+                self.projectview_actionEditor.hideButtonClicked()
+        elif id == self.contextstabid:
+            if self.stackedWidget_3.currentIndex() == 0:
+                self.contexts_Editor.hideButtonClicked()
+            else:
+                self.contextview_actionEditor.hideButtonClicked()
+        elif id == self.calendartabid:
+            self.calendar_actionEditor.hideButtonClicked()
+        elif id == self.ticklertabid:
+            self.tickler_actionEditor.hideButtonClicked()
+    
+    def shortcutHome(self):
+        logging.info("tracks->shortcutHome")
+        self.tabWidget.setCurrentIndex(self.hometabid)
+    def shortcutProjects(self):
+        logging.info("tracks->shortcutProjects")
+        self.tabWidget.setCurrentIndex(self.projectstabid)
+    def shortcutContexts(self):
+        logging.info("tracks->shortcutContexts")
+        self.tabWidget.setCurrentIndex(self.contextstabid)
+    def shortcutTickler(self):
+        logging.info("tracks->shortcutTickler")
+        self.tabWidget.setCurrentIndex(self.ticklertabid)
+    def shortcutCalendar(self):
+        logging.info("tracks->shortcutCalendar")
+        self.tabWidget.setCurrentIndex(self.calendartabid)
+    def shortcutDone(self):
+        logging.info("tracks->shortcutDone")
+        self.tabWidget.setCurrentIndex(self.donetabid)
 
 if __name__ == "__main__":
     # Start logging, first argument sets the level.
-    import logging
-    import sys
 
     LEVELS = {'debug': logging.DEBUG,
         'info': logging.INFO,
@@ -1157,5 +1209,7 @@ if __name__ == "__main__":
     window = Tracks()
 
     window.show()
+    logging.info("tracks.pyqt executing...")
     app.exec_()
+    logging.info("tracks.pyqt exiting...")
     sys.exit()
