@@ -466,7 +466,7 @@ class TracksActionList(QtGui.QWidget):
             self.databaseCon.execute(sql, (id,))
             
             # Remove associated dependencies
-            sqlassoc = "DELETE FROM dependencies WHERE successor_id=? OR predecessor_id=?"
+            sqlassoc = "DELETE FROM dependencies WHERE (successor_id=? OR predecessor_id=?) AND relationship_type='depends'"
             self.databaseCon.execute(sqlassoc, (id,id,))
             
             self.databaseCon.commit()

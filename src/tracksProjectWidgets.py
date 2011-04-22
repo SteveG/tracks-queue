@@ -253,9 +253,27 @@ class TracksProjectList(QtGui.QWidget):
         self.listWidget.setFixedHeight(count*28+contentMargins[1]+contentMargins[3])  
     
     def deleteProjectButtonClicked(self, id):
-        logging.info("TracksProjectList->deleteContextButtonClicked  -  " + str(id))
-        reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete?", "Are you sure you want to delete this project and clear the project field of all related actions?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        logging.info("TracksProjectList->deleteProjectButtonClicked  -  " + str(id))
+        query = "SELECT COUNT() FROM todos WHERE project_id=?"
+        related_count =  self.databaseCon.execute(query, (id,)).fetchall()[0][0]
+        reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete?", "Are you sure you want to delete this project and its " + str(related_count) + " actions", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        
         logging.debug("TracksContextList->deleteContextButtonClicked, reallydelete=" + str(reallydelete==QtGui.QMessageBox.Yes))
+        if reallydelete==QtGui.QMessageBox.Yes:
+            # Remove the related actions
+            for row in self.databaseCon.execute("SELECT id FROM todos WHERE project_id=?", (id,)):
+                # Remove associated dependencies
+                sqlassoc = "DELETE FROM dependencies WHERE (successor_id=? OR predecessor_id=?) AND relationship_type='depends'"
+                self.databaseCon.execute(sqlassoc, (row[0],row[0]))
+                # Remove the action
+                self.databaseCon.execute("DELETE FROM todos WHERE id=?", (row[0],))
+            # Remove the project dependencies
+            sqlassoc = "DELETE FROM dependencies WHERE (successor_id=? OR predecessor_id=?) AND relationship_type='subproject'"
+            self.databaseCon.execute(sqlassoc, (id,id))
+            # Remove the context
+            self.databaseCon.execute("DELETE FROM projects WHERE id=?", (id,))	
+            self.databaseCon.commit()
+            self.refresh()
         
     def editProjectButtonClicked(self, id):
         logging.info("TracksProjectList->editContextButtonClicked  -  " + str(id))

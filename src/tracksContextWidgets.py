@@ -221,8 +221,23 @@ class TracksContextList(QtGui.QWidget):
         
     def deleteItemButtonClicked(self, id):
         logging.info("TracksContextList->deleteContextButtonClicked  -  " + str(id))
-        reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete?", "Are you sure you want to delete this context and clear the context field of all related actions?", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        query = "SELECT COUNT() FROM todos WHERE context_id=?"
+        related_count =  self.databaseCon.execute(query, (id,)).fetchall()[0][0]
+        reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete?", "Are you sure you want to delete this context and its " + str(related_count) + " actions", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        
         logging.debug("TracksContextList->deleteContextButtonClicked, reallydelete=" + str(reallydelete==QtGui.QMessageBox.Yes))
+        if reallydelete==QtGui.QMessageBox.Yes:
+            # Remove the related actions
+            for row in self.databaseCon.execute("SELECT id FROM todos WHERE context_id=?", (id,)):
+                # Remove associated dependencies
+                sqlassoc = "DELETE FROM dependencies WHERE (successor_id=? OR predecessor_id=?) AND relationship_type='depends'"
+                self.databaseCon.execute(sqlassoc, (row[0],row[0]))
+                # Remove the action
+                self.databaseCon.execute("DELETE FROM todos WHERE id=?", (row[0],))
+            # Remove the context
+            self.databaseCon.execute("DELETE FROM contexts WHERE id=?", (id,))	
+            self.databaseCon.commit()
+            self.refresh()
         
     def editItemButtonClicked(self, id):
         logging.info("TracksContextList->editContextButtonClicked  -  " + str(id))
