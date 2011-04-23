@@ -151,7 +151,7 @@ class TracksContextList(QtGui.QWidget):
             
             # Delete Button
             deleteButton = QtGui.QToolButton(widget)
-            deleteButton.setStyleSheet("border: None;")
+            deleteButton.setStyleSheet("QToolButton{border: None;}")
             deleteIcon = None
             if QtGui.QIcon.hasThemeIcon("edit-delete"):
                 deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
@@ -164,7 +164,7 @@ class TracksContextList(QtGui.QWidget):
             
             # Edit Button
             editButton = QtGui.QToolButton(widget)
-            editButton.setStyleSheet("Border: none;")
+            editButton.setStyleSheet("QToolButton{Border: none;}")
             editIcon = None
             if QtGui.QIcon.hasThemeIcon("accessories-text-editor"):
                 editIcon = QtGui.QIcon.fromTheme("accessories-text-editor")

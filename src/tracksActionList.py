@@ -260,7 +260,7 @@ class TracksActionList(QtGui.QWidget):
             
             # Delete Button
             deleteButton = QtGui.QToolButton(widget)
-            deleteButton.setStyleSheet("border: None;")
+            deleteButton.setStyleSheet("QToolButton{border: None;}")
             deleteIcon = None
             if QtGui.QIcon.hasThemeIcon("edit-delete"):
                 deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
@@ -274,7 +274,7 @@ class TracksActionList(QtGui.QWidget):
             
             # Edit Button
             editButton = QtGui.QToolButton(widget)
-            editButton.setStyleSheet("Border: none;")
+            editButton.setStyleSheet("QToolButton{Border: none;}")
             editIcon = None
             if QtGui.QIcon.hasThemeIcon("accessories-text-editor"):
                 editIcon = QtGui.QIcon.fromTheme("accessories-text-editor")
@@ -297,7 +297,7 @@ class TracksActionList(QtGui.QWidget):
                 is_starred=False
             
             starButton = QtGui.QToolButton(widget)
-            starButton.setStyleSheet("border: None;")
+            starButton.setStyleSheet("QToolButton{border: None;}")
             importantIcon = QtGui.QIcon.fromTheme("emblem-important")
             importantIcon = None
             if QtGui.QIcon.hasThemeIcon("emblem-important"):
@@ -348,7 +348,7 @@ class TracksActionList(QtGui.QWidget):
             if self.displayprojectfirst:
                 projecttext = QtGui.QPushButton(widget)
                 projecttext.setCursor(QtCore.Qt.PointingHandCursor)
-                projecttext.setStyleSheet("border: None; Font-size: 8px; text-align:left")
+                projecttext.setStyleSheet("QPushButton{border: None; Font-size: 8px; text-align:left;}")
                 projecttext.setText(project)
                 projecttext.setMinimumWidth(70)
                 projecttext.setMaximumWidth(70)
@@ -360,7 +360,7 @@ class TracksActionList(QtGui.QWidget):
             if self.displaycontextfirst:
                 contexttext = QtGui.QPushButton(widget)
                 contexttext.setCursor(QtCore.Qt.PointingHandCursor)
-                contexttext.setStyleSheet("border: None; Font-size: 8px; text-align:left")
+                contexttext.setStyleSheet("QPushButton{border: None; Font-size: 8px; text-align:left;}")
                 contexttext.setText("@"+context)
                 contexttext.setMinimumWidth(50)
                 contexttext.setMaximumWidth(50)
@@ -389,7 +389,7 @@ class TracksActionList(QtGui.QWidget):
             # Action Text
             actionText = QtGui.QPushButton(widget)
             actionText.setCursor(QtCore.Qt.PointingHandCursor)
-            actionText.setStyleSheet("border: None; text-align:left")
+            actionText.setStyleSheet("QPushButton{border: None; text-align:left;}")
             actionText.setText(desc)
             horizontalLayout.addWidget(actionText)
             self.itemNotesButtonMapper.setMapping(actionText, id) #TODO fix
@@ -403,7 +403,7 @@ class TracksActionList(QtGui.QWidget):
                 labelButton.setFont(font)
                 labelButton.setText("fishing")
                 labelButton.setCursor(QtCore.Qt.PointingHandCursor)
-                labelButton.setStyleSheet("background-color: lightblue; border: None;")
+                labelButton.setStyleSheet("QPushButton{background-color: lightblue; border: None;}")
                 horizontalLayout.addWidget(labelButton)
                 self.itemLabelButtonMapper.setMapping(labelButton, id) #TODO fix
                 labelButton.clicked.connect(self.itemLabelButtonMapper.map)
@@ -417,7 +417,7 @@ class TracksActionList(QtGui.QWidget):
                 contextButton.setText("[c]")
                 contextButton.setToolTip("context: @" + context)
                 contextButton.setCursor(QtCore.Qt.PointingHandCursor)
-                contextButton.setStyleSheet("border: None;")
+                contextButton.setStyleSheet("QPushButton{border: None;}")
                 horizontalLayout.addWidget(contextButton)
                 self.itemContextButtonMapper.setMapping(contextButton, context_id) #TODO fix
                 contextButton.clicked.connect(self.itemContextButtonMapper.map)
@@ -431,7 +431,7 @@ class TracksActionList(QtGui.QWidget):
                 projectButton.setText("[p]")
                 projectButton.setToolTip("project: " + project)
                 projectButton.setCursor(QtCore.Qt.PointingHandCursor)
-                projectButton.setStyleSheet("border: None;")
+                projectButton.setStyleSheet("QPushButton{border: None;}")
                 horizontalLayout.addWidget(projectButton)
                 self.itemProjectButtonMapper.setMapping(projectButton, project_id) #TODO fix
                 projectButton.clicked.connect(self.itemProjectButtonMapper.map)

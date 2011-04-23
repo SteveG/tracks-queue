@@ -169,7 +169,7 @@ class TracksProjectList(QtGui.QWidget):
             # Delete Button
             if self.show_delete:
                 deleteButton = QtGui.QToolButton(widget)
-                deleteButton.setStyleSheet("border: None;")
+                deleteButton.setStyleSheet("QToolButton{border: None;}")
                 deleteIcon = None
                 if QtGui.QIcon.hasThemeIcon("edit-delete"):
                     deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
@@ -183,7 +183,7 @@ class TracksProjectList(QtGui.QWidget):
             # Edit Button
             if self.show_edit:
                 editButton = QtGui.QToolButton(widget)
-                editButton.setStyleSheet("Border: none;")
+                editButton.setStyleSheet("QToolButton{Border: none;}")
                 editIcon = None
                 if QtGui.QIcon.hasThemeIcon("accessories-text-editor"):
                     editIcon = QtGui.QIcon.fromTheme("accessories-text-editor")
@@ -204,7 +204,7 @@ class TracksProjectList(QtGui.QWidget):
                 stateText.setText("[" + state + "] " )
                 stateText.setMinimumWidth(70)
                 stateText.setMaximumWidth(70)
-                stateText.setStyleSheet("QLabel{border: None; Font-size: 8px; text-align:left}")
+                stateText.setStyleSheet("QLabel{border: None; Font-size: 8px; text-align:left;}")
                 horizontalLayout.addWidget(stateText)
             
             # is the project a child project?
@@ -213,7 +213,7 @@ class TracksProjectList(QtGui.QWidget):
                 if len(childData) > 0:
                     childText = QtGui.QLabel()
                     childText.setText("(sub-project)   ")
-                    childText.setStyleSheet("QLabel{border: None; Font-size: 8px; text-align:left}")
+                    childText.setStyleSheet("QLabel{border: None; Font-size: 8px; text-align:left;}")
                     childText.setToolTip("Subordinate to: "+ str(childData[0][0]))
                     horizontalLayout.addWidget(childText)
                         
