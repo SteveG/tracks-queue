@@ -74,6 +74,11 @@ class TracksActionList(QtGui.QWidget):
         self.verticalLayout = QtGui.QVBoxLayout(self)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(0)
+        # expander button layout
+        hozLayout = QtGui.QHBoxLayout()
+        hozLayout.setSpacing(0)
+        hozLayout.setMargin(0)
+        self.verticalLayout.addLayout(hozLayout)
         
         # Create expander button
         self.toggleListButton = CustomButton()
@@ -81,20 +86,34 @@ class TracksActionList(QtGui.QWidget):
         self.toggleListButton.setStyleSheet("text-align:left;")
         self.toggleListButton.setCheckable(True)
         buttonIcon = None
+        self.expanded = True
         if startExpanded:
+            self.expanded = True
             self.toggleListButton.setChecked(True)
             if QtGui.QIcon.hasThemeIcon("go-up"):
                 buttonIcon = QtGui.QIcon.fromTheme("go-up")
             else:
                 buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
         else:
+            self.expanded = False
             self.toggleListButton.setChecked(False)
             if QtGui.QIcon.hasThemeIcon("go-down"):
                 buttonIcon = QtGui.QIcon.fromTheme("go-down")
             else:
                 buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
         self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
-        self.verticalLayout.addWidget(self.toggleListButton)
+        hozLayout.addWidget(self.toggleListButton)
+        
+        #EXPERIMENTAL Double Expander button, to prevent loading big lists by default
+        self.doubleExpandButton = QtGui.QPushButton()
+        self.doubleExpandButton.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        hozLayout.addWidget(self.doubleExpandButton)
+        # By default double expander isn't shown
+        self.doubleExpandButton.setHidden(True)
+        # Double expander is not used by default
+        self.hasDoubleExpander = False
+        self.doubleExpandLimit = 3
+        self.doubleExpand = False
 
         # Create the action list
         self.listWidget = QtGui.QListWidget(self)
@@ -108,12 +127,15 @@ class TracksActionList(QtGui.QWidget):
         self.listWidget.setResizeMode(QtGui.QListView.Adjust)
         self.listWidget.setUniformItemSizes(False)
         self.verticalLayout.addWidget(self.listWidget)
-        if not startExpanded:
+        if startExpanded:
+            self.listWidget.setVisible(True)
+        else:
             self.listWidget.setVisible(False)
 
-        # connect the toggle list butotn
+        # connect the toggle list button
         self.connect(self.toggleListButton, QtCore.SIGNAL("clicked()"), self.toggleListButtonClick)
         self.connect(self.toggleListButton, QtCore.SIGNAL("ctrlclicked()"), self.toggleListButtonCtrlClick)
+        self.connect(self.doubleExpandButton, QtCore.SIGNAL("clicked()"), self.doubleExpandButtonClick)
         
         # Add the item button mappers
         self.itemDeleteButtonMapper = QtCore.QSignalMapper(self)
@@ -165,7 +187,7 @@ class TracksActionList(QtGui.QWidget):
     
     def isExpanded(self):
         """Returns a boolean indicating whether the list is expanded or not"""
-        return self.listWidget.isVisible()
+        return self.expanded#self.listWidget.isVisible()
     
     def toggleListButtonClick(self):
         """Toggles the visibility of the list"""
@@ -182,7 +204,43 @@ class TracksActionList(QtGui.QWidget):
         #    self.setExpanded(True)
         # emit signal to parent widget
         self.emit(QtCore.SIGNAL("getFocus()"))
+    
+    def setHasDoubleExpander(self, hasit, initialLimit):
+        """Makes the list size limited or not size limited"""
+        logging.info("TracksActionList->setHasDoubleExpander")
+        self.hasDoubleExpander = hasit
+        self.doubleExpandLimit = initialLimit
+        buttonIcon = None
+        if QtGui.QIcon.hasThemeIcon("go-down"):
+            buttonIcon = QtGui.QIcon.fromTheme("go-down")
+        else:
+            buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
+        self.doubleExpandButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
+        self.doubleExpandButton.setToolTip("Expand to show all actions\nOr restrict to just "+str(self.doubleExpandLimit))
         
+        if self.isExpanded():
+            self.doubleExpandButton.setVisible(hasit)
+            
+    
+    def doubleExpandButtonClick(self):
+        """Makes the list size limited or not size limited"""
+        logging.info("TracksActionList->doubleExpandButtonClick")
+        self.doubleExpand = not self.doubleExpand
+        
+        # change the button icon
+        buttonIcon = None
+        if QtGui.QIcon.hasThemeIcon("go-down"):
+            buttonIcon = QtGui.QIcon.fromTheme("go-down")
+        else:
+            buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
+        if self.doubleExpand:
+            if QtGui.QIcon.hasThemeIcon("go-up"):
+                buttonIcon = QtGui.QIcon.fromTheme("go-up")
+            else:
+                buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
+        self.doubleExpandButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
+        
+        self.refresh()    
     
     # The nominated query is expexted to return a table of the following form:
     # action id, action description, state, context_id, context_name, project_id, project_name
@@ -195,7 +253,12 @@ class TracksActionList(QtGui.QWidget):
         if self.dbQuery == None:
             self.dbQuery = "select id, description, 0, 0, 0, 0, 0 from todos order by description"
 
-        for row in self.databaseCon.execute(self.dbQuery):
+        query = self.dbQuery
+        if self.hasDoubleExpander:
+            if not self.doubleExpand:
+                query = query + " LIMIT "+str(self.doubleExpandLimit)
+            
+        for row in self.databaseCon.execute(query):
             id = row[0]
             desc = row[1]
             context_id = row[3]
@@ -624,6 +687,8 @@ class TracksActionList(QtGui.QWidget):
         
         self.toggleListButton.setChecked(expanded)
         self.listWidget.setVisible(expanded)
+        self.expanded = expanded
+        self.doubleExpandButton.setVisible(expanded and self.hasDoubleExpander)
 
 
 class CustomButton(QtGui.QPushButton):
