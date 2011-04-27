@@ -247,6 +247,10 @@ class TracksActionList(QtGui.QWidget):
     def fillList(self):
         """Fill the list widget"""
         logging.info("TracksActionList->fillList")
+        #clear list widget
+        self.notesIDDictEditor.clear()
+        self.notesIDDictItem.clear()
+        
         numberOfItems = 6
 
         count = 0
