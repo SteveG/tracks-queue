@@ -9,3 +9,13 @@ Things not implemented:
 
 Implementation Differences:
  - Implemented sub projects through the dependencies table
+
+ Keyboard Shortcuts
+  - Alt+t – Home
+  - Alt+p – Projects
+  - Alt+k – Tickler
+  - Alt+c – Contexts
+  - Alt+d – Completed Tasks
+  - Alt+l – Calendar of due actions
+  - Alt+n – Show/Hide Form (Add Action/Project/Context)
+  - Ctrl+p – Print

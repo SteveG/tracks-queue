@@ -176,6 +176,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("alt+k"),self,self.shortcutTickler)
         QtGui.QShortcut(QtGui.QKeySequence("alt+d"),self,self.shortcutDone)
         QtGui.QShortcut(QtGui.QKeySequence("alt+l"),self,self.shortcutCalendar)
+        QtGui.QShortcut(QtGui.QKeySequence("ctrl+p"),self,self.shortcutPrint)
 
         # enable the appropriate tabs
         #self.tabWidget.setTabEnabled(1, False)
@@ -1173,6 +1174,108 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
     def shortcutDone(self):
         logging.info("tracks->shortcutDone")
         self.tabWidget.setCurrentIndex(self.donetabid)
+    def shortcutPrint(self):
+        logging.info("tracks->shortcutPrint")
+        # Get the widget to print
+        toPrint = None
+        scaleWidget = None
+        theParent = None
+        theParentIndex = None
+        id = self.tabWidget.currentIndex()
+        if id == self.hometabid:  #homepage
+            toPrint = self.scrollAreaWidgetContents_2
+            scaleWidget = self.scrollArea
+            theParent = self.horizontalLayout_6
+            theParentIndex = 0
+        elif id == self.startabid:  #starred tab
+            toPrint = self.scrollAreaWidgetContents
+            scaleWidget = self.starred_mainpane
+            theParent = self.horizontalLayout_2
+            theParentIndex = 0
+        elif id == self.projectstabid:
+            if self.stackedWidget_2.currentIndex() == 0:
+                toPrint = self.scrollAreaWidgetContents_7
+                scaleWidget = self.scrollArea_5
+                theParent = self.horizontalLayout_9
+                theParentIndex = 0
+            else:
+                toPrint = self.scrollAreaWidgetContents_4   
+                scaleWidget = self.scrollArea_2
+                theParent = self.verticalLayout
+                theParentIndex = 2
+        elif id == self.contextstabid:
+            if self.stackedWidget_3.currentIndex() == 0:
+                toPrint = self.scrollAreaWidgetContents_8
+                scaleWidget = self.scrollArea_6
+                theParent = self.horizontalLayout_10
+                theParentIndex = 0
+            else:
+                toPrint = self.scrollAreaWidgetContents_9
+                scaleWidget = self.scrollArea_7
+                theParent = self.verticalLayout_2
+                theParentIndex = 2
+        elif id == self.calendartabid:
+            toPrint = self.scrollAreaWidgetContents_6
+            scaleWidget = self.scrollArea_4
+            theParent = self.horizontalLayout_7
+            theParentIndex = 0
+        elif id == self.ticklertabid:
+            toPrint = self.scrollAreaWidgetContents_3
+            scaleWidget = self.tickler_mainpane
+            theParent = self.horizontalLayout_3
+            theParentIndex = 0
+        elif id == self.donetabid:
+            toPrint = self.scrollAreaWidgetContents_5
+            scaleWidget = self.scrollArea_3
+            theParent = self.horizontalLayout_5
+            theParentIndex = 0
+        elif id == self.statstabid:
+            toPrint = self.scrollAreaWidgetContents_11
+            scaleWidget = self.scrollArea_8
+            theParent = self.horizontalLayout_15
+            theParentIndex = 0
+        elif id == self.settingstabid:
+            return
+        else:
+            return
+            
+        # Make the background white
+        toPrint.setAutoFillBackground(True)
+        oldback = toPrint.backgroundRole()
+        toPrint.setBackgroundRole( QtGui.QPalette.Base )
+        
+        #print toPrint.DrawChildren
+        printer = QtGui.QPrinter()
+        printer.setColorMode(printer.GrayScale)
+        printer.setResolution(120)
+        printerDialog = QtGui.QPrintDialog(printer)
+        if(printerDialog.exec_() == QtGui.QDialog.Accepted):
+            painter = QtGui.QPainter(printer) 
+            painter.drawText(50,30,"tracks.cute print out:")
+
+            tempWidget = QtGui.QWidget()
+            tempLayout = QtGui.QVBoxLayout()
+            tempWidget.setLayout(tempLayout)
+            tempLayout.addWidget(scaleWidget)
+            tempWidget.setFixedWidth(printer.pageRect().width())
+            tempLayout.activate()
+
+            tempWidget.show()
+            
+            # Do the render
+            import math
+            pageHeight = printer.pageRect().height()
+            pageWidth =  printer.pageRect().width()
+            pages =  int(math.ceil((toPrint.height()) / float(printer.pageRect().height())))
+            # We make the pages overlap slightly as the render is not smart an may cut cells in half
+            for i in range(0, pages):
+                if i>0:printer.newPage()
+                toPrint.render(painter, QtCore.QPoint(0,40), QtGui.QRegion(0,i*(pageHeight-40)-i*40,pageWidth,i*(pageHeight-40)-i*40+pageHeight-40), (QtGui.QWidget.IgnoreMask | QtGui.QWidget.DrawChildren))
+            painter.end()
+            
+            # Restore
+            theParent.insertWidget(theParentIndex,scaleWidget)
+        toPrint.setBackgroundRole(oldback)
 
 if __name__ == "__main__":
     # Start logging, first argument sets the level.

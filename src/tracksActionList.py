@@ -608,7 +608,8 @@ class TracksActionList(QtGui.QWidget):
         
         # size of item
         margins = editor.getContentsMargins()
-        requiredHeight = editor.document().size().toSize().height()+margins[1] + margins[3]
+        requiredHeight = editor.document().size().toSize().height() + editor.document().documentMargin()#+margins[1] + margins[3]
+        #editor.document().setDocumentMargin(1.0)
         if not visible:
             listitem.setSizeHint(QtCore.QSize(0,22+requiredHeight))
             # size of list
@@ -635,7 +636,7 @@ class TracksActionList(QtGui.QWidget):
         # resize the list item
         margins = editor.getContentsMargins()
         oldheight = listitem.sizeHint().height()
-        requiredHeight = editor.document().size().toSize().height()+margins[1] + margins[3]
+        requiredHeight = editor.document().size().toSize().height() + editor.document().documentMargin()#+margins[1] + margins[3]
         
         editor.setMaximumHeight(requiredHeight)
         listitem.setSizeHint(QtCore.QSize(0,22+requiredHeight))
