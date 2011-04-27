@@ -176,6 +176,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("alt+k"),self,self.shortcutTickler)
         QtGui.QShortcut(QtGui.QKeySequence("alt+d"),self,self.shortcutDone)
         QtGui.QShortcut(QtGui.QKeySequence("alt+l"),self,self.shortcutCalendar)
+        QtGui.QShortcut(QtGui.QKeySequence("alt+o"),self,self.shortcutShowNotes)
         QtGui.QShortcut(QtGui.QKeySequence("ctrl+p"),self,self.shortcutPrint)
 
         # enable the appropriate tabs
@@ -1174,6 +1175,34 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
     def shortcutDone(self):
         logging.info("tracks->shortcutDone")
         self.tabWidget.setCurrentIndex(self.donetabid)
+    def shortcutShowNotes(self):
+        logging.info("tracks->shortcutShowNotes")
+        id = self.tabWidget.currentIndex()
+        if id == self.hometabid:  #homepage
+            for key in self.homeContexts.keys():
+                self.homeContexts[key].toggleAllNotes()
+        elif id == self.projectstabid and self.stackedWidget_2.currentIndex() == 1:
+            self.projectview_tracksAList.toggleAllNotes()
+            self.projectview_tracksDList.toggleAllNotes()
+            self.projectview_tracksCList.toggleAllNotes()
+        elif id == self.contextstabid and self.stackedWidget_3.currentIndex() == 1:
+            self.contextview_tracksAList.toggleAllNotes()
+            self.contextview_tracksDList.toggleAllNotes()
+            self.contextview_tracksCList.toggleAllNotes()
+        elif id == self.calendartabid:
+            self.calendar_tracksDNWeekList.toggleAllNotes()
+            self.calendar_tracksDTodayList.toggleAllNotes()
+            self.calendar_tracksDueFarList.toggleAllNotes()
+            self.calendar_tracksDWeekList.toggleAllNotes()
+            self.calendar_tracksOverDueList.toggleAllNotes()
+        elif id == self.ticklertabid:
+            self.tickler_tracksSFutureList.toggleAllNotes()
+            self.tickler_tracksSNextWeekList.toggleAllNotes()
+            self.tickler_tracksSThisWeekList.toggleAllNotes()
+            self.tickler_tracksSTodayList.toggleAllNotes()
+        elif id == self.donetabid:
+            self.doneFortnightActionList.toggleAllNotes()
+            self.doneNextFortnightActionList.toggleAllNotes()
     def shortcutPrint(self):
         logging.info("tracks->shortcutPrint")
         # Get the widget to print

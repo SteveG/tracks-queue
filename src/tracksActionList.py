@@ -599,7 +599,7 @@ class TracksActionList(QtGui.QWidget):
         self.setUpdatesEnabled(False)
         
         listitem = self.notesIDDictItem[id]
-        visible = self.notesIDDictEditor[id].isVisible()
+        visible = not self.notesIDDictEditor[id].isHidden()#isVisible()
         editor = self.notesIDDictEditor[id]
         
         editor.setVisible(not visible)
@@ -654,6 +654,18 @@ class TracksActionList(QtGui.QWidget):
         self.databaseCon.execute("UPDATE todos SET notes=? WHERE id=?", (notes, id))
         # Start the commit timer
         self.commitTimer.start()
+        
+    def toggleAllNotes(self):
+        logging.info("TracksActionList->toggleAllNotes")
+        self.setUpdatesEnabled(False)
+        allVisible = True
+        for id in self.notesIDDictItem.keys():
+            allVisible = allVisible and not self.notesIDDictEditor[id].isHidden()
+        for id in self.notesIDDictItem.keys():
+            if self.notesIDDictEditor[id].isHidden() != allVisible:
+                self.notesItemButtonClicked(id)
+        self.verticalLayout.activate()        
+        self.setUpdatesEnabled(True)
         
     def commitTimeout(self):
         logging.info("TracksActionList->commitTimeout")
