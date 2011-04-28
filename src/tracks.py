@@ -987,6 +987,15 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.doneNextFortnightActionList.gotoProject.connect(self.gotoProject)
         self.doneNextFortnightActionList.gotoContext.connect(self.gotoContext)
         self.done_mainpane_layout.addWidget(self.doneNextFortnightActionList)
+        
+        self.doneOlderActionList = TracksActionList(self.databaseCon, "Older", None, False)
+        self.doneOlderActionList.setDisplayCompletedAt(True)
+        self.doneOlderActionList.setDisplayProjectFirst(True)
+        self.doneOlderActionList.gotoProject.connect(self.gotoProject)
+        self.doneOlderActionList.gotoContext.connect(self.gotoContext)
+        self.doneOlderActionList.setHasDoubleExpander(True, 40)
+        self.done_mainpane_layout.addWidget(self.doneOlderActionList)
+        
 
 
         self.done_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
@@ -1007,6 +1016,13 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                        todos.project_id = projects.id where todos.state=\
                        'completed' AND todos.completed_at <= DATETIME('now','-14 days') AND todos.completed_at > DATETIME('now','-28 days') AND todos.user_id=%s order by projects.name, todos.completed_at DESC" % (self.current_user_id)
         self.doneNextFortnightActionList.setDBQuery(sql)
+        
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.state=\
+                       'completed' AND todos.completed_at <= DATETIME('now','-28 days') AND todos.user_id=%s order by todos.completed_at DESC" % (self.current_user_id)
+        self.doneOlderActionList.setDBQuery(sql)
 
     def setupStatsPage(self):
         """Sets up the stats tab"""
@@ -1203,6 +1219,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         elif id == self.donetabid:
             self.doneFortnightActionList.toggleAllNotes()
             self.doneNextFortnightActionList.toggleAllNotes()
+            self.doneOlderActionList.toggleAllNotes()
     def shortcutPrint(self):
         logging.info("tracks->shortcutPrint")
         # Get the widget to print
