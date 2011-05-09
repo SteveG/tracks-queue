@@ -353,8 +353,8 @@ QWidget#widget_5 {background-color:palette(window);}</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>772</width>
-                   <height>512</height>
+                   <width>100</width>
+                   <height>30</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="projectview_verticalLayout">
@@ -544,8 +544,8 @@ QWidget#widget_6 {background-color:palette(window);}</string>
                   <rect>
                    <x>0</x>
                    <y>0</y>
-                   <width>772</width>
-                   <height>531</height>
+                   <width>100</width>
+                   <height>30</height>
                   </rect>
                  </property>
                  <layout class="QVBoxLayout" name="contextview_verticalLayout">
@@ -844,6 +844,68 @@ QWidget#tickler_sidepane {background-color:palette(window);}</string>
            </size>
           </property>
          </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="search_tab">
+       <attribute name="title">
+        <string>Search</string>
+       </attribute>
+       <layout class="QHBoxLayout" name="horizontalLayout_16">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QScrollArea" name="scrollArea_9">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollAreaWidgetContents_10">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>780</width>
+             <height>574</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="search_mainpane_layout">
+            <property name="margin">
+             <number>4</number>
+            </property>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_3" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>250</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="margin">
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
         </item>
        </layout>
       </widget>

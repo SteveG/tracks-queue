@@ -131,6 +131,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.donetabid = 6
         self.statstabid = 7
         self.settingstabid = 8
+        self.searchtabid = 9
         self.refreshables = {}
         for a in range(self.tabWidget.count()):
             self.refreshables[a] = []
@@ -167,6 +168,9 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
         # NOTE Setup the settings page
         self.setupSettingsPage()
+        
+        # Setup the search page
+        self.setupSearchPage()
         
         # Setup the keyboard shortcuts
         QtGui.QShortcut(QtGui.QKeySequence("alt+n"),self,self.shortcutToggleForm)
@@ -977,6 +981,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.doneFortnightActionList = TracksActionList(self.databaseCon, "Last Fortnight", None, True)
         self.doneFortnightActionList.setDisplayCompletedAt(True)
         self.doneFortnightActionList.setDisplayProjectFirst(True)
+        self.doneFortnightActionList.setShowEdit(False)
+        self.doneFortnightActionList.setShowDelete(False)
         self.doneFortnightActionList.gotoProject.connect(self.gotoProject)
         self.doneFortnightActionList.gotoContext.connect(self.gotoContext)
         self.done_mainpane_layout.addWidget(self.doneFortnightActionList)
@@ -984,6 +990,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.doneNextFortnightActionList = TracksActionList(self.databaseCon, "Previous Fortnight", None, False)
         self.doneNextFortnightActionList.setDisplayCompletedAt(True)
         self.doneNextFortnightActionList.setDisplayProjectFirst(True)
+        self.doneNextFortnightActionList.setShowEdit(False)
+        self.doneNextFortnightActionList.setShowDelete(False)
         self.doneNextFortnightActionList.gotoProject.connect(self.gotoProject)
         self.doneNextFortnightActionList.gotoContext.connect(self.gotoContext)
         self.done_mainpane_layout.addWidget(self.doneNextFortnightActionList)
@@ -991,9 +999,11 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.doneOlderActionList = TracksActionList(self.databaseCon, "Older", None, False)
         self.doneOlderActionList.setDisplayCompletedAt(True)
         self.doneOlderActionList.setDisplayProjectFirst(True)
+        self.doneOlderActionList.setShowEdit(False)
+        self.doneOlderActionList.setShowDelete(False)
         self.doneOlderActionList.gotoProject.connect(self.gotoProject)
         self.doneOlderActionList.gotoContext.connect(self.gotoContext)
-        self.doneOlderActionList.setHasDoubleExpander(True, 40)
+        self.doneOlderActionList.setHasDoubleExpander(True, 20)
         self.done_mainpane_layout.addWidget(self.doneOlderActionList)
         
 
@@ -1113,6 +1123,59 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.current_user_id = self.settingsUserSelectBox.itemData(self.settingsUserSelectBox.currentIndex()).toInt()[0]
         self.settings.setValue("database/user", QtCore.QVariant(self.current_user_id))
 
+    def setupSearchPage(self):
+        logging.info("tracks->setupSearchPage")
+        """Setup the search page"""
+        # Add the search input box
+        self.searchEdit = QtGui.QLineEdit()
+        self.searchEdit.textChanged.connect(self.refreshSearchPage)
+        self.search_mainpane_layout.addWidget(self.searchEdit)
+        
+        # Add the action search results
+        self.searchActionList = TracksActionList(self.databaseCon, "Actions", None, True)
+        self.searchActionList.setDisplayCompletedAt(True)
+        self.searchActionList.setDisplayProjectFirst(True)
+        self.searchActionList.setShowEdit(False)
+        self.searchActionList.setShowDelete(False)
+        self.searchActionList.gotoProject.connect(self.gotoProject)
+        self.searchActionList.gotoContext.connect(self.gotoContext)
+        self.search_mainpane_layout.addWidget(self.searchActionList)
+        
+        # Add the project search results
+        self.searchProjectsList = TracksProjectList(self.databaseCon, "Projects", None, True)
+        self.searchProjectsList.setShowState(True)
+        self.searchProjectsList.setShowEdit(False)
+        self.searchProjectsList.setShowDelete(False)
+        self.searchProjectsList.setHideWhenEmtpy(False)
+        self.searchProjectsList.gotoProject.connect(self.gotoProject)
+        self.search_mainpane_layout.addWidget(self.searchProjectsList)
+        
+        # Add layout expander
+        self.search_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
+        
+    def refreshSearchPage(self):
+        logging.info("tracks->refreshSearchPage")
+        text = str(self.searchEdit.text())
+        if text == "" or text =="%":
+            text = "really you have this text?"
+        
+        # refresh the action list
+        sql = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
+                       projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
+                       todos.context_id = contexts.id) LEFT JOIN projects on \
+                       todos.project_id = projects.id where todos.user_id=%s and ((todos.description LIKE \"%s%%\") or (todos.notes LIKE \"%s%%\")) ORDER BY todos.description" % (self.current_user_id, text, text)
+        self.searchActionList.setDBQuery(sql)
+        
+        # refresh the project list
+        sql = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                    todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                    WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                    projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id\
+                    WHERE projects.user_id=%s AND ((projects.name LIKE \"%s%%\") or (projects.description LIKE \"%s%%\")) GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id, text, text)
+        self.searchProjectsList.setDBQuery(sql)
+        
+        self.searchEdit.setFocus()
+
     def refreshCurrentTab(self):
         """Refreshes the currently visible tab"""
         logging.info("tracks->refreshCurrentTab")
@@ -1141,6 +1204,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.refreshStatsPage()
         elif id == 8:
             self.refreshSettingsPage()
+        elif id == self.searchtabid:
+            self.refreshSearchPage()    
 
         # for elements that can simply be refreshed
         for element in self.refreshables[id]:
@@ -1220,6 +1285,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.doneFortnightActionList.toggleAllNotes()
             self.doneNextFortnightActionList.toggleAllNotes()
             self.doneOlderActionList.toggleAllNotes()
+        elif id == self.searchtabid:
+            self.searchActionList.toggleAllNotes()
     def shortcutPrint(self):
         logging.info("tracks->shortcutPrint")
         # Get the widget to print
@@ -1282,6 +1349,11 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             theParentIndex = 0
         elif id == self.settingstabid:
             return
+        elif id == self.searchtabid:
+            toPrint = self.scrollAreaWidgetContents_10
+            scaleWidget = self.scrollArea_9
+            theParent = self.horizontalLayout_16
+            theParentIndex = 0
         else:
             return
             

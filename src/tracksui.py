@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'tracks.ui'
 #
-# Created: Sun Mar  6 16:46:52 2011
+# Created: Mon May  9 15:51:38 2011
 #      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -193,7 +193,7 @@ class Ui_MainWindow(object):
         self.scrollArea_2.setWidgetResizable(True)
         self.scrollArea_2.setObjectName(_fromUtf8("scrollArea_2"))
         self.scrollAreaWidgetContents_4 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 772, 512))
+        self.scrollAreaWidgetContents_4.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents_4.setObjectName(_fromUtf8("scrollAreaWidgetContents_4"))
         self.projectview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_4)
         self.projectview_verticalLayout.setMargin(0)
@@ -296,7 +296,7 @@ class Ui_MainWindow(object):
         self.scrollArea_7.setWidgetResizable(True)
         self.scrollArea_7.setObjectName(_fromUtf8("scrollArea_7"))
         self.scrollAreaWidgetContents_9 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 772, 531))
+        self.scrollAreaWidgetContents_9.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents_9.setObjectName(_fromUtf8("scrollAreaWidgetContents_9"))
         self.contextview_verticalLayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_9)
         self.contextview_verticalLayout.setMargin(0)
@@ -448,6 +448,35 @@ class Ui_MainWindow(object):
         spacerItem1 = QtGui.QSpacerItem(20, 500, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_7.addItem(spacerItem1)
         self.tabWidget.addTab(self.settings_tab, _fromUtf8(""))
+        self.search_tab = QtGui.QWidget()
+        self.search_tab.setObjectName(_fromUtf8("search_tab"))
+        self.horizontalLayout_16 = QtGui.QHBoxLayout(self.search_tab)
+        self.horizontalLayout_16.setSpacing(0)
+        self.horizontalLayout_16.setMargin(0)
+        self.horizontalLayout_16.setObjectName(_fromUtf8("horizontalLayout_16"))
+        self.scrollArea_9 = QtGui.QScrollArea(self.search_tab)
+        self.scrollArea_9.setFrameShape(QtGui.QFrame.NoFrame)
+        self.scrollArea_9.setWidgetResizable(True)
+        self.scrollArea_9.setObjectName(_fromUtf8("scrollArea_9"))
+        self.scrollAreaWidgetContents_10 = QtGui.QWidget()
+        self.scrollAreaWidgetContents_10.setGeometry(QtCore.QRect(0, 0, 780, 574))
+        self.scrollAreaWidgetContents_10.setObjectName(_fromUtf8("scrollAreaWidgetContents_10"))
+        self.search_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_10)
+        self.search_mainpane_layout.setMargin(4)
+        self.search_mainpane_layout.setObjectName(_fromUtf8("search_mainpane_layout"))
+        self.scrollArea_9.setWidget(self.scrollAreaWidgetContents_10)
+        self.horizontalLayout_16.addWidget(self.scrollArea_9)
+        self.widget_3 = QtGui.QWidget(self.search_tab)
+        self.widget_3.setMinimumSize(QtCore.QSize(20, 0))
+        self.widget_3.setMaximumSize(QtCore.QSize(250, 16777215))
+        self.widget_3.setObjectName(_fromUtf8("widget_3"))
+        self.verticalLayout_9 = QtGui.QVBoxLayout(self.widget_3)
+        self.verticalLayout_9.setSpacing(0)
+        self.verticalLayout_9.setMargin(0)
+        self.verticalLayout_9.setMargin(0)
+        self.verticalLayout_9.setObjectName(_fromUtf8("verticalLayout_9"))
+        self.horizontalLayout_16.addWidget(self.widget_3)
+        self.tabWidget.addTab(self.search_tab, _fromUtf8(""))
         self.horizontalLayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
 
@@ -475,4 +504,5 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.statistics_tab), QtGui.QApplication.translate("MainWindow", "Statistics", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Active User", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.settings_tab), QtGui.QApplication.translate("MainWindow", "Settings", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.search_tab), QtGui.QApplication.translate("MainWindow", "Search", None, QtGui.QApplication.UnicodeUTF8))
 

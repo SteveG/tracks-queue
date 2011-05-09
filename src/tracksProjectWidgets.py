@@ -56,6 +56,7 @@ class TracksProjectList(QtGui.QWidget):
         self.show_delete = True
         self.show_state = False
         self.show_subproject = True
+        self.hide_when_emtpy = True
         
         # Create Layout
         self.verticalLayout = QtGui.QVBoxLayout(self)
@@ -148,11 +149,12 @@ class TracksProjectList(QtGui.QWidget):
             rows = self.databaseCon.execute(self.dbQuery).fetchall()
         else:
             rows = self.databaseCon.execute(self.dbQuery, self.dbQuery_args).fetchall()
-            
-        if len(rows) == 0:
-            self.setVisible(False)
-        else:
-            self.setVisible(True)
+        
+        if self.hide_when_emtpy:    
+            if len(rows) == 0:
+                self.setVisible(False)
+            else:
+                self.setVisible(True)
         
         for row in rows:
             projectID = int(row[0])
@@ -308,6 +310,8 @@ class TracksProjectList(QtGui.QWidget):
         self.show_delete = setting
     def setShowSubProject(self, setting):
         self.show_subproject = setting
+    def setHideWhenEmtpy(self, setting):
+        self.hide_when_emtpy = setting
 
 class TracksProjectEditor(QtGui.QGroupBox):
     """

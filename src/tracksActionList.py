@@ -69,6 +69,8 @@ class TracksActionList(QtGui.QWidget):
         self.displaytags = False
         self.displayprojectfirst = False
         self.displaycontextfirst = False
+        self.showEdit = True
+        self.showDelete = True
 
         # Create Layout
         self.verticalLayout = QtGui.QVBoxLayout(self)
@@ -184,6 +186,11 @@ class TracksActionList(QtGui.QWidget):
     def setDisplayCompletedAt(self, setto):
         logging.info("TracksActionList->setDisplayCompletedAt")
         self.displaycompleted_at = setto
+        
+    def setShowEdit(self, setting):
+        self.showEdit = setting
+    def setShowDelete(self, setting):
+        self.showDelete = setting
     
     def isExpanded(self):
         """Returns a boolean indicating whether the list is expanded or not"""
@@ -326,35 +333,37 @@ class TracksActionList(QtGui.QWidget):
 
             
             # Delete Button
-            deleteButton = QtGui.QToolButton(widget)
-            deleteButton.setStyleSheet("QToolButton{border: None;}")
-            deleteIcon = None
-            if QtGui.QIcon.hasThemeIcon("edit-delete"):
-                deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
-            else:
-                deleteIcon = QtGui.QIcon(self.iconPath + "edit-delete.png")
-            deleteButton.setIcon(QtGui.QIcon(deleteIcon.pixmap(16,16,0,0)))
-            #deleteButton.setMaximumSize(QtCore.QSize(16,16)) #TEST
-            horizontalLayout.addWidget(deleteButton)
-            self.itemDeleteButtonMapper.setMapping(deleteButton, id)
-            deleteButton.clicked.connect(self.itemDeleteButtonMapper.map)
+            if self.showDelete:
+                deleteButton = QtGui.QToolButton(widget)
+                deleteButton.setStyleSheet("QToolButton{border: None;}")
+                deleteIcon = None
+                if QtGui.QIcon.hasThemeIcon("edit-delete"):
+                    deleteIcon = QtGui.QIcon.fromTheme("edit-delete")
+                else:
+                    deleteIcon = QtGui.QIcon(self.iconPath + "edit-delete.png")
+                deleteButton.setIcon(QtGui.QIcon(deleteIcon.pixmap(16,16,0,0)))
+                #deleteButton.setMaximumSize(QtCore.QSize(16,16)) #TEST
+                horizontalLayout.addWidget(deleteButton)
+                self.itemDeleteButtonMapper.setMapping(deleteButton, id)
+                deleteButton.clicked.connect(self.itemDeleteButtonMapper.map)
             
             # Edit Button
-            editButton = QtGui.QToolButton(widget)
-            editButton.setStyleSheet("QToolButton{Border: none;}")
-            editIcon = None
-            if QtGui.QIcon.hasThemeIcon("accessories-text-editor"):
-                editIcon = QtGui.QIcon.fromTheme("accessories-text-editor")
-            else:
-                editIcon = QtGui.QIcon(self.iconPath + "accessories-text-editor.png")
-            editButton.setIcon(editIcon)
-            #editButton.setMaximumSize(QtCore.QSize(25,25)) #TEST
-            horizontalLayout.addWidget(editButton)
-            self.itemEditButtonMapper.setMapping(editButton, id)
-            editButton.clicked.connect(self.itemEditButtonMapper.map)
-            # Add action time stamp data to edit button mouseover
-            time_data = self.databaseCon.execute("select created_at, updated_at from todos where id=?", (id,)).fetchall()
-            editButton.setToolTip(str("Created: " + time_data[0][0] +"\nModified: " + time_data[0][1]))
+            if self.showEdit:
+                editButton = QtGui.QToolButton(widget)
+                editButton.setStyleSheet("QToolButton{Border: none;}")
+                editIcon = None
+                if QtGui.QIcon.hasThemeIcon("accessories-text-editor"):
+                    editIcon = QtGui.QIcon.fromTheme("accessories-text-editor")
+                else:
+                    editIcon = QtGui.QIcon(self.iconPath + "accessories-text-editor.png")
+                editButton.setIcon(editIcon)
+                #editButton.setMaximumSize(QtCore.QSize(25,25)) #TEST
+                horizontalLayout.addWidget(editButton)
+                self.itemEditButtonMapper.setMapping(editButton, id)
+                editButton.clicked.connect(self.itemEditButtonMapper.map)
+                # Add action time stamp data to edit button mouseover
+                time_data = self.databaseCon.execute("select created_at, updated_at from todos where id=?", (id,)).fetchall()
+                editButton.setToolTip(str("Created: " + time_data[0][0] +"\nModified: " + time_data[0][1]))
             
             # Star Button
             is_starred_query = "select todos.description, tags.name from todos, tags, taggings where todos.id=taggings.taggable_id and tags.id = taggings.tag_id and tags.name='starred' and todos.id=?"
