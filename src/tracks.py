@@ -1128,7 +1128,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         """Setup the search page"""
         # Add the search input box
         self.searchEdit = QtGui.QLineEdit()
-        self.searchEdit.textChanged.connect(self.refreshSearchPage)
+        self.searchEdit.textChanged.connect(self.searchKeypress)
         self.search_mainpane_layout.addWidget(self.searchEdit)
         
         # Add the action search results
@@ -1153,6 +1153,12 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # Add layout expander
         self.search_mainpane_layout.addItem(QtGui.QSpacerItem(1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding))
         
+        # Timer to delay database search after keypresses
+        self.searchTimer = QtCore.QTimer(self)
+        self.searchTimer.setSingleShot(True)
+        self.searchTimer.setInterval(500)
+        self.searchTimer.timeout.connect(self.searchTimeout)
+        
     def refreshSearchPage(self):
         logging.info("tracks->refreshSearchPage")
         text = str(self.searchEdit.text())
@@ -1175,6 +1181,12 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.searchProjectsList.setDBQuery(sql)
         
         self.searchEdit.setFocus()
+    
+    def searchKeypress(self):
+        self.searchTimer.start()
+    def searchTimeout(self):
+        logging.info("TracksActionList->commitTimeout")
+        self.refreshSearchPage()
 
     def refreshCurrentTab(self):
         """Refreshes the currently visible tab"""
