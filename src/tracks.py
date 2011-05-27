@@ -108,6 +108,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # Set up the user interface from Designer.
         self.setupUi(self)
         
+        # Restore window geometry
+        if self.settings.contains("geometry"):
+            self.restoreGeometry(self.settings.value("geometry").toByteArray())
+        
         label = QtGui.QLabel()
         label.setPixmap(QtGui.QPixmap(sys.path[0] + "/tracks.cute.small.png"))
         self.tabWidget.setCornerWidget(label,QtCore.Qt.TopRightCorner)
@@ -1406,6 +1410,10 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             # Restore
             theParent.insertWidget(theParentIndex,scaleWidget)
         toPrint.setBackgroundRole(oldback)
+    
+    def closeEvent(self, event):
+        logging.info("tracks->closeEvent")
+        self.settings.setValue("geometry", self.saveGeometry())
 
 if __name__ == "__main__":
     # Start logging, first argument sets the level.
