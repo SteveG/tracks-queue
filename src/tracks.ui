@@ -149,8 +149,8 @@ QWidget#widget_2 {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>790</width>
-             <height>574</height>
+             <width>100</width>
+             <height>30</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="starred_mainpane_layout">
@@ -229,8 +229,8 @@ QWidget#starred_sidepane {background-color:palette(window);}</string>
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>780</width>
-                 <height>574</height>
+                 <width>100</width>
+                 <height>30</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="projects_mainpane_layout">
@@ -436,8 +436,8 @@ QWidget#widget {background-color:palette(window);}</string>
                 <rect>
                  <x>0</x>
                  <y>0</y>
-                 <width>780</width>
-                 <height>574</height>
+                 <width>100</width>
+                 <height>30</height>
                 </rect>
                </property>
                <layout class="QVBoxLayout" name="contexts_mainpane_layout">
@@ -614,8 +614,8 @@ QWidget#widget_7 {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>780</width>
-             <height>574</height>
+             <width>100</width>
+             <height>30</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -678,8 +678,8 @@ QWidget#widget_4 {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>780</width>
-             <height>574</height>
+             <width>100</width>
+             <height>30</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="tickler_mainpane_layout">
@@ -739,8 +739,8 @@ QWidget#tickler_sidepane {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>800</width>
-             <height>574</height>
+             <width>100</width>
+             <height>30</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="done_mainpane_layout">
@@ -777,8 +777,8 @@ QWidget#tickler_sidepane {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>800</width>
-             <height>574</height>
+             <width>100</width>
+             <height>30</height>
             </rect>
            </property>
            <layout class="QVBoxLayout" name="statslayout">
@@ -871,7 +871,7 @@ QWidget#tickler_sidepane {background-color:palette(window);}</string>
             <rect>
              <x>0</x>
              <y>0</y>
-             <width>780</width>
+             <width>800</width>
              <height>574</height>
             </rect>
            </property>
@@ -881,30 +881,6 @@ QWidget#tickler_sidepane {background-color:palette(window);}</string>
             </property>
            </layout>
           </widget>
-         </widget>
-        </item>
-        <item>
-         <widget class="QWidget" name="widget_3" native="true">
-          <property name="minimumSize">
-           <size>
-            <width>20</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>250</width>
-            <height>16777215</height>
-           </size>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_9">
-           <property name="spacing">
-            <number>0</number>
-           </property>
-           <property name="margin">
-            <number>0</number>
-           </property>
-          </layout>
          </widget>
         </item>
        </layout>

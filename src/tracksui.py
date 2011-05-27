@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'tracks.ui'
 #
-# Created: Mon May  9 15:51:38 2011
-#      by: PyQt4 UI code generator 4.8.3
+# Created: Fri May 27 22:01:14 2011
+#      by: PyQt4 UI code generator 4.8.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -86,7 +86,7 @@ class Ui_MainWindow(object):
         self.starred_mainpane.setWidgetResizable(True)
         self.starred_mainpane.setObjectName(_fromUtf8("starred_mainpane"))
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 790, 574))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.starred_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
         self.starred_mainpane_layout.setSpacing(3)
@@ -129,7 +129,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.scrollArea_5.setObjectName(_fromUtf8("scrollArea_5"))
         self.scrollAreaWidgetContents_7 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_7.setGeometry(QtCore.QRect(0, 0, 780, 574))
+        self.scrollAreaWidgetContents_7.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents_7.setObjectName(_fromUtf8("scrollAreaWidgetContents_7"))
         self.projects_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_7)
         self.projects_mainpane_layout.setSpacing(3)
@@ -238,7 +238,7 @@ class Ui_MainWindow(object):
         self.scrollArea_6.setWidgetResizable(True)
         self.scrollArea_6.setObjectName(_fromUtf8("scrollArea_6"))
         self.scrollAreaWidgetContents_8 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_8.setGeometry(QtCore.QRect(0, 0, 780, 574))
+        self.scrollAreaWidgetContents_8.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents_8.setObjectName(_fromUtf8("scrollAreaWidgetContents_8"))
         self.contexts_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_8)
         self.contexts_mainpane_layout.setSpacing(3)
@@ -333,7 +333,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.scrollArea_4.setObjectName(_fromUtf8("scrollArea_4"))
         self.scrollAreaWidgetContents_6 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_6.setGeometry(QtCore.QRect(0, 0, 780, 574))
+        self.scrollAreaWidgetContents_6.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents_6.setObjectName(_fromUtf8("scrollAreaWidgetContents_6"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_6)
         self.verticalLayout_3.setMargin(4)
@@ -367,7 +367,7 @@ class Ui_MainWindow(object):
         self.tickler_mainpane.setWidgetResizable(True)
         self.tickler_mainpane.setObjectName(_fromUtf8("tickler_mainpane"))
         self.scrollAreaWidgetContents_3 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 780, 574))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents_3.setObjectName(_fromUtf8("scrollAreaWidgetContents_3"))
         self.tickler_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_3)
         self.tickler_mainpane_layout.setMargin(4)
@@ -400,7 +400,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName(_fromUtf8("scrollArea_3"))
         self.scrollAreaWidgetContents_5 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, 0, 800, 574))
+        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents_5.setObjectName(_fromUtf8("scrollAreaWidgetContents_5"))
         self.done_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_5)
         self.done_mainpane_layout.setSpacing(3)
@@ -419,7 +419,7 @@ class Ui_MainWindow(object):
         self.scrollArea_8.setWidgetResizable(True)
         self.scrollArea_8.setObjectName(_fromUtf8("scrollArea_8"))
         self.scrollAreaWidgetContents_11 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_11.setGeometry(QtCore.QRect(0, 0, 800, 574))
+        self.scrollAreaWidgetContents_11.setGeometry(QtCore.QRect(0, 0, 100, 30))
         self.scrollAreaWidgetContents_11.setObjectName(_fromUtf8("scrollAreaWidgetContents_11"))
         self.statslayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_11)
         self.statslayout.setSpacing(3)
@@ -459,23 +459,13 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setWidgetResizable(True)
         self.scrollArea_9.setObjectName(_fromUtf8("scrollArea_9"))
         self.scrollAreaWidgetContents_10 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_10.setGeometry(QtCore.QRect(0, 0, 780, 574))
+        self.scrollAreaWidgetContents_10.setGeometry(QtCore.QRect(0, 0, 800, 574))
         self.scrollAreaWidgetContents_10.setObjectName(_fromUtf8("scrollAreaWidgetContents_10"))
         self.search_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_10)
         self.search_mainpane_layout.setMargin(4)
         self.search_mainpane_layout.setObjectName(_fromUtf8("search_mainpane_layout"))
         self.scrollArea_9.setWidget(self.scrollAreaWidgetContents_10)
         self.horizontalLayout_16.addWidget(self.scrollArea_9)
-        self.widget_3 = QtGui.QWidget(self.search_tab)
-        self.widget_3.setMinimumSize(QtCore.QSize(20, 0))
-        self.widget_3.setMaximumSize(QtCore.QSize(250, 16777215))
-        self.widget_3.setObjectName(_fromUtf8("widget_3"))
-        self.verticalLayout_9 = QtGui.QVBoxLayout(self.widget_3)
-        self.verticalLayout_9.setSpacing(0)
-        self.verticalLayout_9.setMargin(0)
-        self.verticalLayout_9.setMargin(0)
-        self.verticalLayout_9.setObjectName(_fromUtf8("verticalLayout_9"))
-        self.horizontalLayout_16.addWidget(self.widget_3)
         self.tabWidget.addTab(self.search_tab, _fromUtf8(""))
         self.horizontalLayout.addWidget(self.tabWidget)
         MainWindow.setCentralWidget(self.centralwidget)
