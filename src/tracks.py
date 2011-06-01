@@ -39,7 +39,7 @@ from tracksContextWidgets import TracksContextList, TracksContextEditor
 
 
 class Tracks(QtGui.QMainWindow, Ui_MainWindow):
-    """Tracks is the main window class for tracks.cute"""
+    """Tracks is the main window class for tracks queue"""
 
     def __init__(self):
         """Initiate the main window"""
@@ -64,7 +64,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         # open the database file
         # Locate the database file, or create a new one
         knowFile = False
-        self.settings = QtCore.QSettings("tracks.cute", "tracks.cute")
+        self.settings = QtCore.QSettings("tracks-queue", "tracks-queue")
 
         # The last file accessed is contained in the settings
         if self.settings.contains("database/lastfile"):
@@ -77,7 +77,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
         # If we have no record of the last file accessed
         if not knowFile:
-            existing = QtGui.QMessageBox.question(self, "tracks.cute: No file found", "Do you have an existing tracks database file?\n\n" +
+            existing = QtGui.QMessageBox.question(self, "tracks queue: No file found", "Do you have an existing tracks database file?\n\n" +
             "No: \tA dialog will ask where to save a new database.\n" +
             "Yes: \tA dialog will ask where to find the existing database.\n", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
 
@@ -115,7 +115,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         label = QtGui.QLabel()
         label.setPixmap(QtGui.QPixmap(sys.path[0] + "/tracks.cute.small.png"))
         self.tabWidget.setCornerWidget(label,QtCore.Qt.TopRightCorner)
-        self.setWindowTitle("tracks.cute")
+        self.setWindowTitle("tracks queue")
 
         # Get the current user
         if self.settings.contains("database/user"):
@@ -1385,7 +1385,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         printerDialog = QtGui.QPrintDialog(printer)
         if(printerDialog.exec_() == QtGui.QDialog.Accepted):
             painter = QtGui.QPainter(printer) 
-            painter.drawText(50,30,"tracks.cute print out:")
+            painter.drawText(50,30,"tracks queue print out:")
 
             tempWidget = QtGui.QWidget()
             tempLayout = QtGui.QVBoxLayout()
@@ -1439,7 +1439,7 @@ if __name__ == "__main__":
 
     app = QtGui.QApplication(sys.argv)
     
-    # This style sheet is to make tracks.cute look pretty for the elementary theme
+    # This style sheet is to make tracks queue look pretty for the elementary theme
     #app.setStyleSheet("\
     #QTabWidget>QLabel{\
     #    background:qlineargradient(spread:pad, x1:1, y1:0, x2:1, y2:1, stop:0 rgba(224, 224, 224, 255), stop:1 rgba(197, 197, 197, 255) );\

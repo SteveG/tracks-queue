@@ -258,7 +258,7 @@ class TracksProjectList(QtGui.QWidget):
         logging.info("TracksProjectList->deleteProjectButtonClicked  -  " + str(id))
         query = "SELECT COUNT() FROM todos WHERE project_id=?"
         related_count =  self.databaseCon.execute(query, (id,)).fetchall()[0][0]
-        reallydelete = QtGui.QMessageBox.question(self, "tracks.cute: Really Delete?", "Are you sure you want to delete this project and its " + str(related_count) + " actions", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
+        reallydelete = QtGui.QMessageBox.question(self, "tracks queue: Really Delete?", "Are you sure you want to delete this project and its " + str(related_count) + " actions", QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
         
         logging.debug("TracksContextList->deleteContextButtonClicked, reallydelete=" + str(reallydelete==QtGui.QMessageBox.Yes))
         if reallydelete==QtGui.QMessageBox.Yes:
@@ -474,7 +474,7 @@ class TracksProjectEditor(QtGui.QGroupBox):
         self.cancelEditButton.setVisible(self.current_id != None)
         
         # Settings
-        self.settings = QtCore.QSettings("tracks.cute", "tracks.cute")
+        self.settings = QtCore.QSettings("tracks-queue", "tracks-queue")
         
         
     def hideButtonClicked(self):

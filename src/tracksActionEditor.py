@@ -228,7 +228,7 @@ class TracksActionEditor(QtGui.QGroupBox):
         
         
         # Settings
-        self.settings = QtCore.QSettings("tracks.cute", "tracks.cute")
+        self.settings = QtCore.QSettings("tracks-queue", "tracks-queue")
         
             
     

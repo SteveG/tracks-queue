@@ -1,4 +1,4 @@
-tracks.cute is a partial reimplementation of tracks (getontracks.org)
+tracks queue is a partial reimplementation of tracks (getontracks.org)
 
 Things not implemented:
  - Recurring todos
@@ -20,3 +20,4 @@ Implementation Differences:
   - Alt+o – Show all notes
   - Alt+n – Show/Hide Form (Add Action/Project/Context)
   - Ctrl+p – Print
+On home screen, Ctrl-click a context will focus that context
