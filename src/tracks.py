@@ -107,6 +107,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
         # Set up the user interface from Designer.
         self.setupUi(self)
+        # Make the tabs expanding
+        self.tabWidget.tabBar().setExpanding(True)
         
         # Restore window geometry
         if self.settings.contains("geometry"):
