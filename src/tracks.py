@@ -412,6 +412,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
 
         # Completed Projects
         self.completedProjectsList = TracksProjectList(self.databaseCon, "Completed Projects", None, False)
+        self.completedProjectsList.setHasDoubleExpander(True)
         self.projects_mainpane_layout.addWidget(self.completedProjectsList)
 
         # Expanderiser
@@ -456,11 +457,12 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.projectBackButton.clicked.connect(self.backToProjectList)
         
         # Sub Projects (experimental)
-        self.subProjectsList = TracksProjectList(self.databaseCon, "Sub-Projects", None, False)
+        self.subProjectsList = TracksProjectList(self.databaseCon, "Sub-Projects", None, True)
         self.subProjectsList.setShowState(True)
         self.subProjectsList.setShowEdit(False)
         self.subProjectsList.setShowDelete(False)
         self.subProjectsList.setShowSubProject(False)
+        self.subProjectsList.setHasDoubleExpander(True)
         self.projectview_verticalLayout.addWidget(self.subProjectsList)
         #self.subProjectsList.editProject.connect(self.projects_Editor.setCurrentProjectID)
         self.subProjectsList.gotoProject.connect(self.gotoProject)
@@ -532,8 +534,15 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                             WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM\
                             projects LEFT JOIN todos ON projects.id=\
                             todos.project_id AND projects.user_id=todos.user_id WHERE projects.state='completed' and projects.user_id=%s \
-                            GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
+                            GROUP BY projects.id ORDER BY projects.name LIMIT 10" % (self.current_user_id)
             self.completedProjectsList.setDBQuery(queryCompleted)
+            queryCompleted = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                            todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                            WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM\
+                            projects LEFT JOIN todos ON projects.id=\
+                            todos.project_id AND projects.user_id=todos.user_id WHERE projects.state='completed' and projects.user_id=%s \
+                            GROUP BY projects.id ORDER BY projects.name" % (self.current_user_id)
+            self.completedProjectsList.setExpandedDBQuery(queryCompleted)
 
             self.projects_Editor.setCurrentUser(self.current_user_id)
         else:
@@ -566,8 +575,14 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                     todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
                     WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
                     projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id\
-                    WHERE projects.id IN (select successor_id from dependencies where predecessor_id=?) and projects.user_id=? GROUP BY projects.id ORDER BY (CASE WHEN projects.state='active' THEN 0 WHEN projects.state='hidden' THEN 1 WHEN projects.state='completed' THEN 2 ELSE 3 END), projects.name"
+                    WHERE projects.id IN (select successor_id from dependencies where predecessor_id=?) AND projects.state='active' and projects.user_id=? GROUP BY projects.id ORDER BY (CASE WHEN projects.state='active' THEN 0 WHEN projects.state='hidden' THEN 1 WHEN projects.state='completed' THEN 2 ELSE 3 END), projects.name"
         self.subProjectsList.setDBQuery_args(subQuery, (projID, self.current_user_id))
+        subQuery = "SELECT projects.id, projects.name, SUM(CASE WHEN \
+                    todos.state IS 'active' THEN 1 ELSE 0 END),  SUM(CASE \
+                    WHEN todos.state = 'completed' THEN 1 ELSE 0 END) FROM \
+                    projects LEFT JOIN todos ON projects.id=todos.project_id AND projects.user_id=todos.user_id\
+                    WHERE projects.id IN (select successor_id from dependencies where predecessor_id=?) and projects.user_id=? GROUP BY projects.id ORDER BY (CASE WHEN projects.state='active' THEN 0 WHEN projects.state='hidden' THEN 1 WHEN projects.state='completed' THEN 2 ELSE 3 END), projects.name"
+        self.subProjectsList.setExpandedDBQuery_args(subQuery, (projID, self.current_user_id))
 
 
         self.projectview_tracksAList.setDBQuery("SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
