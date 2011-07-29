@@ -451,13 +451,30 @@ class TracksActionList(QtGui.QWidget):
             date = data[0]
             overdue = bool(data[1])
             if date: #
+                daystext = str(date)
+                # if the task is still to be done, display the due date in a helpful way
+                if not is_completed:
+                    from datetime import datetime
+                    a = datetime.strptime(date,"%Y-%m-%d").date()
+                    b = datetime.now().date()
+                    delta = a - b
+                    days = delta.days
+
+                    daystext = "Due in " + str(days) + " days"
+                    if days ==0:
+                        daystext = "Due today"
+                    elif days == 1:
+                        daystext = "Due tomorrow"
+                    elif days <  0:
+                        daystext = "Overdue by " +str(days*(-1)) + " days"
                 dueText = QtGui.QLabel(widget)
-                dueText.setText("!" + str(date) +"!")
+                dueText.setText("!" + daystext +"!")
+                dueText.setToolTip(str(date))
                 dueText.setFixedHeight(10)
                 if overdue:
-                    dueText.setStyleSheet("Font-size: 8px; color: white; Background-color: 'orangered'")
+                    dueText.setStyleSheet("QLabel{Font-size: 8px; color: white; Background-color: 'orangered'}")
                 else:
-                    dueText.setStyleSheet("Font-size: 8px; color: black; Background-color: 'orange'")
+                    dueText.setStyleSheet("QLabel{Font-size: 8px; color: black; Background-color: 'orange'}")
     
                 horizontalLayout.addWidget(dueText)
             
