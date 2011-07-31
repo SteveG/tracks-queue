@@ -62,6 +62,11 @@ class TracksProjectList(QtGui.QWidget):
         self.verticalLayout = QtGui.QVBoxLayout(self)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(0)
+        # expander button layout
+        hozLayout = QtGui.QHBoxLayout()
+        hozLayout.setSpacing(0)
+        hozLayout.setMargin(0)
+        self.verticalLayout.addLayout(hozLayout)
         
         # Create expander button
         self.toggleListButton = QtGui.QPushButton(self)
@@ -69,6 +74,7 @@ class TracksProjectList(QtGui.QWidget):
         self.toggleListButton.setStyleSheet("text-align:left;")
         self.toggleListButton.setCheckable(True)
         buttonIcon = None
+        self.expanded = startExpanded
         if startExpanded:
             self.toggleListButton.setChecked(True)
             if QtGui.QIcon.hasThemeIcon("go-up"):
@@ -82,8 +88,20 @@ class TracksProjectList(QtGui.QWidget):
             else:
                 buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
         self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
-        self.verticalLayout.addWidget(self.toggleListButton)
+        hozLayout.addWidget(self.toggleListButton)
         self.connect(self.toggleListButton, QtCore.SIGNAL("clicked()"), self.toggleListButtonClick)
+        
+        
+        #EXPERIMENTAL Double Expander button, to prevent loading big lists by default
+        self.doubleExpandButton = QtGui.QPushButton()
+        self.doubleExpandButton.setSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
+        hozLayout.addWidget(self.doubleExpandButton)
+        # By default double expander isn't shown
+        self.doubleExpandButton.setHidden(True)
+        # Double expander is not used by default
+        self.hasDoubleExpander = False
+        self.doubleExpandLimit = 3
+        self.doubleExpand = False
         
         # Create the action list
         self.listWidget = QtGui.QListWidget(self)
@@ -102,6 +120,7 @@ class TracksProjectList(QtGui.QWidget):
     
         # connect the toggle list butotn
         #self.connect(self.toggleListButton, QtCore.SIGNAL("clicked()"), self.toggleListButtonClick)
+        self.connect(self.doubleExpandButton, QtCore.SIGNAL("clicked()"), self.doubleExpandButtonClick)
         
         # Add the project button mappers
         self.projectDeleteButtonMapper = QtCore.QSignalMapper(self)
@@ -133,6 +152,9 @@ class TracksProjectList(QtGui.QWidget):
             else:
                 buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
         self.toggleListButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
+        if self.hasDoubleExpander:
+            self.doubleExpandButton.setVisible(not self.listWidget.isVisible())
+        self.expanded = not self.listWidget.isVisible()
         self.listWidget.setVisible(not self.listWidget.isVisible())
     
     
@@ -142,13 +164,22 @@ class TracksProjectList(QtGui.QWidget):
         if not self.dbQuery:
             return
         
+        # for double expander
+        query = self.dbQuery
+        args = self.dbQuery_args
+        if self.hasDoubleExpander:
+            if self.doubleExpand:
+                query = self.expandeddbQuery
+                args = self.expandeddbQuery_args
+        
+        
         # The query needs to return [id, name, # of active tasks, # of completed tasks]
         count = 0
         rows = None
         if not self.dbQuery_args:
-            rows = self.databaseCon.execute(self.dbQuery).fetchall()
+            rows = self.databaseCon.execute(query).fetchall()
         else:
-            rows = self.databaseCon.execute(self.dbQuery, self.dbQuery_args).fetchall()
+            rows = self.databaseCon.execute(query, self.dbQuery_args).fetchall()
         
         if self.hide_when_emtpy:    
             if len(rows) == 0:
@@ -294,12 +325,26 @@ class TracksProjectList(QtGui.QWidget):
         logging.info("TracksProjectList->setDBQuery")
         self.dbQuery = query
         self.dbQuery_args = None
+        self.expandeddbQuery = query
+        self.expandeddbQuery_args = None
+        self.refresh()
+    def setExpandedDBQuery(self, query):
+        logging.info("TracksProjectList->setDBQuery")
+        self.expandeddbQuery = query
+        self.expandeddbQuery_args = None
         self.refresh()
         
     def setDBQuery_args(self, query, query_args):
         logging.info("TracksProjectList->setDBQuery")
         self.dbQuery = query
         self.dbQuery_args = query_args
+        self.expandeddbQuery = query
+        self.expandeddbQuery_args = query_args
+        self.refresh()
+    def setExpandedDBQuery_args(self, query, query_args):
+        logging.info("TracksProjectList->setDBQuery")
+        self.expandeddbQuery = query
+        self.expandeddbQuery_args = query_args
         self.refresh()
         
     def setShowState(self, setting):
@@ -312,6 +357,44 @@ class TracksProjectList(QtGui.QWidget):
         self.show_subproject = setting
     def setHideWhenEmtpy(self, setting):
         self.hide_when_emtpy = setting
+        
+    def setHasDoubleExpander(self, hasit):
+        """Makes the list size limited or not size limited"""
+        logging.info("TracksProjectList->setHasDoubleExpander")
+        self.hasDoubleExpander = hasit
+        buttonIcon = None
+        if QtGui.QIcon.hasThemeIcon("go-down"):
+            buttonIcon = QtGui.QIcon.fromTheme("go-down")
+        else:
+            buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
+        self.doubleExpandButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
+        self.doubleExpandButton.setToolTip("Expand to show all projects\nOr restrict to just "+str(self.doubleExpandLimit))
+        
+        if self.expanded:
+            self.doubleExpandButton.setVisible(hasit)
+        
+        
+    def doubleExpandButtonClick(self):
+        """Makes the list size limited or not size limited"""
+        logging.info("TracksProjectList->doubleExpandButtonClick")
+        
+        self.hasDoubleExpander = True
+        self.doubleExpand = not self.doubleExpand
+        
+        # change the button icon
+        buttonIcon = None
+        if QtGui.QIcon.hasThemeIcon("go-down"):
+            buttonIcon = QtGui.QIcon.fromTheme("go-down")
+        else:
+            buttonIcon = QtGui.QIcon(self.iconPath + "go-down.png")
+        if self.doubleExpand:
+            if QtGui.QIcon.hasThemeIcon("go-up"):
+                buttonIcon = QtGui.QIcon.fromTheme("go-up")
+            else:
+                buttonIcon = QtGui.QIcon(self.iconPath + "go-up.png")
+        self.doubleExpandButton.setIcon(QtGui.QIcon(buttonIcon.pixmap(16,16,1,0)))
+        
+        self.refresh() 
 
 class TracksProjectEditor(QtGui.QGroupBox):
     """
