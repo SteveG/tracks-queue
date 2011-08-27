@@ -247,6 +247,11 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         """Refreshes complex bits of the home page. Others components are refreshed via refreshables"""
         logging.info("tracks->refreshHomePage()")
 
+        # which focus mode are we in, individually controlled, or single focus
+        singlefocus = False
+        if self.settings.contains("homepage/singlefocus"):
+            singlefocus = int(self.settings.value("homepage/singlefocus").toString())
+
         # signal mapper
         self.focusListMapper = QtCore.QSignalMapper(self)
         self.focusListMapper.mapped[str].connect(self.homePageFocusList)
@@ -273,6 +278,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         self.homeContexts["completed"] = tracksCList
         tracksCList.setDisplayProjectFirst(True)
         tracksCList.setDisplayCompletedAt(True)
+        tracksCList.setFocusMode(singlefocus)
         self.verticalLayout_4.insertWidget(0, tracksCList)
         tracksCList.editAction.connect(self.actionEditor.setCurrentActionID)
         tracksCList.gotoProject.connect(self.gotoProject)
@@ -311,6 +317,7 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
                   AND todos.user_id=%s ORDER BY CASE WHEN todos.due IS null THEN 1 ELSE 0 END, todos.due, projects.name, todos.description" % (row[0], self.current_user_id)
             tracksAList = TracksActionList(self.databaseCon,"@" + row[1], sql, expanded)
             tracksAList.setDisplayProjectFirst(True)
+            tracksAList.setFocusMode(singlefocus)
 
             self.verticalLayout_4.insertWidget(0, tracksAList)
 
@@ -1114,12 +1121,14 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
     def setupSettingsPage(self):
         logging.info("tracks->setupSettingsPage")
         self.settingsUserSelectBox.currentIndexChanged.connect(self.settingsUserChanged)
+        self.settingsHomeFocusMode.stateChanged.connect(self.settingsHomeFocusChanged)
 
     def refreshSettingsPage(self):
         """Refreshes the content of the settings tab"""
         logging.info("tracks->setupSettingsPage")
         # User setting
         self.settingsUserSelectBox.currentIndexChanged.disconnect(self.settingsUserChanged)
+        self.settingsHomeFocusMode.stateChanged.disconnect(self.settingsHomeFocusChanged)
         #self.settingsUserSelectBox.setDisabled(True)
         self.settingsUserSelectBox.clear()
         data = self.databaseCon.execute("SELECT login, id FROM users ORDER BY login")
@@ -1138,11 +1147,23 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             self.current_user_id = self.settingsUserSelectBox.itemData(0).toInt()[0]
             self.settings.setValue("database/user", QtCore.QVariant(self.current_user_id))
 
+        
+        singlefocus = 0
+        if self.settings.contains("homepage/singlefocus"):
+            singlefocus = int(self.settings.value("homepage/singlefocus").toString())
+        self.settingsHomeFocusMode.setCheckState(singlefocus)
+
         self.settingsUserSelectBox.currentIndexChanged.connect(self.settingsUserChanged)
+        self.settingsHomeFocusMode.stateChanged.connect(self.settingsHomeFocusChanged)
+        
 
     def settingsUserChanged(self, index):
         self.current_user_id = self.settingsUserSelectBox.itemData(self.settingsUserSelectBox.currentIndex()).toInt()[0]
         self.settings.setValue("database/user", QtCore.QVariant(self.current_user_id))
+        
+    def settingsHomeFocusChanged(self, state):
+        homeFocusMode = self.settingsHomeFocusMode.checkState()
+        self.settings.setValue("homepage/singlefocus", QtCore.QVariant(homeFocusMode))
 
     def setupSearchPage(self):
         logging.info("tracks->setupSearchPage")

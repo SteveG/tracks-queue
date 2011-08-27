@@ -71,6 +71,7 @@ class TracksActionList(QtGui.QWidget):
         self.displaycontextfirst = False
         self.showEdit = True
         self.showDelete = True
+        self.focusMode = False
 
         # Create Layout
         self.verticalLayout = QtGui.QVBoxLayout(self)
@@ -199,18 +200,19 @@ class TracksActionList(QtGui.QWidget):
     def toggleListButtonClick(self):
         """Toggles the visibility of the list"""
         logging.info("TracksActionList->toggleListButtonClick")
-        
-        self.setExpanded(not self.isExpanded())
+        if self.focusMode:
+            self.emit(QtCore.SIGNAL("getFocus()"))
+        else:
+            self.setExpanded(not self.isExpanded())
     
     def toggleListButtonCtrlClick(self):
         """Aim of this is to expand just this list and emit a signal to minimise all others on the screen"""
         logging.info("TracksActionList->toggleListButtonCtrlClick")
         
-        # ensure this list is visible
-        #if not self.listWidget.isVisible():
-        #    self.setExpanded(True)
-        # emit signal to parent widget
-        self.emit(QtCore.SIGNAL("getFocus()"))
+        if self.focusMode:
+            self.setExpanded(not self.isExpanded())
+        else:
+            self.emit(QtCore.SIGNAL("getFocus()"))
     
     def setHasDoubleExpander(self, hasit, initialLimit):
         """Makes the list size limited or not size limited"""
@@ -732,6 +734,10 @@ class TracksActionList(QtGui.QWidget):
         self.listWidget.setVisible(expanded)
         self.expanded = expanded
         self.doubleExpandButton.setVisible(expanded and self.hasDoubleExpander)
+        
+    def setFocusMode(self, focusmode):
+        logging.info("TracksActionList->setFocusMode")
+        self.focusMode = focusmode
 
 
 class CustomButton(QtGui.QPushButton):

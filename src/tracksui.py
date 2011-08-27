@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'tracks.ui'
 #
-# Created: Fri May 27 22:01:14 2011
-#      by: PyQt4 UI code generator 4.8.4
+# Created: Sat Aug 27 23:56:26 2011
+#      by: PyQt4 UI code generator 4.8.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -22,7 +22,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.horizontalLayout = QtGui.QHBoxLayout(self.centralwidget)
         self.horizontalLayout.setSpacing(0)
-        self.horizontalLayout.setMargin(0)
+        self.horizontalLayout.setContentsMargins(0, 6, 0, 0)
         self.horizontalLayout.setObjectName(_fromUtf8("horizontalLayout"))
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
         self.tabWidget.setTabShape(QtGui.QTabWidget.Rounded)
@@ -47,7 +47,7 @@ class Ui_MainWindow(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName(_fromUtf8("scrollArea"))
         self.scrollAreaWidgetContents_2 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 780, 574))
+        self.scrollAreaWidgetContents_2.setGeometry(QtCore.QRect(0, 0, 780, 568))
         self.scrollAreaWidgetContents_2.setObjectName(_fromUtf8("scrollAreaWidgetContents_2"))
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_2)
         self.verticalLayout_4.setSpacing(3)
@@ -86,7 +86,7 @@ class Ui_MainWindow(object):
         self.starred_mainpane.setWidgetResizable(True)
         self.starred_mainpane.setObjectName(_fromUtf8("starred_mainpane"))
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 790, 568))
         self.scrollAreaWidgetContents.setObjectName(_fromUtf8("scrollAreaWidgetContents"))
         self.starred_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
         self.starred_mainpane_layout.setSpacing(3)
@@ -129,7 +129,7 @@ class Ui_MainWindow(object):
         self.scrollArea_5.setWidgetResizable(True)
         self.scrollArea_5.setObjectName(_fromUtf8("scrollArea_5"))
         self.scrollAreaWidgetContents_7 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_7.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_7.setGeometry(QtCore.QRect(0, 0, 780, 568))
         self.scrollAreaWidgetContents_7.setObjectName(_fromUtf8("scrollAreaWidgetContents_7"))
         self.projects_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_7)
         self.projects_mainpane_layout.setSpacing(3)
@@ -238,7 +238,7 @@ class Ui_MainWindow(object):
         self.scrollArea_6.setWidgetResizable(True)
         self.scrollArea_6.setObjectName(_fromUtf8("scrollArea_6"))
         self.scrollAreaWidgetContents_8 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_8.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_8.setGeometry(QtCore.QRect(0, 0, 780, 568))
         self.scrollAreaWidgetContents_8.setObjectName(_fromUtf8("scrollAreaWidgetContents_8"))
         self.contexts_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_8)
         self.contexts_mainpane_layout.setSpacing(3)
@@ -333,7 +333,7 @@ class Ui_MainWindow(object):
         self.scrollArea_4.setWidgetResizable(True)
         self.scrollArea_4.setObjectName(_fromUtf8("scrollArea_4"))
         self.scrollAreaWidgetContents_6 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_6.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_6.setGeometry(QtCore.QRect(0, 0, 780, 568))
         self.scrollAreaWidgetContents_6.setObjectName(_fromUtf8("scrollAreaWidgetContents_6"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_6)
         self.verticalLayout_3.setMargin(4)
@@ -367,7 +367,7 @@ class Ui_MainWindow(object):
         self.tickler_mainpane.setWidgetResizable(True)
         self.tickler_mainpane.setObjectName(_fromUtf8("tickler_mainpane"))
         self.scrollAreaWidgetContents_3 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 780, 568))
         self.scrollAreaWidgetContents_3.setObjectName(_fromUtf8("scrollAreaWidgetContents_3"))
         self.tickler_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_3)
         self.tickler_mainpane_layout.setMargin(4)
@@ -400,7 +400,7 @@ class Ui_MainWindow(object):
         self.scrollArea_3.setWidgetResizable(True)
         self.scrollArea_3.setObjectName(_fromUtf8("scrollArea_3"))
         self.scrollAreaWidgetContents_5 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_5.setGeometry(QtCore.QRect(0, 0, 800, 568))
         self.scrollAreaWidgetContents_5.setObjectName(_fromUtf8("scrollAreaWidgetContents_5"))
         self.done_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_5)
         self.done_mainpane_layout.setSpacing(3)
@@ -419,7 +419,7 @@ class Ui_MainWindow(object):
         self.scrollArea_8.setWidgetResizable(True)
         self.scrollArea_8.setObjectName(_fromUtf8("scrollArea_8"))
         self.scrollAreaWidgetContents_11 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_11.setGeometry(QtCore.QRect(0, 0, 100, 30))
+        self.scrollAreaWidgetContents_11.setGeometry(QtCore.QRect(0, 0, 800, 568))
         self.scrollAreaWidgetContents_11.setObjectName(_fromUtf8("scrollAreaWidgetContents_11"))
         self.statslayout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_11)
         self.statslayout.setSpacing(3)
@@ -445,6 +445,9 @@ class Ui_MainWindow(object):
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_14.addItem(spacerItem)
         self.verticalLayout_7.addLayout(self.horizontalLayout_14)
+        self.settingsHomeFocusMode = QtGui.QCheckBox(self.settings_tab)
+        self.settingsHomeFocusMode.setObjectName(_fromUtf8("settingsHomeFocusMode"))
+        self.verticalLayout_7.addWidget(self.settingsHomeFocusMode)
         spacerItem1 = QtGui.QSpacerItem(20, 500, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
         self.verticalLayout_7.addItem(spacerItem1)
         self.tabWidget.addTab(self.settings_tab, _fromUtf8(""))
@@ -459,7 +462,7 @@ class Ui_MainWindow(object):
         self.scrollArea_9.setWidgetResizable(True)
         self.scrollArea_9.setObjectName(_fromUtf8("scrollArea_9"))
         self.scrollAreaWidgetContents_10 = QtGui.QWidget()
-        self.scrollAreaWidgetContents_10.setGeometry(QtCore.QRect(0, 0, 800, 574))
+        self.scrollAreaWidgetContents_10.setGeometry(QtCore.QRect(0, 0, 800, 568))
         self.scrollAreaWidgetContents_10.setObjectName(_fromUtf8("scrollAreaWidgetContents_10"))
         self.search_mainpane_layout = QtGui.QVBoxLayout(self.scrollAreaWidgetContents_10)
         self.search_mainpane_layout.setMargin(4)
@@ -493,6 +496,7 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), QtGui.QApplication.translate("MainWindow", "Done", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.statistics_tab), QtGui.QApplication.translate("MainWindow", "Statistics", None, QtGui.QApplication.UnicodeUTF8))
         self.label.setText(QtGui.QApplication.translate("MainWindow", "Active User", None, QtGui.QApplication.UnicodeUTF8))
+        self.settingsHomeFocusMode.setText(QtGui.QApplication.translate("MainWindow", "Enable home page single focus mode", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.settings_tab), QtGui.QApplication.translate("MainWindow", "Settings", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.search_tab), QtGui.QApplication.translate("MainWindow", "Search", None, QtGui.QApplication.UnicodeUTF8))
 
