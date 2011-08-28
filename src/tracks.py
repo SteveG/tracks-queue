@@ -188,6 +188,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("alt+l"),self,self.shortcutCalendar)
         QtGui.QShortcut(QtGui.QKeySequence("alt+o"),self,self.shortcutShowNotes)
         QtGui.QShortcut(QtGui.QKeySequence("ctrl+p"),self,self.shortcutPrint)
+        QtGui.QShortcut(QtGui.QKeySequence("pgDown"),self,self.shortcutPageDown)
+        QtGui.QShortcut(QtGui.QKeySequence("pgUp"),self,self.shortcutPageUp)
 
         # enable the appropriate tabs
         #self.tabWidget.setTabEnabled(1, False)
@@ -1448,6 +1450,58 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             # Restore
             theParent.insertWidget(theParentIndex,scaleWidget)
         toPrint.setBackgroundRole(oldback)
+    
+    def shortcutPageDown(self):
+        logging.info("tracks->shortcutPageDown")
+        if self.tabWidget.currentIndex() == self.hometabid:
+            self.tabWidget.setUpdatesEnabled(False)
+            # shrink all lists but the expanded list
+            focuspos = None
+            posList = {}
+            for key in self.homeContexts.keys():
+                pos = self.homeContexts[key].pos().y()
+                posList[pos] = key
+                if self.homeContexts[key].isExpanded():
+                    if (not focuspos) or (pos > focuspos):
+                        focuspos = pos
+                self.homeContexts[key].setExpanded(False)
+            posKeys = posList.keys()
+            posKeys.sort()
+            done = False
+            for pos in posKeys:
+                if pos>focuspos:
+                    self.homeContexts[posList[pos]].setExpanded(True)
+                    done = True
+                    break
+            if done == False:
+                self.homeContexts[posList[focuspos]].setExpanded(True)
+            self.tabWidget.setUpdatesEnabled(True)
+
+    def shortcutPageUp(self):
+        logging.info("tracks->shortcutPageUp")
+        if self.tabWidget.currentIndex() == self.hometabid:
+            self.tabWidget.setUpdatesEnabled(False)
+            # shrink all lists but the expanded list
+            focuspos = None
+            posList = {}
+            for key in self.homeContexts.keys():
+                pos = self.homeContexts[key].pos().y()
+                posList[pos] = key
+                if self.homeContexts[key].isExpanded():
+                    if (not focuspos) or (pos < focuspos):
+                        focuspos = pos
+                self.homeContexts[key].setExpanded(False)
+            posKeys = posList.keys()
+            posKeys.sort(reverse=True)
+            done = False
+            for pos in posKeys:
+                if pos<focuspos:
+                    self.homeContexts[posList[pos]].setExpanded(True)
+                    done = True
+                    break
+            if done == False:
+                self.homeContexts[posList[focuspos]].setExpanded(True)
+            self.tabWidget.setUpdatesEnabled(True)
     
     def closeEvent(self, event):
         logging.info("tracks->closeEvent")
