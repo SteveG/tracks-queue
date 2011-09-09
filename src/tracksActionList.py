@@ -191,11 +191,16 @@ class TracksActionList(QtGui.QWidget):
         staraction.setShortcutContext(0)
         staraction.triggered.connect(self.starAction)
         self.listWidget.addAction(staraction)
-        editkeyaction=QtGui.QAction("star", self)
+        editkeyaction=QtGui.QAction("edit", self)
         editkeyaction.setShortcut(QtGui.QKeySequence("e"))
         editkeyaction.setShortcutContext(0)
         editkeyaction.triggered.connect(self.editKeyAction)
         self.listWidget.addAction(editkeyaction)
+        deletekeyaction=QtGui.QAction("delete", self)
+        deletekeyaction.setShortcut(QtGui.QKeySequence("delete"))
+        deletekeyaction.setShortcutContext(0)
+        deletekeyaction.triggered.connect(self.deleteKeyAction)
+        self.listWidget.addAction(deletekeyaction)
     
     def setDisplayProjectFirst(self, setto):
         self.displayprojectfirst = setto
@@ -783,10 +788,15 @@ class TracksActionList(QtGui.QWidget):
         id = self.listItemActionID[row]
         self.starItemButtonClicked(id)
     def editKeyAction(self):
-        logging.info("TracksActionList->editAction")
+        logging.info("TracksActionList->editKeyAction")
         row = self.listWidget.currentRow()
         id = self.listItemActionID[row]
         self.editItemButtonClicked(id)
+    def deleteKeyAction(self):
+        logging.info("TracksActionList->deleteKeyAction")
+        row = self.listWidget.currentRow()
+        id = self.listItemActionID[row]
+        self.deleteItemButtonClicked(id)
 
 
 class CustomButton(QtGui.QPushButton):

@@ -10,14 +10,24 @@ Things not implemented:
 Implementation Differences:
  - Implemented sub projects through the dependencies table
 
- Keyboard Shortcuts
-  - Alt+t – Home
-  - Alt+p – Projects
-  - Alt+k – Tickler
-  - Alt+c – Contexts
-  - Alt+d – Completed Tasks
-  - Alt+l – Calendar of due actions
-  - Alt+o – Show all notes
-  - Alt+n – Show/Hide Form (Add Action/Project/Context)
-  - Ctrl+p – Print
-On home screen, Ctrl-click a context will focus that context
+Keyboard Shortcuts
+ - Alt+t – Home
+ - Alt+p – Projects
+ - Alt+k – Tickler
+ - Alt+c – Contexts
+ - Alt+d – Completed Tasks
+ - Alt+l – Calendar of due actions
+ - Alt+o – Show all notes
+ - Alt+n – Show/Hide Form (Add Action/Project/Context)
+ - Ctrl+p – Print
+On home screen, Ctrl-click a context will focus that context (can be changed to default behaviour in settings)
+
+Fairly experimental keyboard navigation (currently home page only)
+ - PgUp - Move focus up to next context (exclusive)
+ - PgDown - Move focus down to next context (exclusive)
+ - Ctrl+PgUp - Move focus up to next context (but don't change expanded states)
+ - Ctrl+PgDown - Move focus down to next context (but don't change expanded states)
+ - Space - Expand/Hide the context with current keyboard focus
+ - Enter - Mark the action with current keyboard focus as done
+ - s - Mark the action with current keyboard focus as starred
+ - e - Edit the action with current keyboard focus
