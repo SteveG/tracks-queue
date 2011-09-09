@@ -546,6 +546,8 @@ class TracksActionEditor(QtGui.QGroupBox):
             dependText = dependText + str(row[0]+"; ")
         self.dependsEdit.setText(dependText)    
         
+        # give the form focus
+        self.descriptionEdit.setFocus()
 
     
     def refresh(self):

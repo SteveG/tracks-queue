@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python2.7
 """
     Copyright (C) 2010  Stephen Georg
 
@@ -190,6 +190,8 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
         QtGui.QShortcut(QtGui.QKeySequence("ctrl+p"),self,self.shortcutPrint)
         QtGui.QShortcut(QtGui.QKeySequence("pgDown"),self,self.shortcutPageDown)
         QtGui.QShortcut(QtGui.QKeySequence("pgUp"),self,self.shortcutPageUp)
+        QtGui.QShortcut(QtGui.QKeySequence("ctrl+pgDown"),self,self.shortcutCtrlPageDown)
+        QtGui.QShortcut(QtGui.QKeySequence("ctrl+pgUp"),self,self.shortcutCtrlPageUp)
 
         # enable the appropriate tabs
         #self.tabWidget.setTabEnabled(1, False)
@@ -1451,34 +1453,77 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             theParent.insertWidget(theParentIndex,scaleWidget)
         toPrint.setBackgroundRole(oldback)
     
-    def shortcutPageDown(self):
-        logging.info("tracks->shortcutPageDown")
+    
+    def moveFocusUp(self):
+        # moves the keyboard focus up to the next expanded list
+        logging.info("tracks->moveFocusUp")
         if self.tabWidget.currentIndex() == self.hometabid:
             self.tabWidget.setUpdatesEnabled(False)
-            # shrink all lists but the expanded list
-            focuspos = None
+            keyfocuspos = None
             posList = {}
+            # find the list with keyboard focus if there is one
             for key in self.homeContexts.keys():
                 pos = self.homeContexts[key].pos().y()
                 posList[pos] = key
-                if self.homeContexts[key].isExpanded():
-                    if (not focuspos) or (pos > focuspos):
-                        focuspos = pos
-                self.homeContexts[key].setExpanded(False)
+                if self.homeContexts[key].isAncestorOf(QtGui.QApplication.focusWidget()):
+                        keyfocuspos = pos  
+            # sort the lists by position
+            posKeys = posList.keys()
+            posKeys.sort(reverse=True)
+            done = False
+            # set keyboard focus on the next highest list that is expanded
+            for pos in posKeys:
+                if pos<keyfocuspos:
+                    if self.homeContexts[posList[pos]].isExpanded():
+                        self.homeContexts[posList[pos]].listWidget.setFocus()
+                    else:
+                        self.homeContexts[posList[pos]].toggleListButton.setFocus()
+                    done = True
+                    break
+            # If none were expanded set to highest list and expand
+            if done == False:
+                if self.homeContexts[posList[posKeys[0]]].isExpanded():
+                    self.homeContexts[posList[posKeys[0]]].listWidget.setFocus()#setExpanded(True)
+                else:
+                    self.homeContexts[posList[posKeys[0]]].toggleListButton.setFocus()
+            self.tabWidget.setUpdatesEnabled(True)
+            
+    def moveFocusDown(self):
+        # moves the keyboard focus down to the next expanded list
+        logging.info("tracks->moveFocusDown")
+        if self.tabWidget.currentIndex() == self.hometabid:
+            self.tabWidget.setUpdatesEnabled(False)
+            keyfocuspos = None
+            posList = {}
+            # find the list with keyboard focus if there is one
+            for key in self.homeContexts.keys():
+                pos = self.homeContexts[key].pos().y()
+                posList[pos] = key
+                if self.homeContexts[key].isAncestorOf(QtGui.QApplication.focusWidget()):
+                        keyfocuspos = pos  
+            # sort the lists by position
             posKeys = posList.keys()
             posKeys.sort()
             done = False
+            # set keyboard focus on the next lowest list that is expanded
             for pos in posKeys:
-                if pos>focuspos:
-                    self.homeContexts[posList[pos]].setExpanded(True)
+                if keyfocuspos and pos>keyfocuspos:
+                    if self.homeContexts[posList[pos]].isExpanded():
+                        self.homeContexts[posList[pos]].listWidget.setFocus()
+                    else:
+                        self.homeContexts[posList[pos]].toggleListButton.setFocus()
                     done = True
                     break
+            # If none were expanded set to lowest list
             if done == False:
-                self.homeContexts[posList[focuspos]].setExpanded(True)
+                if self.homeContexts[posList[posKeys[0]]].isExpanded():
+                    self.homeContexts[posList[posKeys[0]]].listWidget.setFocus()#setExpanded(True)
+                else:
+                    self.homeContexts[posList[posKeys[0]]].toggleListButton.setFocus()
             self.tabWidget.setUpdatesEnabled(True)
-
-    def shortcutPageUp(self):
-        logging.info("tracks->shortcutPageUp")
+            
+    def moveExclusiveExpandUp(self):
+        logging.info("tracks->moveExclusiveExpandUp")
         if self.tabWidget.currentIndex() == self.hometabid:
             self.tabWidget.setUpdatesEnabled(False)
             # shrink all lists but the expanded list
@@ -1495,14 +1540,54 @@ class Tracks(QtGui.QMainWindow, Ui_MainWindow):
             posKeys.sort(reverse=True)
             done = False
             for pos in posKeys:
-                if pos<focuspos:
+                if focuspos and pos<focuspos:
                     self.homeContexts[posList[pos]].setExpanded(True)
                     done = True
                     break
             if done == False:
-                self.homeContexts[posList[focuspos]].setExpanded(True)
+                self.homeContexts[posList[posKeys[len(posKeys)-1]]].setExpanded(True)
             self.tabWidget.setUpdatesEnabled(True)
     
+    def moveExclusiveExpandDown(self):
+        logging.info("tracks->moveExclusiveExpandDown")
+        if self.tabWidget.currentIndex() == self.hometabid:
+            self.tabWidget.setUpdatesEnabled(False)
+            # shrink all lists but the expanded list
+            focuspos = None
+            posList = {}
+            for key in self.homeContexts.keys():
+                pos = self.homeContexts[key].pos().y()
+                posList[pos] = key
+                if self.homeContexts[key].isExpanded():
+                    if (not focuspos) or (pos > focuspos):
+                        focuspos = pos
+                self.homeContexts[key].setExpanded(False)
+            posKeys = posList.keys()
+            posKeys.sort()
+            done = False
+            
+            for pos in posKeys:
+                if focuspos and pos>focuspos:
+                    self.homeContexts[posList[pos]].setExpanded(True)
+                    done = True
+                    break
+            if done == False:
+                self.homeContexts[posList[posKeys[len(posKeys)-1]]].setExpanded(True)
+            self.tabWidget.setUpdatesEnabled(True)
+    
+    def shortcutPageDown(self):
+        logging.info("tracks->shortcutPageDown")
+        self.moveExclusiveExpandDown()
+    def shortcutPageUp(self):
+        logging.info("tracks->shortcutPageUp")
+        self.moveExclusiveExpandUp()
+    def shortcutCtrlPageDown(self):
+        logging.info("tracks->shortcutCtrlPageDown")
+        self.moveFocusDown()
+    def shortcutCtrlPageUp(self):
+        logging.info("tracks->shortcutCtrlPageUp")
+        self.moveFocusUp()
+       
     def closeEvent(self, event):
         logging.info("tracks->closeEvent")
         self.settings.setValue("geometry", self.saveGeometry())

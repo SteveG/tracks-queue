@@ -134,6 +134,7 @@ class TracksActionList(QtGui.QWidget):
             self.listWidget.setVisible(True)
         else:
             self.listWidget.setVisible(False)
+        self.listItemActionID = {}
 
         # connect the toggle list button
         self.connect(self.toggleListButton, QtCore.SIGNAL("clicked()"), self.toggleListButtonClick)
@@ -173,6 +174,28 @@ class TracksActionList(QtGui.QWidget):
         self.commitTimer.setSingleShot(True)
         self.commitTimer.setInterval(500)
         self.commitTimer.timeout.connect(self.commitTimeout)
+        
+        # add keyboard actions
+        hideaction=QtGui.QAction("hide", self)
+        hideaction.setShortcut(QtGui.QKeySequence("space"))
+        hideaction.setShortcutContext(0)
+        hideaction.triggered.connect(self.hideAction)
+        self.listWidget.addAction(hideaction)
+        doneaction=QtGui.QAction("done", self)
+        doneaction.setShortcut(QtGui.QKeySequence.InsertParagraphSeparator)
+        doneaction.setShortcutContext(0)
+        doneaction.triggered.connect(self.doneAction)
+        self.listWidget.addAction(doneaction)
+        staraction=QtGui.QAction("star", self)
+        staraction.setShortcut(QtGui.QKeySequence("s"))
+        staraction.setShortcutContext(0)
+        staraction.triggered.connect(self.starAction)
+        self.listWidget.addAction(staraction)
+        editkeyaction=QtGui.QAction("star", self)
+        editkeyaction.setShortcut(QtGui.QKeySequence("e"))
+        editkeyaction.setShortcutContext(0)
+        editkeyaction.triggered.connect(self.editKeyAction)
+        self.listWidget.addAction(editkeyaction)
     
     def setDisplayProjectFirst(self, setto):
         self.displayprojectfirst = setto
@@ -259,6 +282,7 @@ class TracksActionList(QtGui.QWidget):
         #clear list widget
         self.notesIDDictEditor.clear()
         self.notesIDDictItem.clear()
+        self.listItemActionID.clear()
         
         numberOfItems = 6
 
@@ -535,6 +559,7 @@ class TracksActionList(QtGui.QWidget):
             spacerItem = QtGui.QSpacerItem(227, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
             horizontalLayout.addItem(spacerItem)
             
+            self.listItemActionID[count] = id
             count+=1
 
         if count == 0:
@@ -733,11 +758,35 @@ class TracksActionList(QtGui.QWidget):
         self.toggleListButton.setChecked(expanded)
         self.listWidget.setVisible(expanded)
         self.expanded = expanded
+        # If making visible set keyboard focus on the list
+        if expanded:
+            self.listWidget.setFocus()
+        else:
+            self.toggleListButton.setFocus()
         self.doubleExpandButton.setVisible(expanded and self.hasDoubleExpander)
         
     def setFocusMode(self, focusmode):
         logging.info("TracksActionList->setFocusMode")
         self.focusMode = focusmode
+    
+    def hideAction(self):
+        logging.info("TracksActionList->hideAction")
+        self.toggleListButtonClick()
+    def doneAction(self):
+        logging.info("TracksActionList->doneAction")
+        row = self.listWidget.currentRow()
+        id = self.listItemActionID[row]
+        self.completeItemButtonClicked(id)
+    def starAction(self):
+        logging.info("TracksActionList->starAction")
+        row = self.listWidget.currentRow()
+        id = self.listItemActionID[row]
+        self.starItemButtonClicked(id)
+    def editKeyAction(self):
+        logging.info("TracksActionList->editAction")
+        row = self.listWidget.currentRow()
+        id = self.listItemActionID[row]
+        self.editItemButtonClicked(id)
 
 
 class CustomButton(QtGui.QPushButton):
