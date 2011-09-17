@@ -329,6 +329,8 @@ class TracksActionList(QtGui.QWidget):
                 # Set up layout to add the notes section
                 subwidget = QtGui.QWidget()
                 subwidget.setLayout(horizontalLayout)
+                subwidget.setMinimumHeight(22)
+                subwidget.setMaximumHeight(22)
                 verticalLayout = QtGui.QVBoxLayout()
                 verticalLayout.setContentsMargins(0, 0, 0, 0)
                 verticalLayout.setSpacing(0)
@@ -676,6 +678,8 @@ class TracksActionList(QtGui.QWidget):
             listitem.setSizeHint(QtCore.QSize(0,22+requiredHeight))
             # size of list
             editor.setMaximumHeight(requiredHeight)
+            editor.setMinimumHeight(requiredHeight)
+
             contentMargins = self.listWidget.getContentsMargins()
             self.listWidget.setFixedHeight(previousListHeight + requiredHeight)  
         else:
@@ -698,9 +702,10 @@ class TracksActionList(QtGui.QWidget):
         # resize the list item
         margins = editor.getContentsMargins()
         oldheight = listitem.sizeHint().height()
-        requiredHeight = editor.document().size().toSize().height() + editor.document().documentMargin()#+margins[1] + margins[3]
+        requiredHeight = editor.document().size().toSize().height() + editor.document().documentMargin()# +margins[1] + margins[3]
         
         editor.setMaximumHeight(requiredHeight)
+        editor.setMinimumHeight(requiredHeight)
         listitem.setSizeHint(QtCore.QSize(0,22+requiredHeight))
         delta = oldheight - listitem.sizeHint().height()
         
