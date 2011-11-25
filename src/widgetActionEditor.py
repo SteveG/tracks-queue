@@ -33,7 +33,7 @@ Provides an editor side pane for GTD actions
 from PyQt4 import QtCore, QtGui
 import logging
 
-class TracksActionEditor(QtGui.QGroupBox):
+class WidgetActionEditor(QtGui.QGroupBox):
     """Provides a sidebar widget for editing/creating actions"""
     # TODO define signals emitted by this widget
     __pyqtSignals__ = ("actionModified()"
@@ -68,18 +68,6 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.verticalLayout = QtGui.QVBoxLayout(self)
         self.verticalLayout.setSpacing(0)
         self.verticalLayout.setMargin(4)
-        
-        # Hide Form Button
-        self.formVisible = True
-        self.horizontalLayout_3 = QtGui.QHBoxLayout()
-        spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem)
-        self.hideFormButton = QtGui.QPushButton(self)
-        self.hideFormButton.setText(">> Hide Form")
-        self.hideFormButton.setToolTip("Hide the form from view")
-        self.horizontalLayout_3.addWidget(self.hideFormButton)
-        self.verticalLayout.addLayout(self.horizontalLayout_3)
-        self.hideFormButton.clicked.connect(self.hideButtonClicked)
         
         # Description line edit
         self.descriptionLabel = QtGui.QLabel(self)
@@ -187,6 +175,7 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.verticalLayout_2.addWidget(self.showFromEdit)
         self.horizontalLayout_2.addLayout(self.verticalLayout_2)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
+
         
         # Depends on
         self.existingActions = []
@@ -224,12 +213,22 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.cancelEditButton.clicked.connect(self.cancelButtonClicked)
         self.addActionButton.clicked.connect(self.addActionButtonClicked)
         
-        self.cancelEditButton.setVisible(self.current_id != None)
+        #self.cancelEditButton.setVisible(self.current_id != None)
         
+                
+        # Add a vertical spacer
+        spacerItem = QtGui.QSpacerItem(
+            1, 1, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        self.verticalLayout.addItem(spacerItem)
         
         # Settings
         self.settings = QtCore.QSettings("tracks-queue", "tracks-queue")
         
+        # Set up keyboard shortcuts
+        shortcut = QtGui.QShortcut(self)
+        shortcut.setKey(QtGui.QKeySequence("Esc"))
+        shortcut.setContext(QtCore.Qt.WidgetWithChildrenShortcut)
+        shortcut.activated.connect(self.cancelButtonClicked)
             
     
     def dueDateCheckChanged(self):
@@ -242,47 +241,47 @@ class TracksActionEditor(QtGui.QGroupBox):
         logging.info("TracksActionEditor->showFromCheckChanged")
         self.showFromEdit.setDisabled(not self.showFromCheckBox.isChecked())
         
-    def hideButtonClicked(self):
-        logging.info("TracksActionEditor->hideButtonClicked")
-        self.formVisible = not self.formVisible
-        self.settings.setValue("editor/visible", QtCore.QVariant(self.formVisible))
-        self.updateHidden()
+    #def hideButtonClicked(self):
+        #logging.info("TracksActionEditor->hideButtonClicked")
+        #self.formVisible = not self.formVisible
+        #self.settings.setValue("editor/visible", QtCore.QVariant(self.formVisible))
+        #self.updateHidden()
         
-    def updateHidden(self):
-        logging.info("TracksActionEditor->updateHidden")
+    #def updateHidden(self):
+        #logging.info("TracksActionEditor->updateHidden")
         
-        if self.formVisible:
-            self.hideFormButton.setText(">> Hide Form")
-            self.setMaximumSize(QtCore.QSize(250, 16777215))
-            self.setMinimumSize(QtCore.QSize(250, 0))
-            self.verticalLayout.setMargin(4)
-            self.descriptionEdit.setFocus()
-        else:
-            self.hideFormButton.setText("<<")
-            self.setMaximumSize(QtCore.QSize(30, 16777215))
-            self.setMinimumSize(QtCore.QSize(30, 0))
-            self.verticalLayout.setMargin(0)
+        #if self.formVisible:
+            #self.hideFormButton.setText(">> Hide Form")
+            #self.setMaximumSize(QtCore.QSize(250, 16777215))
+            #self.setMinimumSize(QtCore.QSize(250, 0))
+            #self.verticalLayout.setMargin(4)
+            #self.descriptionEdit.setFocus()
+        #else:
+            #self.hideFormButton.setText("<<")
+            #self.setMaximumSize(QtCore.QSize(30, 16777215))
+            #self.setMinimumSize(QtCore.QSize(30, 0))
+            #self.verticalLayout.setMargin(0)
         
-        # Hide or show all of the form elements
-        self.descriptionLabel.setVisible(self.formVisible)
-        self.descriptionEdit.setVisible(self.formVisible)
-        self.notesLabel.setVisible(self.formVisible)
-        self.notesEdit.setVisible(self.formVisible)
-        self.projectLabel.setVisible(self.formVisible)
-        self.projectEdit.setVisible(self.formVisible)
-        self.contextLabel.setVisible(self.formVisible)
-        self.contextEdit.setVisible(self.formVisible)
-        self.tagsLabel.setVisible(False)#self.formVisible)
-        self.tagsEdit.setVisible(False)#self.formVisible)
-        self.dueEdit.setVisible(self.formVisible)
-        self.dueCheckBox.setVisible(self.formVisible)
-        self.showFromEdit.setVisible(self.formVisible)
-        self.showFromCheckBox.setVisible(self.formVisible)
-        self.dependsLabel.setVisible(self.formVisible)
-        self.dependsEdit.setVisible(self.formVisible)
-        self.addActionButton.setVisible(self.formVisible)
-        #TODO only reshow cancel button when editing existing item
-        self.cancelEditButton.setVisible(self.formVisible and self.current_id != None)
+        ## Hide or show all of the form elements
+        #self.descriptionLabel.setVisible(self.formVisible)
+        #self.descriptionEdit.setVisible(self.formVisible)
+        #self.notesLabel.setVisible(self.formVisible)
+        #self.notesEdit.setVisible(self.formVisible)
+        #self.projectLabel.setVisible(self.formVisible)
+        #self.projectEdit.setVisible(self.formVisible)
+        #self.contextLabel.setVisible(self.formVisible)
+        #self.contextEdit.setVisible(self.formVisible)
+        #self.tagsLabel.setVisible(False)#self.formVisible)
+        #self.tagsEdit.setVisible(False)#self.formVisible)
+        #self.dueEdit.setVisible(self.formVisible)
+        #self.dueCheckBox.setVisible(self.formVisible)
+        #self.showFromEdit.setVisible(self.formVisible)
+        #self.showFromCheckBox.setVisible(self.formVisible)
+        #self.dependsLabel.setVisible(self.formVisible)
+        #self.dependsEdit.setVisible(self.formVisible)
+        #self.addActionButton.setVisible(self.formVisible)
+        ##TODO only reshow cancel button when editing existing item
+        #self.cancelEditButton.setVisible(self.formVisible and self.current_id != None)
         
     def tagsEditChanged(self, theText):
         # refer to this example:
@@ -382,7 +381,8 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.dependsEdit.clear()
         
         self.current_id = None
-        self.cancelEditButton.setVisible(False)
+        #self.cancelEditButton.setVisible(False)
+        self.setVisible(False)
         self.addActionButton.setText("Add Action")
         
     def addActionButtonClicked(self):
@@ -486,9 +486,6 @@ class TracksActionEditor(QtGui.QGroupBox):
         self.addActionButton.setText("Save Action")
         self.current_id = actionID
         self.cancelEditButton.setVisible(True)
-        # Make the editor visible if not already
-        if not self.formVisible:
-            self.hideButtonClicked()
         
         # The General stuff
         for row in self.databaseCon.execute("select description, notes, due, show_from from todos WHERE id="+str(actionID)):
@@ -528,11 +525,11 @@ class TracksActionEditor(QtGui.QGroupBox):
             
         # The tags
         tagText = ""    
-        for row in self.databaseCon.execute("select tags.name from todos, taggings, tags where todos.id=taggings.taggable_id and tags.id=taggings.tag_id and todos.id="+str(actionID)):
-            if tagText == "":
-                tagText.append(row[0])
-            else:
-                tagText.append(row[0])
+        #for row in self.databaseCon.execute("select tags.name from todos, taggings, tags where todos.id=taggings.taggable_id and tags.id=taggings.tag_id and todos.id="+str(actionID)):
+        #    if tagText == "":
+        #        tagText.append(row[0])
+        #    else:
+        #        tagText.append(row[0])
             #self.nameEdit.setText(row[1])
             #if row[2] == "f":
             #   self.statusRadio1.setChecked(True)
@@ -546,9 +543,15 @@ class TracksActionEditor(QtGui.QGroupBox):
             dependText = dependText + str(row[0]+"; ")
         self.dependsEdit.setText(dependText)    
         
-        # give the form focus
-        self.descriptionEdit.setFocus()
 
+        
+        # Make the editor visible if not already and focus it
+        self.setVisible(True)
+        self.setFocus()
+
+    def setFocus(self):
+        logging.info("tracksActionEditor->setFocus")
+        self.descriptionEdit.setFocus()
     
     def refresh(self):
         """This will refresh the action editor, ie update available projects/contexts/tags"""
@@ -577,9 +580,8 @@ class TracksActionEditor(QtGui.QGroupBox):
             self.existingActions.append(row[0])
         
         # What is the setting re form visibility?
-        if self.settings.contains("editor/visible"):
-            self.formVisible = bool(self.settings.value("editor/visible").toBool())
-            self.updateHidden()
+        #if self.settings.contains("editor/visible"):
+        #    self.setVisible(bool(self.settings.value("editor/visible").toBool()))
     
     def setDefaultProject(self, projectName):
         self.defaultProject = projectName
@@ -592,4 +594,6 @@ class TracksActionEditor(QtGui.QGroupBox):
         
     def setCurrentUser(self, user):
         self.current_user_id = user
+
+        
         

@@ -31,7 +31,7 @@ import logging
 import sys
 
 
-class TracksActionList(QtGui.QWidget):
+class WidgetActionList(QtGui.QWidget):
     # TODO define signals emitted by this widget
     __pyqtSignals__ = ("editAction(int)",
                      "starAction(int)",
@@ -209,11 +209,11 @@ class TracksActionList(QtGui.QWidget):
         self.displaycontextfirst = setto
         
     def setDisplayShowFrom(self, setto):
-        logging.info("TracksActionList->setDisplayShowFrom")
+        logging.info("WidgetActionList->setDisplayShowFrom")
         self.displayshow_from = setto
         
     def setDisplayCompletedAt(self, setto):
-        logging.info("TracksActionList->setDisplayCompletedAt")
+        logging.info("WidgetActionList->setDisplayCompletedAt")
         self.displaycompleted_at = setto
         
     def setShowEdit(self, setting):
@@ -227,7 +227,7 @@ class TracksActionList(QtGui.QWidget):
     
     def toggleListButtonClick(self):
         """Toggles the visibility of the list"""
-        logging.info("TracksActionList->toggleListButtonClick")
+        logging.info("WidgetActionList->toggleListButtonClick")
         if self.focusMode:
             self.emit(QtCore.SIGNAL("getFocus()"))
         else:
@@ -235,7 +235,7 @@ class TracksActionList(QtGui.QWidget):
     
     def toggleListButtonCtrlClick(self):
         """Aim of this is to expand just this list and emit a signal to minimise all others on the screen"""
-        logging.info("TracksActionList->toggleListButtonCtrlClick")
+        logging.info("WidgetActionList->toggleListButtonCtrlClick")
         
         if self.focusMode:
             self.setExpanded(not self.isExpanded())
@@ -244,7 +244,7 @@ class TracksActionList(QtGui.QWidget):
     
     def setHasDoubleExpander(self, hasit, initialLimit):
         """Makes the list size limited or not size limited"""
-        logging.info("TracksActionList->setHasDoubleExpander")
+        logging.info("WidgetActionList->setHasDoubleExpander")
         self.hasDoubleExpander = hasit
         self.doubleExpandLimit = initialLimit
         buttonIcon = None
@@ -261,7 +261,7 @@ class TracksActionList(QtGui.QWidget):
     
     def doubleExpandButtonClick(self):
         """Makes the list size limited or not size limited"""
-        logging.info("TracksActionList->doubleExpandButtonClick")
+        logging.info("WidgetActionList->doubleExpandButtonClick")
         self.doubleExpand = not self.doubleExpand
         
         # change the button icon
@@ -283,7 +283,7 @@ class TracksActionList(QtGui.QWidget):
     # action id, action description, state, context_id, context_name, project_id, project_name
     def fillList(self):
         """Fill the list widget"""
-        logging.info("TracksActionList->fillList")
+        logging.info("WidgetActionList->fillList")
         #clear list widget
         self.notesIDDictEditor.clear()
         self.notesIDDictItem.clear()
@@ -583,9 +583,9 @@ class TracksActionList(QtGui.QWidget):
         #self.listWidget.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
             
     def deleteItemButtonClicked(self, id):
-        logging.info("TracksActionList->deleteItemButtonClicked  -  " + str(id))
+        logging.info("WidgetActionList->deleteItemButtonClicked  -  " + str(id))
         reallydelete = QtGui.QMessageBox.question(self, "tracks queue: Really Delete", "Are you sure you want to delete this action?" +str(id), QtGui.QMessageBox.Yes, QtGui.QMessageBox.No)
-        logging.debug("TracksActionList->deleteItemButtonClicked, reallydelete=" + str(reallydelete==QtGui.QMessageBox.Yes))
+        logging.debug("WidgetActionList->deleteItemButtonClicked, reallydelete=" + str(reallydelete==QtGui.QMessageBox.Yes))
         
         if reallydelete==QtGui.QMessageBox.Yes:
             # Remove the action
@@ -601,12 +601,12 @@ class TracksActionList(QtGui.QWidget):
             self.emit(QtCore.SIGNAL("actionModified()"))
         
     def editItemButtonClicked(self, id):
-        logging.info("TracksActionList->editItemButtonClicked  -  " + str(id))
+        logging.info("WidgetActionList->editItemButtonClicked  -  " + str(id))
         self.emit(QtCore.SIGNAL("editAction(int)"),id)
 
         
     def starItemButtonClicked(self, id):
-        logging.info("TracksActionList->starItemButtonClicked  -  " + str(id))
+        logging.info("WidgetActionList->starItemButtonClicked  -  " + str(id))
         
         query = "select todos.description, tags.name from todos, tags, taggings where todos.id=taggings.taggable_id and tags.id = taggings.tag_id and tags.name='starred' and todos.id=?"
         data = self.databaseCon.execute(query, [id,]).fetchall()
@@ -631,7 +631,7 @@ class TracksActionList(QtGui.QWidget):
         self.emit(QtCore.SIGNAL("actionModified()"))
         
     def completeItemButtonClicked(self, id):
-        logging.info("TracksActionList->completeItemButtonClicked - " + str(id))
+        logging.info("WidgetActionList->completeItemButtonClicked - " + str(id))
         
         current_state = self.databaseCon.execute("SELECT state FROM todos where id = ?", [id,]).fetchone()[0]
         if current_state == "completed":
@@ -647,18 +647,18 @@ class TracksActionList(QtGui.QWidget):
         self.emit(QtCore.SIGNAL("actionModified()"))
         
     def labelItemButtonClicked(self, id):
-        logging.info("TracksActionList->labelItemButtonClicked  -  " +str(id))
+        logging.info("WidgetActionList->labelItemButtonClicked  -  " +str(id))
         
     def projectItemButtonClicked(self, id):
-        logging.info("TracksActionList->projectItemButtonClicked  -  " +str(id))
+        logging.info("WidgetActionList->projectItemButtonClicked  -  " +str(id))
         self.emit(QtCore.SIGNAL("gotoProject(int)"), id)
         
     def contextItemButtonClicked(self, id):
-        logging.info("TracksActionList->contextItemButtonClicked  -  " +str(id))
+        logging.info("WidgetActionList->contextItemButtonClicked  -  " +str(id))
         self.emit(QtCore.SIGNAL("gotoContext(int)"), id)
     
     def notesItemButtonClicked(self, id):
-        logging.info("TracksActionList->notesItemButtonClicked")
+        logging.info("WidgetActionList->notesItemButtonClicked")
         
         self.setUpdatesEnabled(False)
         
@@ -692,7 +692,7 @@ class TracksActionList(QtGui.QWidget):
         self.setUpdatesEnabled(True)
 
     def notesTextEditChanged(self,id):
-        logging.info("TracksActionList->notesTextEditChanged - " + str(id))
+        logging.info("WidgetActionList->notesTextEditChanged - " + str(id))
         self.setUpdatesEnabled(False)
         
         listitem = self.notesIDDictItem[id]
@@ -723,7 +723,7 @@ class TracksActionList(QtGui.QWidget):
         self.commitTimer.start()
         
     def toggleAllNotes(self):
-        logging.info("TracksActionList->toggleAllNotes")
+        logging.info("WidgetActionList->toggleAllNotes")
         self.setUpdatesEnabled(False)
         allVisible = True
         for id in self.notesIDDictItem.keys():
@@ -735,22 +735,22 @@ class TracksActionList(QtGui.QWidget):
         self.setUpdatesEnabled(True)
         
     def commitTimeout(self):
-        logging.info("TracksActionList->commitTimeout")
+        logging.info("WidgetActionList->commitTimeout")
         self.databaseCon.commit()
             
         
     def refresh(self):
-        logging.info("TracksActionList->refresh")
+        logging.info("WidgetActionList->refresh")
         self.listWidget.clear()
         self.fillList()
         
     def setDBQuery(self, dbQuery):
-        logging.info("TracksActionList->setDBQuery")
+        logging.info("WidgetActionList->setDBQuery")
         self.dbQuery = dbQuery
         self.refresh()
         
     def setExpanded(self, expanded):
-        logging.info("TracksActionList->setExpanded")
+        logging.info("WidgetActionList->setExpanded")
         
         buttonIcon = None
         if QtGui.QIcon.hasThemeIcon("go-up"):
@@ -776,29 +776,29 @@ class TracksActionList(QtGui.QWidget):
         self.doubleExpandButton.setVisible(expanded and self.hasDoubleExpander)
         
     def setFocusMode(self, focusmode):
-        logging.info("TracksActionList->setFocusMode")
+        logging.info("WidgetActionList->setFocusMode")
         self.focusMode = focusmode
     
     def hideAction(self):
-        logging.info("TracksActionList->hideAction")
+        logging.info("WidgetActionList->hideAction")
         self.toggleListButtonClick()
     def doneAction(self):
-        logging.info("TracksActionList->doneAction")
+        logging.info("WidgetActionList->doneAction")
         row = self.listWidget.currentRow()
         id = self.listItemActionID[row]
         self.completeItemButtonClicked(id)
     def starAction(self):
-        logging.info("TracksActionList->starAction")
+        logging.info("WidgetActionList->starAction")
         row = self.listWidget.currentRow()
         id = self.listItemActionID[row]
         self.starItemButtonClicked(id)
     def editKeyAction(self):
-        logging.info("TracksActionList->editKeyAction")
+        logging.info("WidgetActionList->editKeyAction")
         row = self.listWidget.currentRow()
         id = self.listItemActionID[row]
         self.editItemButtonClicked(id)
     def deleteKeyAction(self):
-        logging.info("TracksActionList->deleteKeyAction")
+        logging.info("WidgetActionList->deleteKeyAction")
         row = self.listWidget.currentRow()
         id = self.listItemActionID[row]
         self.deleteItemButtonClicked(id)
