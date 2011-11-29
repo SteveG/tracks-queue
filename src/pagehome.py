@@ -146,7 +146,7 @@ class PageHome(QtGui.QWidget):
             else:
                 self.homeContexts[key].refresh()
         
-        self.actionEditor.setCurrentUser(2)
+        self.actionEditor.setCurrentUser(self.current_user_id)
         
     def setFormVisible(self, visible):
         logging.info("PageHome->setFormVisible(self, visible)")
