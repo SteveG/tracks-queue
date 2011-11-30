@@ -149,8 +149,13 @@ class MainWindow(QtGui.QMainWindow, Ui_MainWindow):
             self.pagehome.refresh(self.current_user_id)
         else:
             self.current_user_id = False
+#            self.pageadmin.refresh()
+#            self.pages.setCurrentIndex(9)
+            self.pageadmin = PageAdmin(self, self.databaseCon)
+            self.pageadmin.userChanged.connect(self.slotUserChanged)
             self.pageadmin.refresh()
-            self.pages.setCurrentIndex(9)
+            self.pageadminindex = self.pages.addWidget(self.pageadmin)
+            self.pages.setCurrentIndex(self.pageadminindex)
         
         # Action Icons
         self.actionHome.setIcon(QtGui.QIcon(sys.path[0] + "/icons/home.png"))
