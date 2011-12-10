@@ -718,7 +718,7 @@ class WidgetActionList(QtGui.QWidget):
         
         #Save the text
         notes = str(editor.toPlainText())
-        self.databaseCon.execute("UPDATE todos SET notes=? WHERE id=?", (notes, id))
+        self.databaseCon.execute("UPDATE todos SET notes=?, updated_at=DATETIME('now') WHERE id=?", (notes, id))
         # Start the commit timer
         self.commitTimer.start()
         

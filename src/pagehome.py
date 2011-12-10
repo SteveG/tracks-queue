@@ -80,6 +80,7 @@ class PageHome(QtGui.QWidget):
         completedList = WidgetActionList(self.databaseCon, "Recently Completed Actions", sqlCompleted,False)
         completedList.setDisplayProjectFirst(True)
         completedList.setDisplayCompletedAt(True)
+        completedList.editAction.connect(self.actionEditor.setCurrentActionID)   
         completedList.actionModified.connect(self.refresh)
         completedList.gotoProject.connect(self.slotGotoProject)
         completedList.gotoContext.connect(self.slotGotoContext)
@@ -94,6 +95,14 @@ class PageHome(QtGui.QWidget):
         
         if userId:
             self.current_user_id = userId
+        
+        # which focus mode are we in, individually controlled, or single focus
+        singlefocus = False
+        #if self.settings.contains("homepage/singlefocus"):
+        #    singlefocus = int(self.settings.value("homepage/singlefocus").toString())    
+        # focus signal mapper
+        self.focusListMapper = QtCore.QSignalMapper(self)
+        self.focusListMapper.mapped[str].connect(self.slotFocusList)
         
         # If there are new contexts that we don't already have, add them
         activeContextQuery = "SELECT DISTINCT contexts.id, contexts.name FROM (todos LEFT JOIN contexts ON \
@@ -129,6 +138,16 @@ class PageHome(QtGui.QWidget):
                 self.homeContexts[row[0]]=tracksAList
                 self.verticalLayout.insertWidget(len(fetchedContexts)-1,tracksAList)
                 
+                # focus mapping
+                tracksAList.setFocusMode(singlefocus)
+                self.focusListMapper.setMapping(tracksAList, str(row[0]))
+                tracksAList.getFocus.connect(self.focusListMapper.map)
+                
+        # focus mapping of completed list
+        self.homeContexts["completed"].setFocusMode(singlefocus)
+        self.focusListMapper.setMapping(self.homeContexts["completed"], str("completed"))
+        self.homeContexts["completed"].getFocus.connect(self.focusListMapper.map)
+                
         completed = self.homeContexts["completed"]
         sqlCompleted = "SELECT todos.id, todos.description, todos.state, contexts.id, contexts.name, \
                        projects.id, projects.name FROM (todos LEFT JOIN contexts ON \
@@ -160,6 +179,25 @@ class PageHome(QtGui.QWidget):
     def slotGotoContext(self, id):
         logging.info("PageHome->slotGotoContext(self, id)")
         self.emit(QtCore.SIGNAL("gotoContext(int)"), id)
+        
+    def slotFocusList(self, focuskey):
+        logging.info("PageHome->slotFocusList(self, id)")
+        
+        # Prevent flickering as things change
+        self.setUpdatesEnabled(False)
+        
+        # shrink all lists but the expanded list
+        for key in self.homeContexts.keys():
+            if str(key) != focuskey:
+                self.homeContexts[key].setExpanded(False)
+                
+        # this is done after to prevent flicker
+        for key in self.homeContexts.keys():
+            if str(key) == focuskey:
+                self.homeContexts[key].setExpanded(True)
+                
+        # Re-enable screen updates
+        self.setUpdatesEnabled(True)
     
     def moveExclusiveExpandUp(self):
         logging.info("tracks->moveExclusiveExpandUp")
