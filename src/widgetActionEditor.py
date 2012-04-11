@@ -594,6 +594,7 @@ class WidgetActionEditor(QtGui.QGroupBox):
         
     def setCurrentUser(self, user):
         self.current_user_id = user
+        self.refresh()
 
         
         
